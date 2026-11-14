@@ -123,3 +123,9 @@
   - Sandboxing on Windows marked `PARTIAL` (Windows Sandbox unavailable on Home editions).
   - Zero support claimed for uncertified architectures (Intel macOS, Windows 10/32-bit, non-systemd Linux).
 - **Status:** Awaiting human review before advancing tracker to Day 005.
+
+## Day 004 - Human reviewed complete
+
+- Reviewed summary: Supported platform and hardware matrix (macOS Apple Silicon, Windows 11 x64, Ubuntu LTS, NixOS VM) and compatibility validator implemented with 40 passed tests
+- Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (40 passed)
+- Review timestamp: 2026-11-14T22:32:23+05:30
