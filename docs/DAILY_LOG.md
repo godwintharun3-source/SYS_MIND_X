@@ -212,3 +212,27 @@
 - Reviewed summary: STRIDE-aligned threat model, 6-zone trust boundary architecture (strict adjacency & external zero-trust execution), and boundary enforcer implemented with 63 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (63 passed)
 - Review timestamp: 2026-11-14T22:59:08+05:30
+
+## Day 008 — 2026-11-14 (Awaiting Human Review)
+- **Objective:** Classify system operations by impact, privilege and reversibility. Establish a research-backed, bounded product scope before implementation. Deliver requirements and evidence, not speculative code.
+- **Phase:** Research framing and product scope (Days 001-010)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_008_OPERATION_CLASSIFICATION_AND_REVERSIBILITY.md`: Detailed engineering design note establishing the 3D operational classification matrix (Impact, Privilege Level, Reversibility), autonomous maintenance boundaries, reversibility invariants, and operation catalog schema.
+  - `src/system_mind/operations/__init__.py`: Operations package initialization exporting domain enums, models, registry, and classifier.
+  - `src/system_mind/operations/classification.py`: Core implementation of `PrivilegeLevel`, `RollbackStrategy`, `SystemOperationDefinition`, `OperationClassificationResult`, `OperationCatalogRegistry`, and `OperationClassifier`.
+  - `tests/test_operation_classification.py`: Test suite verifying catalog representation across all risk tiers, privilege levels, and reversibility states; autonomous maintenance boundary constraints; query filtering; and classifier validation.
+  - `docs/DECISION_LOG.md`: Added ADR-015 (Operation Classification Taxonomy, Privilege Levels, and Reversibility).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 008 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 8.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 8`: Transitioned Day 008 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran 71 unit/contract/integration tests across all modules; 71 passed in 0.10s (exit code 0).
+  - `python3 -m py_compile src/system_mind/operations/__init__.py src/system_mind/operations/classification.py tests/test_operation_classification.py`: Compiled all modules with exit code 0.
+- **Security & Platform Limitations:**
+  - The AI Control Plane is never granted elevated root or raw shell rights.
+  - Operations requiring `ELEVATED_BROKER_REQUIRED` are routed via the narrow broker daemon using typed contracts.
+  - Autonomous maintenance can never touch `USER_MANAGED` components or execute operations exceeding `MEDIUM_IMPACT`.
+  - `CRITICAL_PRIVILEGED` operations strictly require user explicit or dual-person / break-glass authorizations.
+  - Development host remains completely protected; zero privileged commands executed on macOS host.
+- **Status:** Awaiting human review before advancing tracker to Day 009.
