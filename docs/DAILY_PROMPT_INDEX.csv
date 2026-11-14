@@ -1,0 +1,366 @@
+day,phase,prompt_file,objective
+1,Research framing and product scope,daily-prompts/DAY-001.md,Create the project charter and define the SYSTEM MIND product thesis
+2,Research framing and product scope,daily-prompts/DAY-002.md,"Map target users: personal, developer and enterprise personas"
+3,Research framing and product scope,daily-prompts/DAY-003.md,Write primary user journeys and measurable user outcomes
+4,Research framing and product scope,daily-prompts/DAY-004.md,Define the supported first-release platform and hardware matrix
+5,Research framing and product scope,daily-prompts/DAY-005.md,Research current AI-native OS and computer-agent prior art
+6,Research framing and product scope,daily-prompts/DAY-006.md,Build the research-gap and competitor comparison matrix
+7,Research framing and product scope,daily-prompts/DAY-007.md,Define the threat model and trust boundaries
+8,Research framing and product scope,daily-prompts/DAY-008.md,"Classify system operations by impact, privilege and reversibility"
+9,Research framing and product scope,daily-prompts/DAY-009.md,Define product non-goals and explicit safety constraints
+10,Research framing and product scope,daily-prompts/DAY-010.md,Approve the research questions and first-release acceptance gates
+11,Requirements and architecture specification,daily-prompts/DAY-011.md,Write functional requirements for all fourteen intelligence engines
+12,Requirements and architecture specification,daily-prompts/DAY-012.md,"Write non-functional requirements for reliability, privacy and performance"
+13,Requirements and architecture specification,daily-prompts/DAY-013.md,Define the seven-layer system architecture and component boundaries
+14,Requirements and architecture specification,daily-prompts/DAY-014.md,Create architecture decision records for the AI and native system split
+15,Requirements and architecture specification,daily-prompts/DAY-015.md,"Define macOS, Windows and Linux capability parity levels"
+16,Requirements and architecture specification,daily-prompts/DAY-016.md,Design the digital-twin entity and relationship model
+17,Requirements and architecture specification,daily-prompts/DAY-017.md,"Design temporal observations, provenance and freshness metadata"
+18,Requirements and architecture specification,daily-prompts/DAY-018.md,Design the application ownership and user-app exclusion model
+19,Requirements and architecture specification,daily-prompts/DAY-019.md,Design the system-update ownership taxonomy
+20,Requirements and architecture specification,daily-prompts/DAY-020.md,Define file trust states and supported file-handler policy
+21,Requirements and architecture specification,daily-prompts/DAY-021.md,Define typed action contracts and precondition/postcondition rules
+22,Requirements and architecture specification,daily-prompts/DAY-022.md,"Define identity, role, approval and policy precedence model"
+23,Requirements and architecture specification,daily-prompts/DAY-023.md,Define audit-event schemas and data-retention rules
+24,Requirements and architecture specification,daily-prompts/DAY-024.md,"Define API conventions, error model and versioning strategy"
+25,Requirements and architecture specification,daily-prompts/DAY-025.md,Review and freeze the v1.0 architecture baseline
+26,Repository and development foundation,daily-prompts/DAY-026.md,Create the monorepo with documented top-level boundaries
+27,Repository and development foundation,daily-prompts/DAY-027.md,Create the Python backend package and dependency configuration
+28,Repository and development foundation,daily-prompts/DAY-028.md,Create the Rust system-agent workspace and crate boundaries
+29,Repository and development foundation,daily-prompts/DAY-029.md,Create the React and TypeScript desktop frontend scaffold
+30,Repository and development foundation,daily-prompts/DAY-030.md,Create the Tauri desktop shell with a minimal safe window
+31,Repository and development foundation,daily-prompts/DAY-031.md,Create shared schemas and generated API type strategy
+32,Repository and development foundation,daily-prompts/DAY-032.md,"Configure formatting, linting and static analysis for each language"
+33,Repository and development foundation,daily-prompts/DAY-033.md,"Configure unit, integration and end-to-end test frameworks"
+34,Repository and development foundation,daily-prompts/DAY-034.md,Add environment configuration and secret-handling conventions
+35,Repository and development foundation,daily-prompts/DAY-035.md,Create structured logging with sensitive-data redaction
+36,Repository and development foundation,daily-prompts/DAY-036.md,Create database migration infrastructure for SQLite
+37,Repository and development foundation,daily-prompts/DAY-037.md,Create local development scripts and reproducible setup instructions
+38,Repository and development foundation,daily-prompts/DAY-038.md,"Create CI checks for formatting, linting, tests and dependency review"
+39,Repository and development foundation,daily-prompts/DAY-039.md,Create a safe mock-platform adapter for development
+40,Repository and development foundation,daily-prompts/DAY-040.md,Run the first clean-clone bootstrap and record setup results
+41,macOS system agent and telemetry,daily-prompts/DAY-041.md,"Detect macOS version, build, architecture and host identity"
+42,macOS system agent and telemetry,daily-prompts/DAY-042.md,"Collect CPU model, core count and supported hardware properties"
+43,macOS system agent and telemetry,daily-prompts/DAY-043.md,"Collect memory capacity, pressure indicators and usage safely"
+44,macOS system agent and telemetry,daily-prompts/DAY-044.md,"Collect storage volumes, capacity and filesystem metadata"
+45,macOS system agent and telemetry,daily-prompts/DAY-045.md,Collect battery state and health information where exposed
+46,macOS system agent and telemetry,daily-prompts/DAY-046.md,Collect network interface and connectivity metadata
+47,macOS system agent and telemetry,daily-prompts/DAY-047.md,Collect GPU and display inventory using supported APIs
+48,macOS system agent and telemetry,daily-prompts/DAY-048.md,Collect USB and peripheral inventory with privacy constraints
+49,macOS system agent and telemetry,daily-prompts/DAY-049.md,"Build a process inventory with PID, owner and resource usage"
+50,macOS system agent and telemetry,daily-prompts/DAY-050.md,Collect launchd service and login-item inventory read-only
+51,macOS system agent and telemetry,daily-prompts/DAY-051.md,Collect installed application inventory and bundle identifiers
+52,macOS system agent and telemetry,daily-prompts/DAY-052.md,Inspect application signatures and notarization metadata where available
+53,macOS system agent and telemetry,daily-prompts/DAY-053.md,Implement FSEvents-based filesystem change notifications
+54,macOS system agent and telemetry,daily-prompts/DAY-054.md,Prototype Endpoint Security integration feasibility and entitlement limits
+55,macOS system agent and telemetry,daily-prompts/DAY-055.md,Build the Swift-to-Rust or Swift-to-Python bridge boundary
+56,macOS system agent and telemetry,daily-prompts/DAY-056.md,Create a least-privilege macOS user agent service
+57,macOS system agent and telemetry,daily-prompts/DAY-057.md,"Implement collector health, timeout and partial-data reporting"
+58,macOS system agent and telemetry,daily-prompts/DAY-058.md,Add source timestamps and confidence to every collected observation
+59,macOS system agent and telemetry,daily-prompts/DAY-059.md,"Add privacy filters for paths, usernames and document metadata"
+60,macOS system agent and telemetry,daily-prompts/DAY-060.md,Create a read-only macOS inventory API
+61,macOS system agent and telemetry,daily-prompts/DAY-061.md,Add unit tests for each hardware and OS collector
+62,macOS system agent and telemetry,daily-prompts/DAY-062.md,Add integration tests with missing sensors and denied permissions
+63,macOS system agent and telemetry,daily-prompts/DAY-063.md,Test collector stability under sustained event volume
+64,macOS system agent and telemetry,daily-prompts/DAY-064.md,Document macOS permission prompts and required entitlements
+65,macOS system agent and telemetry,daily-prompts/DAY-065.md,Release the first read-only macOS system-agent milestone
+66,Temporal digital twin and event history,daily-prompts/DAY-066.md,Implement stable device and entity identifiers
+67,Temporal digital twin and event history,daily-prompts/DAY-067.md,"Create database models for hardware, OS and application entities"
+68,Temporal digital twin and event history,daily-prompts/DAY-068.md,Create graph-node and graph-edge persistence models
+69,Temporal digital twin and event history,daily-prompts/DAY-069.md,Implement timestamped system observation records
+70,Temporal digital twin and event history,daily-prompts/DAY-070.md,Implement append-only system event storage
+71,Temporal digital twin and event history,daily-prompts/DAY-071.md,Build entity relationship ingestion from collectors
+72,Temporal digital twin and event history,daily-prompts/DAY-072.md,Add temporal validity and stale-observation markers
+73,Temporal digital twin and event history,daily-prompts/DAY-073.md,Implement state snapshots and snapshot comparison
+74,Temporal digital twin and event history,daily-prompts/DAY-074.md,Implement change detection between consecutive observations
+75,Temporal digital twin and event history,daily-prompts/DAY-075.md,Build system-state reconciliation after collector gaps
+76,Temporal digital twin and event history,daily-prompts/DAY-076.md,Track application installation and removal events where observable
+77,Temporal digital twin and event history,daily-prompts/DAY-077.md,Track process start and exit events
+78,Temporal digital twin and event history,daily-prompts/DAY-078.md,Track file creation and modification events from monitored roots
+79,Temporal digital twin and event history,daily-prompts/DAY-079.md,Implement provenance metadata for every digital-twin fact
+80,Temporal digital twin and event history,daily-prompts/DAY-080.md,Add confidence and source-quality scoring for observations
+81,Temporal digital twin and event history,daily-prompts/DAY-081.md,Build queries for current hardware and OS state
+82,Temporal digital twin and event history,daily-prompts/DAY-082.md,Build queries for application-to-process relationships
+83,Temporal digital twin and event history,daily-prompts/DAY-083.md,Build queries for file-to-application relationships
+84,Temporal digital twin and event history,daily-prompts/DAY-084.md,Build historical timeline API and filters
+85,Temporal digital twin and event history,daily-prompts/DAY-085.md,"Add database retention, compaction and backup policies"
+86,Temporal digital twin and event history,daily-prompts/DAY-086.md,Test out-of-order and duplicate events
+87,Temporal digital twin and event history,daily-prompts/DAY-087.md,Test missing events and reconciliation behaviour
+88,Temporal digital twin and event history,daily-prompts/DAY-088.md,Benchmark state-query and event-ingestion performance
+89,Temporal digital twin and event history,daily-prompts/DAY-089.md,Create a digital-twin consistency report
+90,Temporal digital twin and event history,daily-prompts/DAY-090.md,Release the persistent macOS digital-twin milestone
+91,Application context intelligence,daily-prompts/DAY-091.md,Define the application profile schema and ownership categories
+92,Application context intelligence,daily-prompts/DAY-092.md,Inventory installed GUI applications and application identifiers
+93,Application context intelligence,daily-prompts/DAY-093.md,Inventory command-line tools and package-manager provenance
+94,Application context intelligence,daily-prompts/DAY-094.md,"Extract publisher, signing and notarization evidence where available"
+95,Application context intelligence,daily-prompts/DAY-095.md,Track application versions and update ownership
+96,Application context intelligence,daily-prompts/DAY-096.md,Map application bundles to installed files and support directories
+97,Application context intelligence,daily-prompts/DAY-097.md,Associate running processes with known application profiles
+98,Application context intelligence,daily-prompts/DAY-098.md,Map applications to declared and observed dependencies
+99,Application context intelligence,daily-prompts/DAY-099.md,Collect resource-use baselines for selected applications
+100,Application context intelligence,daily-prompts/DAY-100.md,Record permission and entitlement information where accessible
+101,Application context intelligence,daily-prompts/DAY-101.md,Create application purpose classification with evidence labels
+102,Application context intelligence,daily-prompts/DAY-102.md,Add user-approved application tags and workflow context
+103,Application context intelligence,daily-prompts/DAY-103.md,Create application behaviour baseline records
+104,Application context intelligence,daily-prompts/DAY-104.md,Detect deviations from baseline without automatically blocking benign changes
+105,Application context intelligence,daily-prompts/DAY-105.md,Build an application profile detail API
+106,Application context intelligence,daily-prompts/DAY-106.md,Build application inventory and profile UI
+107,Application context intelligence,daily-prompts/DAY-107.md,Add privacy controls for usage metadata collection
+108,Application context intelligence,daily-prompts/DAY-108.md,"Test renamed, unsigned and partially installed applications"
+109,Application context intelligence,daily-prompts/DAY-109.md,Test application ownership classification and user-app exclusions
+110,Application context intelligence,daily-prompts/DAY-110.md,Release the first application context intelligence milestone
+111,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-111.md,Define knowledge-source trust levels and ingestion policy
+112,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-112.md,Build documentation ingestion with source and version metadata
+113,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-113.md,Create OS documentation connector interfaces
+114,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-114.md,Create hardware and vendor documentation source registry
+115,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-115.md,Create software and developer documentation source registry
+116,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-116.md,Implement text chunking and metadata-preserving indexing
+117,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-117.md,Implement local document retrieval baseline
+118,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-118.md,Implement vector retrieval and embedding adapter interface
+119,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-119.md,Implement hybrid lexical and semantic search
+120,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-120.md,Add source freshness and version compatibility checks
+121,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-121.md,Add citation and evidence references to retrieved knowledge
+122,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-122.md,Protect retrieval against instruction injection in untrusted content
+123,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-123.md,Create model-provider abstraction for local and cloud models
+124,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-124.md,Create task intent classification and structured output schemas
+125,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-125.md,Build a planner that emits typed actions rather than shell strings
+126,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-126.md,Add plan decomposition and dependency ordering
+127,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-127.md,Add uncertainty reporting and clarification requirements
+128,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-128.md,Add knowledge-grounded answer evaluation tests
+129,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-129.md,Add planner tests for ambiguous and conflicting instructions
+130,"Knowledge, retrieval and cognitive planning",daily-prompts/DAY-130.md,Release read-only AI knowledge and planning milestone
+131,Universal capability registry and adapter contract,daily-prompts/DAY-131.md,Define a platform-neutral capability descriptor schema
+132,Universal capability registry and adapter contract,daily-prompts/DAY-132.md,"Define capability availability, privilege and reversibility metadata"
+133,Universal capability registry and adapter contract,daily-prompts/DAY-133.md,Define adapter interfaces for inventory operations
+134,Universal capability registry and adapter contract,daily-prompts/DAY-134.md,Define adapter interfaces for process and service operations
+135,Universal capability registry and adapter contract,daily-prompts/DAY-135.md,Define adapter interfaces for filesystem events and metadata
+136,Universal capability registry and adapter contract,daily-prompts/DAY-136.md,Define adapter interfaces for application management
+137,Universal capability registry and adapter contract,daily-prompts/DAY-137.md,Define adapter interfaces for system update discovery
+138,Universal capability registry and adapter contract,daily-prompts/DAY-138.md,Define adapter interfaces for policy enforcement
+139,Universal capability registry and adapter contract,daily-prompts/DAY-139.md,Define adapter interfaces for verification and recovery
+140,Universal capability registry and adapter contract,daily-prompts/DAY-140.md,Implement capability discovery for macOS read-only operations
+141,Universal capability registry and adapter contract,daily-prompts/DAY-141.md,Implement unsupported-capability reporting and graceful degradation
+142,Universal capability registry and adapter contract,daily-prompts/DAY-142.md,Build adapter contract tests and conformance fixtures
+143,Universal capability registry and adapter contract,daily-prompts/DAY-143.md,Build platform capability matrix endpoint
+144,Universal capability registry and adapter contract,daily-prompts/DAY-144.md,Add adapter version and OS-version compatibility metadata
+145,Universal capability registry and adapter contract,daily-prompts/DAY-145.md,Add capability permission preflight checks
+146,Universal capability registry and adapter contract,daily-prompts/DAY-146.md,Add structured native error translation
+147,Universal capability registry and adapter contract,daily-prompts/DAY-147.md,Implement fake adapters for deterministic tests
+148,Universal capability registry and adapter contract,daily-prompts/DAY-148.md,Document capability parity levels across platforms
+149,Universal capability registry and adapter contract,daily-prompts/DAY-149.md,Run the first adapter conformance suite
+150,Universal capability registry and adapter contract,daily-prompts/DAY-150.md,Release the universal capability registry milestone
+151,Adaptive governance and policy engine,daily-prompts/DAY-151.md,"Define policy schema, subjects, objects, actions and conditions"
+152,Adaptive governance and policy engine,daily-prompts/DAY-152.md,Define policy precedence and immutable deny rules
+153,Adaptive governance and policy engine,daily-prompts/DAY-153.md,"Define user, administrator, system and enterprise policy scopes"
+154,Adaptive governance and policy engine,daily-prompts/DAY-154.md,Implement deterministic policy evaluation independent of the LLM
+155,Adaptive governance and policy engine,daily-prompts/DAY-155.md,Implement policy versioning and signatures
+156,Adaptive governance and policy engine,daily-prompts/DAY-156.md,Implement policy proposal generation from application profiles
+157,Adaptive governance and policy engine,daily-prompts/DAY-157.md,Implement policy validation and unsupported-control detection
+158,Adaptive governance and policy engine,daily-prompts/DAY-158.md,Implement policy conflict detection and explanation
+159,Adaptive governance and policy engine,daily-prompts/DAY-159.md,Implement policy simulation in audit-only mode
+160,Adaptive governance and policy engine,daily-prompts/DAY-160.md,Create file-access policy templates
+161,Adaptive governance and policy engine,daily-prompts/DAY-161.md,Create application execution policy templates
+162,Adaptive governance and policy engine,daily-prompts/DAY-162.md,Create network-access policy templates
+163,Adaptive governance and policy engine,daily-prompts/DAY-163.md,Create hardware and device-access policy templates
+164,Adaptive governance and policy engine,daily-prompts/DAY-164.md,Create resource-control policy templates where the OS supports them
+165,Adaptive governance and policy engine,daily-prompts/DAY-165.md,Implement macOS policy adapter feasibility and supported controls
+166,Adaptive governance and policy engine,daily-prompts/DAY-166.md,Implement Linux policy adapter design for Landlock and available MAC systems
+167,Adaptive governance and policy engine,daily-prompts/DAY-167.md,Implement Windows policy adapter design for supported application-control APIs
+168,Adaptive governance and policy engine,daily-prompts/DAY-168.md,Implement user approval workflow and policy change preview
+169,Adaptive governance and policy engine,daily-prompts/DAY-169.md,Implement policy rollback and previous-version restoration
+170,Adaptive governance and policy engine,daily-prompts/DAY-170.md,Add policy audit events and immutable change history
+171,Adaptive governance and policy engine,daily-prompts/DAY-171.md,"Test policy precedence, denial and conflict cases"
+172,Adaptive governance and policy engine,daily-prompts/DAY-172.md,Test policy simulation against representative application workflows
+173,Adaptive governance and policy engine,daily-prompts/DAY-173.md,Add policy regression tests and policy-diff viewer
+174,Adaptive governance and policy engine,daily-prompts/DAY-174.md,Perform governance threat-model review
+175,Adaptive governance and policy engine,daily-prompts/DAY-175.md,Release the adaptive governance milestone in audit-only mode
+176,Risk-adaptive verified execution and broker,daily-prompts/DAY-176.md,Define the RAVE risk model and normalised input features
+177,Risk-adaptive verified execution and broker,daily-prompts/DAY-177.md,Define hard policy gates that override model risk scores
+178,Risk-adaptive verified execution and broker,daily-prompts/DAY-178.md,Define action preconditions and postconditions
+179,Risk-adaptive verified execution and broker,daily-prompts/DAY-179.md,Create signed or integrity-protected action-plan records
+180,Risk-adaptive verified execution and broker,daily-prompts/DAY-180.md,Implement deterministic action validation
+181,Risk-adaptive verified execution and broker,daily-prompts/DAY-181.md,Implement user approval tokens bound to exact action parameters
+182,Risk-adaptive verified execution and broker,daily-prompts/DAY-182.md,Create a narrow privileged broker process boundary
+183,Risk-adaptive verified execution and broker,daily-prompts/DAY-183.md,Define authenticated local IPC between agent and broker
+184,Risk-adaptive verified execution and broker,daily-prompts/DAY-184.md,Implement allowlisted read-only broker operations
+185,Risk-adaptive verified execution and broker,daily-prompts/DAY-185.md,Implement operation timeouts and cancellation
+186,Risk-adaptive verified execution and broker,daily-prompts/DAY-186.md,Implement idempotency keys and duplicate-request protection
+187,Risk-adaptive verified execution and broker,daily-prompts/DAY-187.md,Implement an append-only transaction journal
+188,Risk-adaptive verified execution and broker,daily-prompts/DAY-188.md,Implement independent postcondition verification
+189,Risk-adaptive verified execution and broker,daily-prompts/DAY-189.md,Implement mismatch detection between expected and actual state
+190,Risk-adaptive verified execution and broker,daily-prompts/DAY-190.md,Implement compensating actions for reversible changes
+191,Risk-adaptive verified execution and broker,daily-prompts/DAY-191.md,Implement recovery-point checks before supported risky operations
+192,Risk-adaptive verified execution and broker,daily-prompts/DAY-192.md,Implement emergency stop and broker disable control
+193,Risk-adaptive verified execution and broker,daily-prompts/DAY-193.md,Add privilege-separation and broker authentication tests
+194,Risk-adaptive verified execution and broker,daily-prompts/DAY-194.md,Add action-injection and parameter-tampering tests
+195,Risk-adaptive verified execution and broker,daily-prompts/DAY-195.md,Add failure-injection tests for interrupted operations
+196,Risk-adaptive verified execution and broker,daily-prompts/DAY-196.md,Add execution evidence and audit report generation
+197,Risk-adaptive verified execution and broker,daily-prompts/DAY-197.md,Test approval expiration and stale-state rejection
+198,Risk-adaptive verified execution and broker,daily-prompts/DAY-198.md,Test concurrent actions and race conditions
+199,Risk-adaptive verified execution and broker,daily-prompts/DAY-199.md,Release RAVE in read-only and simulated-action mode
+200,Universal file intelligence and provenance,daily-prompts/DAY-200.md,Define universal file identity and provenance schema
+201,Universal file intelligence and provenance,daily-prompts/DAY-201.md,Implement file-type detection using content signatures rather than extensions alone
+202,Universal file intelligence and provenance,daily-prompts/DAY-202.md,Implement cryptographic hashing and stable file identity records
+203,Universal file intelligence and provenance,daily-prompts/DAY-203.md,Implement file metadata extraction with privacy limits
+204,Universal file intelligence and provenance,daily-prompts/DAY-204.md,Implement monitored-root configuration and exclusions
+205,Universal file intelligence and provenance,daily-prompts/DAY-205.md,Implement macOS filesystem event ingestion
+206,Universal file intelligence and provenance,daily-prompts/DAY-206.md,"Implement file creation, copy, rename and modification tracking"
+207,Universal file intelligence and provenance,daily-prompts/DAY-207.md,Implement archive inspection with recursion and size limits
+208,Universal file intelligence and provenance,daily-prompts/DAY-208.md,Implement document active-content and embedded-object inspection adapters
+209,Universal file intelligence and provenance,daily-prompts/DAY-209.md,Implement script and source-code static analysis adapters
+210,Universal file intelligence and provenance,daily-prompts/DAY-210.md,Implement executable and library metadata inspection
+211,Universal file intelligence and provenance,daily-prompts/DAY-211.md,Implement publisher signature and certificate-chain validation adapters
+212,Universal file intelligence and provenance,daily-prompts/DAY-212.md,Integrate local malware scanning adapter interface
+213,Universal file intelligence and provenance,daily-prompts/DAY-213.md,Integrate YARA rule scanning in a controlled local mode
+214,Universal file intelligence and provenance,daily-prompts/DAY-214.md,Integrate vulnerability and reputation lookup with privacy safeguards
+215,Universal file intelligence and provenance,daily-prompts/DAY-215.md,Create file trust states and evidence-based confidence records
+216,Universal file intelligence and provenance,daily-prompts/DAY-216.md,Implement trust invalidation when file contents change
+217,Universal file intelligence and provenance,daily-prompts/DAY-217.md,Implement file provenance relationship graph
+218,Universal file intelligence and provenance,daily-prompts/DAY-218.md,Implement duplicate and suspicious-extension mismatch detection
+219,Universal file intelligence and provenance,daily-prompts/DAY-219.md,Implement quarantine metadata and safe restoration workflow
+220,Universal file intelligence and provenance,daily-prompts/DAY-220.md,Build file-analysis report API and UI
+221,Universal file intelligence and provenance,daily-prompts/DAY-221.md,"Add large-file, malformed-file and parser-timeout protections"
+222,Universal file intelligence and provenance,daily-prompts/DAY-222.md,Add privacy tests for excluded folders and sensitive metadata
+223,Universal file intelligence and provenance,daily-prompts/DAY-223.md,Add file classification precision and recall test corpus
+224,Universal file intelligence and provenance,daily-prompts/DAY-224.md,Release static file intelligence milestone without unrestricted execution
+225,Sandboxing and controlled file execution,daily-prompts/DAY-225.md,Define sandbox threat model and isolation levels by file type
+226,Sandboxing and controlled file execution,daily-prompts/DAY-226.md,Create disposable VM orchestration interface
+227,Sandboxing and controlled file execution,daily-prompts/DAY-227.md,Create container orchestration interface for compatible workloads
+228,Sandboxing and controlled file execution,daily-prompts/DAY-228.md,Implement restricted filesystem mounts and host-data exclusion
+229,Sandboxing and controlled file execution,daily-prompts/DAY-229.md,Implement network isolation and explicit egress policy
+230,Sandboxing and controlled file execution,daily-prompts/DAY-230.md,"Implement CPU, memory, disk and runtime quotas"
+231,Sandboxing and controlled file execution,daily-prompts/DAY-231.md,Implement test-environment snapshots and disposal
+232,Sandboxing and controlled file execution,daily-prompts/DAY-232.md,Implement sandbox output collection and sanitisation
+233,Sandboxing and controlled file execution,daily-prompts/DAY-233.md,Implement process-tree and child-process observation
+234,Sandboxing and controlled file execution,daily-prompts/DAY-234.md,Implement file and configuration change observation
+235,Sandboxing and controlled file execution,daily-prompts/DAY-235.md,Implement network destination and protocol observation
+236,Sandboxing and controlled file execution,daily-prompts/DAY-236.md,Implement behaviour-difference analysis against baseline
+237,Sandboxing and controlled file execution,daily-prompts/DAY-237.md,Define trusted-file launch policy using native OS controls
+238,Sandboxing and controlled file execution,daily-prompts/DAY-238.md,Define unknown-file isolated launch policy
+239,Sandboxing and controlled file execution,daily-prompts/DAY-239.md,Define suspicious and malicious quarantine policy
+240,Sandboxing and controlled file execution,daily-prompts/DAY-240.md,Implement validated document and media handler selection
+241,Sandboxing and controlled file execution,daily-prompts/DAY-241.md,Implement executable-type and architecture compatibility checks
+242,Sandboxing and controlled file execution,daily-prompts/DAY-242.md,Implement sandbox escape and host-mount regression tests
+243,Sandboxing and controlled file execution,daily-prompts/DAY-243.md,Test dormant and delayed-behaviour sample limitations
+244,Sandboxing and controlled file execution,daily-prompts/DAY-244.md,Release controlled execution gateway with no unrestricted unknown-file execution
+245,Autonomous OS and system maintenance,daily-prompts/DAY-245.md,"Define system-managed, vendor-managed and user-managed ownership classes"
+246,Autonomous OS and system maintenance,daily-prompts/DAY-246.md,Implement package and component ownership classifier
+247,Autonomous OS and system maintenance,daily-prompts/DAY-247.md,Implement native OS update discovery interface for macOS
+248,Autonomous OS and system maintenance,daily-prompts/DAY-248.md,Implement native OS update discovery interface for Linux
+249,Autonomous OS and system maintenance,daily-prompts/DAY-249.md,Implement Windows Update discovery adapter design
+250,Autonomous OS and system maintenance,daily-prompts/DAY-250.md,Implement update-source and metadata authenticity verification
+251,Autonomous OS and system maintenance,daily-prompts/DAY-251.md,Implement update dependency and compatibility preflight
+252,Autonomous OS and system maintenance,daily-prompts/DAY-252.md,Implement explicit exclusion of user-installed application updates
+253,Autonomous OS and system maintenance,daily-prompts/DAY-253.md,Implement exclusion tests for developer project dependencies
+254,Autonomous OS and system maintenance,daily-prompts/DAY-254.md,Implement OS update policy and maintenance windows
+255,Autonomous OS and system maintenance,daily-prompts/DAY-255.md,Implement routine security update scheduling policy
+256,Autonomous OS and system maintenance,daily-prompts/DAY-256.md,Implement staged update workflow where supported
+257,Autonomous OS and system maintenance,daily-prompts/DAY-257.md,Implement recovery-point and backup preflight
+258,Autonomous OS and system maintenance,daily-prompts/DAY-258.md,Implement reboot and user-session coordination
+259,Autonomous OS and system maintenance,daily-prompts/DAY-259.md,Implement update result and package-state verification
+260,Autonomous OS and system maintenance,daily-prompts/DAY-260.md,Implement supported rollback and recovery paths
+261,Autonomous OS and system maintenance,daily-prompts/DAY-261.md,Implement driver update discovery and vendor provenance checks
+262,Autonomous OS and system maintenance,daily-prompts/DAY-262.md,Implement firmware update detection without automatic flashing by default
+263,Autonomous OS and system maintenance,daily-prompts/DAY-263.md,Implement update failure and partial-installation handling
+264,Autonomous OS and system maintenance,daily-prompts/DAY-264.md,Implement system library compatibility checks
+265,Autonomous OS and system maintenance,daily-prompts/DAY-265.md,Implement update audit and user-facing summary
+266,Autonomous OS and system maintenance,daily-prompts/DAY-266.md,Test package ownership edge cases and misclassification
+267,Autonomous OS and system maintenance,daily-prompts/DAY-267.md,Test no-user-app-update invariant across update workflows
+268,Autonomous OS and system maintenance,daily-prompts/DAY-268.md,Run update simulations in disposable virtual machines
+269,Autonomous OS and system maintenance,daily-prompts/DAY-269.md,"Release autonomous maintenance in staged, policy-controlled mode"
+270,Developer intelligence and software lifecycle,daily-prompts/DAY-270.md,Implement project workspace discovery with user-approved roots
+271,Developer intelligence and software lifecycle,daily-prompts/DAY-271.md,Detect programming languages and project manifests
+272,Developer intelligence and software lifecycle,daily-prompts/DAY-272.md,"Detect frameworks, runtimes and build tools"
+273,Developer intelligence and software lifecycle,daily-prompts/DAY-273.md,Map project dependencies and dependency provenance
+274,Developer intelligence and software lifecycle,daily-prompts/DAY-274.md,Detect vulnerable and outdated dependencies without auto-changing them
+275,Developer intelligence and software lifecycle,daily-prompts/DAY-275.md,"Integrate Python lint, type-check and test adapters"
+276,Developer intelligence and software lifecycle,daily-prompts/DAY-276.md,Integrate Java Maven and Gradle build/test adapters
+277,Developer intelligence and software lifecycle,daily-prompts/DAY-277.md,Integrate JavaScript and TypeScript lint/build/test adapters
+278,Developer intelligence and software lifecycle,daily-prompts/DAY-278.md,Create build-failure evidence collection and summarisation
+279,Developer intelligence and software lifecycle,daily-prompts/DAY-279.md,Create API and integration-test orchestration interfaces
+280,Developer intelligence and software lifecycle,daily-prompts/DAY-280.md,Create project resource monitoring profiles
+281,Developer intelligence and software lifecycle,daily-prompts/DAY-281.md,Implement secrets scanning with redaction
+282,Developer intelligence and software lifecycle,daily-prompts/DAY-282.md,Implement SBOM generation adapter
+283,Developer intelligence and software lifecycle,daily-prompts/DAY-283.md,Implement project-specific action approval and change previews
+284,Developer intelligence and software lifecycle,daily-prompts/DAY-284.md,Build developer dashboard and verified task reports
+285,Predictive caretaker and reporting,daily-prompts/DAY-285.md,Define baseline and anomaly evaluation datasets
+286,Predictive caretaker and reporting,daily-prompts/DAY-286.md,Implement resource trend and change-point detection
+287,Predictive caretaker and reporting,daily-prompts/DAY-287.md,Implement application and system behaviour baselines
+288,Predictive caretaker and reporting,daily-prompts/DAY-288.md,Implement temporal event correlation engine
+289,Predictive caretaker and reporting,daily-prompts/DAY-289.md,Implement causal hypothesis ranking prototype
+290,Predictive caretaker and reporting,daily-prompts/DAY-290.md,Implement controlled diagnostic experiment planner
+291,Predictive caretaker and reporting,daily-prompts/DAY-291.md,Add confidence calibration and uncertainty reporting
+292,Predictive caretaker and reporting,daily-prompts/DAY-292.md,Implement disk capacity trend forecasting
+293,Predictive caretaker and reporting,daily-prompts/DAY-293.md,Implement memory and CPU pressure trend alerts
+294,Predictive caretaker and reporting,daily-prompts/DAY-294.md,Implement recurring crash and service-failure detection
+295,Predictive caretaker and reporting,daily-prompts/DAY-295.md,Implement daily system health report generation
+296,Predictive caretaker and reporting,daily-prompts/DAY-296.md,Implement update and application-change summaries
+297,Predictive caretaker and reporting,daily-prompts/DAY-297.md,Implement alert severity and notification preferences
+298,Predictive caretaker and reporting,daily-prompts/DAY-298.md,Build caretaker dashboard with historical comparisons
+299,Predictive caretaker and reporting,daily-prompts/DAY-299.md,"Evaluate false positives, lead time and resource overhead"
+300,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-300.md,Create Linux adapter package and platform capability manifest
+301,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-301.md,"Implement Linux OS, kernel and architecture collector"
+302,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-302.md,Implement procfs and sysfs resource collectors
+303,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-303.md,Implement systemd service and user-service inventory
+304,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-304.md,Implement Linux package inventory adapters
+305,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-305.md,Implement Linux filesystem event adapter
+306,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-306.md,Implement Linux process and audit telemetry adapters
+307,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-307.md,Implement Linux policy adapter prototype
+308,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-308.md,Run adapter conformance tests on Ubuntu LTS VM
+309,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-309.md,Create NixOS flake and reproducible build configuration
+310,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-310.md,Create SYSTEM MIND NixOS module structure
+311,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-311.md,Package the unprivileged AI agent as a system service
+312,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-312.md,Package the policy broker with least-privilege configuration
+313,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-313.md,Create the initial SYSTEM MIND bootable VM image
+314,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-314.md,Add desktop startup and AI operator integration
+315,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-315.md,Integrate Linux update orchestration and rollback generations
+316,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-316.md,Integrate Linux file and application intelligence
+317,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-317.md,Add recovery boot and safe-mode strategy
+318,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-318.md,"Test boot, update, rollback and service recovery in VM"
+319,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-319.md,Create ARM64 build and validate in virtualised environment
+320,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-320.md,Create x86_64 build and validate in virtualised environment
+321,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-321.md,Run Linux security policy and sandbox tests
+322,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-322.md,Measure Linux agent overhead and idle resource usage
+323,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-323.md,Document supported Linux hardware and unsupported capabilities
+324,Linux agent and SYSTEM MIND OS foundation,daily-prompts/DAY-324.md,Release SYSTEM MIND OS alpha image for virtual machines
+325,Windows adapter and system integration,daily-prompts/DAY-325.md,Create Windows adapter package and capability manifest
+326,Windows adapter and system integration,daily-prompts/DAY-326.md,Implement Windows version and architecture collector
+327,Windows adapter and system integration,daily-prompts/DAY-327.md,Implement WMI/CIM hardware and OS inventory
+328,Windows adapter and system integration,daily-prompts/DAY-328.md,Implement ETW event collection prototype
+329,Windows adapter and system integration,daily-prompts/DAY-329.md,Implement process and Windows service inventory
+330,Windows adapter and system integration,daily-prompts/DAY-330.md,Implement installed application and package inventory
+331,Windows adapter and system integration,daily-prompts/DAY-331.md,Implement Windows Update discovery integration
+332,Windows adapter and system integration,daily-prompts/DAY-332.md,Implement application-control policy capability mapping
+333,Windows adapter and system integration,daily-prompts/DAY-333.md,Implement file-event and security-event collection
+334,Windows adapter and system integration,daily-prompts/DAY-334.md,Implement Windows execution broker prototype
+335,Windows adapter and system integration,daily-prompts/DAY-335.md,Implement approval and privilege-boundary integration
+336,Windows adapter and system integration,daily-prompts/DAY-336.md,Implement sandbox integration design for supported Windows editions
+337,Windows adapter and system integration,daily-prompts/DAY-337.md,Implement update ownership and user-app exclusion tests
+338,Windows adapter and system integration,daily-prompts/DAY-338.md,Run Windows adapter conformance suite in a test VM
+339,Windows adapter and system integration,daily-prompts/DAY-339.md,Test interrupted updates and recovery behaviour in VM
+340,Windows adapter and system integration,daily-prompts/DAY-340.md,Test policy enforcement and audit evidence on supported edition
+341,Windows adapter and system integration,daily-prompts/DAY-341.md,Test file-intelligence integration on Windows
+342,Windows adapter and system integration,daily-prompts/DAY-342.md,Measure Windows agent overhead and stability
+343,Windows adapter and system integration,daily-prompts/DAY-343.md,Document OS edition and API entitlement limitations
+344,Windows adapter and system integration,daily-prompts/DAY-344.md,Release Windows companion-agent beta for the defined support matrix
+345,"Cross-platform integration, security and release",daily-prompts/DAY-345.md,Run the full cross-platform capability conformance matrix
+346,"Cross-platform integration, security and release",daily-prompts/DAY-346.md,Run cross-platform digital-twin consistency tests
+347,"Cross-platform integration, security and release",daily-prompts/DAY-347.md,Run application ownership and update-exclusion regression suite
+348,"Cross-platform integration, security and release",daily-prompts/DAY-348.md,Run file-intelligence corpus evaluation across supported platforms
+349,"Cross-platform integration, security and release",daily-prompts/DAY-349.md,Run controlled sandbox behaviour tests across platforms
+350,"Cross-platform integration, security and release",daily-prompts/DAY-350.md,"Run RAVE policy, approval and verification regression suite"
+351,"Cross-platform integration, security and release",daily-prompts/DAY-351.md,Run prompt-injection and malicious-document security tests
+352,"Cross-platform integration, security and release",daily-prompts/DAY-352.md,Run privilege-escalation and broker-hardening tests
+353,"Cross-platform integration, security and release",daily-prompts/DAY-353.md,"Run data privacy, retention and redaction tests"
+354,"Cross-platform integration, security and release",daily-prompts/DAY-354.md,Run database corruption and recovery tests
+355,"Cross-platform integration, security and release",daily-prompts/DAY-355.md,Run long-duration agent stability and resource-overhead tests
+356,"Cross-platform integration, security and release",daily-prompts/DAY-356.md,Run benchmark and ablation experiments
+357,"Cross-platform integration, security and release",daily-prompts/DAY-357.md,"Document limitations, unsupported hardware and known issues"
+358,"Cross-platform integration, security and release",daily-prompts/DAY-358.md,"Prepare signed builds, release manifests and provenance metadata"
+359,"Cross-platform integration, security and release",daily-prompts/DAY-359.md,"Prepare installation, upgrade and recovery documentation"
+360,"Cross-platform integration, security and release",daily-prompts/DAY-360.md,"Prepare user, developer and enterprise operating guides"
+361,"Cross-platform integration, security and release",daily-prompts/DAY-361.md,Conduct final threat-model and architecture review
+362,"Cross-platform integration, security and release",daily-prompts/DAY-362.md,Create release candidate and resolve blocking defects
+363,"Cross-platform integration, security and release",daily-prompts/DAY-363.md,"Perform installation, upgrade, uninstall and recovery lifecycle verification"
+364,"Cross-platform integration, security and release",daily-prompts/DAY-364.md,Perform final acceptance review against all v1.0 gates
+365,"Cross-platform integration, security and release",daily-prompts/DAY-365.md,Publish SYSTEM MIND v1.0 research and product release package

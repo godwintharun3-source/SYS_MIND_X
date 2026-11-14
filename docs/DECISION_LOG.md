@@ -1,0 +1,22 @@
+# Architecture Decision Log
+
+## ADR-001: AI is the high-level control plane; native kernels remain the execution foundation
+Status: proposed baseline. The model plans and explains. Trusted brokers and native OS APIs execute bounded operations.
+
+## ADR-002: Cross-platform adapters
+Status: proposed baseline. Use one capability contract and separate macOS, Windows and Linux adapters.
+
+## ADR-003: Start with macOS companion agent, then NixOS VM, then Windows
+Status: proposed baseline. Keep the developer's host safe; validate OS changes in disposable VMs.
+
+## ADR-004: SQLite first
+Status: proposed baseline. Start with SQLite and event tables; introduce PostgreSQL/graph storage only when measured needs justify it.
+
+## ADR-005: No unrestricted file execution
+Status: non-negotiable. Trust is evidence-based and time-sensitive. Unknown files are isolated or handled by a restricted viewer.
+
+## ADR-006: System updates exclude user applications
+Status: non-negotiable. Maintain component ownership and never silently update user-installed apps or project dependencies.
+
+## ADR-007: Persistent files, not chat history, are project memory
+Status: non-negotiable. Every daily agent session reloads project state from repository files.

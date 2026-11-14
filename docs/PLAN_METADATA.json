@@ -1,0 +1,118 @@
+{
+  "project": "SYSTEM MIND X",
+  "plan_workdays": 365,
+  "calendar_estimate": "approximately 17 months at five development days per week",
+  "assumed_hours_per_day": "6-8 focused hours",
+  "phases": [
+    {
+      "name": "Research framing and product scope",
+      "start_day": 1,
+      "end_day": 10,
+      "workdays": 10
+    },
+    {
+      "name": "Requirements and architecture specification",
+      "start_day": 11,
+      "end_day": 25,
+      "workdays": 15
+    },
+    {
+      "name": "Repository and development foundation",
+      "start_day": 26,
+      "end_day": 40,
+      "workdays": 15
+    },
+    {
+      "name": "macOS system agent and telemetry",
+      "start_day": 41,
+      "end_day": 65,
+      "workdays": 25
+    },
+    {
+      "name": "Temporal digital twin and event history",
+      "start_day": 66,
+      "end_day": 90,
+      "workdays": 25
+    },
+    {
+      "name": "Application context intelligence",
+      "start_day": 91,
+      "end_day": 110,
+      "workdays": 20
+    },
+    {
+      "name": "Knowledge, retrieval and cognitive planning",
+      "start_day": 111,
+      "end_day": 130,
+      "workdays": 20
+    },
+    {
+      "name": "Universal capability registry and adapter contract",
+      "start_day": 131,
+      "end_day": 150,
+      "workdays": 20
+    },
+    {
+      "name": "Adaptive governance and policy engine",
+      "start_day": 151,
+      "end_day": 175,
+      "workdays": 25
+    },
+    {
+      "name": "Risk-adaptive verified execution and broker",
+      "start_day": 176,
+      "end_day": 199,
+      "workdays": 24
+    },
+    {
+      "name": "Universal file intelligence and provenance",
+      "start_day": 200,
+      "end_day": 224,
+      "workdays": 25
+    },
+    {
+      "name": "Sandboxing and controlled file execution",
+      "start_day": 225,
+      "end_day": 244,
+      "workdays": 20
+    },
+    {
+      "name": "Autonomous OS and system maintenance",
+      "start_day": 245,
+      "end_day": 269,
+      "workdays": 25
+    },
+    {
+      "name": "Developer intelligence and software lifecycle",
+      "start_day": 270,
+      "end_day": 284,
+      "workdays": 15
+    },
+    {
+      "name": "Predictive caretaker and reporting",
+      "start_day": 285,
+      "end_day": 299,
+      "workdays": 15
+    },
+    {
+      "name": "Linux agent and SYSTEM MIND OS foundation",
+      "start_day": 300,
+      "end_day": 324,
+      "workdays": 25
+    },
+    {
+      "name": "Windows adapter and system integration",
+      "start_day": 325,
+      "end_day": 344,
+      "workdays": 20
+    },
+    {
+      "name": "Cross-platform integration, security and release",
+      "start_day": 345,
+      "end_day": 365,
+      "workdays": 21
+    }
+  ],
+  "first_release_scope": "Bounded support matrix: macOS Apple Silicon companion agent, Windows 11 x64 companion agent, Ubuntu LTS x86_64 companion agent, NixOS x86_64 and ARM64 virtual-machine OS alpha.",
+  "not_guaranteed": "Not universal support for every hardware device, firmware vendor, OS version or file type. Production hardening and ongoing maintenance continue after v1.0."
+}
