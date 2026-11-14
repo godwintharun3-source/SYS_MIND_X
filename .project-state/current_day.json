@@ -3,9 +3,9 @@
   "plan_workdays": 365,
   "current_day": 1,
   "last_reviewed_completed_day": 0,
-  "status": "not_started",
+  "status": "awaiting_review",
   "active_phase": "Research framing and product scope",
   "timezone": "Asia/Kolkata",
-  "started_on": null,
-  "last_updated": null
+  "started_on": "2026-11-14T22:03:40+05:30",
+  "last_updated": "2026-11-14T22:08:55+05:30"
 }

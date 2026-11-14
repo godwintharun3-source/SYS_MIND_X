@@ -1,3 +1,10 @@
 # Active Blockers
 
-No blockers recorded yet. Add date, affected day, evidence, impact, owner and next action for each blocker.
+No immediate blocking failures for current phase (Days 001-010).
+
+## Environment Prerequisites Log (Upcoming Phases)
+- **Item:** Nix (`nix`) and QEMU (`qemu-system-aarch64`, `qemu-system-x86_64`) are not currently installed on the host.
+- **Affected Milestone:** Days 300-324 (Linux agent and SYSTEM MIND OS foundation).
+- **Impact:** Not blocking Day 001-010 research/architecture; mock adapters are currently used. When approaching Day 300, isolated VM tooling or installation will be planned with explicit human approval.
+- **Owner:** Platform Engineering.
+

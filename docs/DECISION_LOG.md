@@ -20,3 +20,6 @@ Status: non-negotiable. Maintain component ownership and never silently update u
 
 ## ADR-007: Persistent files, not chat history, are project memory
 Status: non-negotiable. Every daily agent session reloads project state from repository files.
+
+## ADR-008: Machine-Enforceable Charter Contracts and Read-Only Host Telemetry
+Status: accepted. Charter boundaries (rejection of raw root/shell, strict exclusion of user applications from autonomous updates, zero-trust execution confinement, explicit approvals for critical operations) are implemented as typed contracts and deterministic validators rather than natural-language instructions alone. Non-destructive host inspection verifies environment facts (Apple Silicon M1, SIP, Gatekeeper) without mutating host system configuration.
