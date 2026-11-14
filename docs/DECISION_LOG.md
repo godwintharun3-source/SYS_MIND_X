@@ -26,3 +26,6 @@ Status: accepted. Charter boundaries (rejection of raw root/shell, strict exclus
 
 ## ADR-009: Persona-Driven Contextual Governance Envelopes
 Status: accepted. SYSTEM MIND X enforces distinct contextual governance envelopes for Personal, Developer, and Enterprise Admin personas. Personal users are bounded to Low/Medium impact with strict privacy perimeter protection; Developers have scoped high-impact workspace capabilities with absolute protection against autonomous dependency updates; Enterprise Admins have full audit visibility and require dual-person or break-glass approval for critical privileged actions.
+
+## ADR-010: State-Machine User Journey Execution, Compensation Rollback, and Quantitative Outcomes
+Status: accepted. User journeys are structured as formal state-machine step sequences. Every step enforces independent policy checks, preconditions, broker execution, postconditions, and audit records. Any mid-sequence failure triggers automatic reverse-chronological compensation rollbacks. Journey success is evaluated against strict quantitative metrics (latency, non-interference invariants, containment isolation, audit completeness).
