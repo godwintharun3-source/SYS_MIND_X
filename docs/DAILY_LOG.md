@@ -100,3 +100,26 @@
 - Reviewed summary: Primary user journeys (caretaker, zero-trust file containment, developer toolchain, autonomous maintenance, enterprise compliance) and compensation rollback engine implemented with 33 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (33 passed)
 - Review timestamp: 2026-11-14T22:26:53+05:30
+
+## Day 004 — 2026-11-14 (Awaiting Human Review)
+- **Objective:** Define the supported first-release platform and hardware matrix. Establish a research-backed, bounded product scope before implementation. Deliver requirements and evidence, not speculative code.
+- **Phase:** Research framing and product scope (Days 001-010)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_004_PLATFORM_AND_HARDWARE_MATRIX.md`: Detailed engineering design note defining the four supported platform targets (macOS Apple Silicon, Windows 11 x64, Ubuntu LTS x86_64, NixOS VM), hardware specifications, capability mapping, native API mappings, limitation notes, and fallback strategies.
+  - `src/system_mind/platform/__init__.py`: Package exports for platform domain.
+  - `src/system_mind/platform/matrix.py`: Typed contracts for `PlatformTargetId`, `HardwareSpec`, `PlatformCapabilityDetail`, `PlatformProfile`, and the central `PlatformMatrixRegistry` with host compatibility validation.
+  - `tests/test_platform_matrix.py`: Unit and contract test suite verifying profile invariants, capability completeness, partial capability documentation, and host compatibility validation.
+  - `docs/DECISION_LOG.md`: Added ADR-011 (Granular Capability-Level Platform & Hardware Support Matrix).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 004 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 4.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 4`: Transitioned Day 004 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran 40 unit/contract/integration tests across all modules; 40 passed in 0.16s (exit code 0).
+  - `python3 -m py_compile ...`: Verified compilation of all platform and test modules.
+- **Security & Platform Limitations:**
+  - macOS development host verified compliant with Tier 1 profile (Apple Silicon M1, 8GB RAM, SIP enabled, Gatekeeper active).
+  - Hardware sensors on macOS and NixOS VM marked `PARTIAL` with documented limitations (private Apple Silicon SMC keys, hypervisor virtualization).
+  - Sandboxing on Windows marked `PARTIAL` (Windows Sandbox unavailable on Home editions).
+  - Zero support claimed for uncertified architectures (Intel macOS, Windows 10/32-bit, non-systemd Linux).
+- **Status:** Awaiting human review before advancing tracker to Day 005.

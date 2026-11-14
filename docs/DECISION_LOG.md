@@ -29,3 +29,6 @@ Status: accepted. SYSTEM MIND X enforces distinct contextual governance envelope
 
 ## ADR-010: State-Machine User Journey Execution, Compensation Rollback, and Quantitative Outcomes
 Status: accepted. User journeys are structured as formal state-machine step sequences. Every step enforces independent policy checks, preconditions, broker execution, postconditions, and audit records. Any mid-sequence failure triggers automatic reverse-chronological compensation rollbacks. Journey success is evaluated against strict quantitative metrics (latency, non-interference invariants, containment isolation, audit completeness).
+
+## ADR-011: Granular Capability-Level Platform & Hardware Support Matrix
+Status: accepted. The first-release support matrix is strictly bounded to four verified platform profiles: macOS on Apple Silicon M1 (Tier 1 Development Host & Companion), Windows 11 x64 (Tier 2 Companion), Ubuntu LTS x86_64 (Tier 2 Companion), and NixOS VM (Tier 3 Prototype OS). Operating system APIs are not treated as fungible; every engine capability must be explicitly tagged as SUPPORTED, PARTIAL (with documented limitations), or MOCK_ONLY. Uncertified platforms (Intel macOS, Windows 10/32-bit, non-systemd Linux) are rejected by policy.
