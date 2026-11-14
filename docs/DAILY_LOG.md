@@ -265,3 +265,9 @@
   - Unattended firmware flashing and partition table alterations are structurally prohibited.
   - Development host remains completely protected; zero privileged commands executed on macOS host.
 - **Status:** Awaiting human review before advancing tracker to Day 010.
+
+## Day 009 - Human reviewed complete
+
+- Reviewed summary: Product non-goals catalog (NG-01 to NG-10) and explicit safety constraints (SC-01 to SC-08) with runtime validator implemented with 82 passed tests
+- Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (82 passed)
+- Review timestamp: 2026-11-14T23:11:25+05:30
