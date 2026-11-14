@@ -242,3 +242,26 @@
 - Reviewed summary: Operation classification taxonomy, privilege levels, reversibility strategies, and safety classifier implemented with 71 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (71 passed)
 - Review timestamp: 2026-11-14T23:05:39+05:30
+
+## Day 009 — 2026-11-14 (Awaiting Human Review)
+- **Objective:** Define product non-goals and explicit safety constraints. Establish a research-backed, bounded product scope before implementation. Deliver requirements and evidence, not speculative code.
+- **Phase:** Research framing and product scope (Days 001-010)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_009_PRODUCT_NON_GOALS_AND_SAFETY_CONSTRAINTS.md`: Detailed engineering design note defining 10 Product Non-Goals (NG-01 through NG-10), 8 Explicit Safety Constraints (SC-01 through SC-08), and the multi-layer enforcement architecture.
+  - `src/system_mind/security/safety_constraints.py`: Formal implementation of `NonGoalCategory`, `SafetyConstraintCategory`, `ProductNonGoal`, `SafetyConstraint`, `ConstraintValidationResult`, `NonGoalRegistry`, `SafetyConstraintRegistry`, and `SafetyConstraintValidator`.
+  - `src/system_mind/security/__init__.py`: Exported non-goal and safety constraint domain models.
+  - `tests/test_safety_constraints.py`: Test suite verifying non-goal catalog completeness, safety constraint invariants, constraint violations (raw shell, user-managed app update, uncontained binary, privacy path breach, unauthorized critical, unsupported platform, unattended firmware flash, security control bypass), and compliant execution.
+  - `docs/DECISION_LOG.md`: Added ADR-016 (Formal Product Non-Goals and Explicit Safety Constraints).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 009 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 9.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 9`: Transitioned Day 009 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran 82 unit/contract/integration tests across all modules; 82 passed in 0.14s (exit code 0).
+  - `python3 -m py_compile src/system_mind/security/__init__.py src/system_mind/security/safety_constraints.py tests/test_safety_constraints.py`: Compiled all modules with exit code 0.
+- **Security & Platform Limitations:**
+  - Inviolable non-goals prevent ambient authority, background screen scraping/OCR, and silent user-workspace updates.
+  - Native OS security mechanisms (SIP, Gatekeeper, WDAC) cannot be disabled or bypassed.
+  - Unattended firmware flashing and partition table alterations are structurally prohibited.
+  - Development host remains completely protected; zero privileged commands executed on macOS host.
+- **Status:** Awaiting human review before advancing tracker to Day 010.
