@@ -3,9 +3,9 @@
   "plan_workdays": 365,
   "current_day": 2,
   "last_reviewed_completed_day": 1,
-  "status": "not_started",
-  "active_phase": "See docs/ROADMAP_365_DAYS.md",
+  "status": "awaiting_review",
+  "active_phase": "Research framing and product scope",
   "timezone": "Asia/Kolkata",
-  "started_on": "2026-11-14T22:03:40+05:30",
-  "last_updated": "2026-11-14T22:11:23+05:30"
+  "started_on": "2026-11-14T22:12:55+05:30",
+  "last_updated": "2026-11-14T22:15:45+05:30"
 }

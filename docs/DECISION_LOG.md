@@ -23,3 +23,6 @@ Status: non-negotiable. Every daily agent session reloads project state from rep
 
 ## ADR-008: Machine-Enforceable Charter Contracts and Read-Only Host Telemetry
 Status: accepted. Charter boundaries (rejection of raw root/shell, strict exclusion of user applications from autonomous updates, zero-trust execution confinement, explicit approvals for critical operations) are implemented as typed contracts and deterministic validators rather than natural-language instructions alone. Non-destructive host inspection verifies environment facts (Apple Silicon M1, SIP, Gatekeeper) without mutating host system configuration.
+
+## ADR-009: Persona-Driven Contextual Governance Envelopes
+Status: accepted. SYSTEM MIND X enforces distinct contextual governance envelopes for Personal, Developer, and Enterprise Admin personas. Personal users are bounded to Low/Medium impact with strict privacy perimeter protection; Developers have scoped high-impact workspace capabilities with absolute protection against autonomous dependency updates; Enterprise Admins have full audit visibility and require dual-person or break-glass approval for critical privileged actions.
