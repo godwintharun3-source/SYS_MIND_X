@@ -71,3 +71,6 @@ Status: accepted. An independent deterministic rules engine operating strictly o
 
 ## ADR-024: Native OS Kernel and Security Controls as Authoritative Enforcers
 Status: accepted. Native OS kernels remain the authoritative lower-level security enforcement boundary. SYSTEM MIND X works strictly within native OS entitlements and never disables or weakens native security controls (SIP, Gatekeeper, WDAC, AppArmor).
+
+## ADR-025: Cross-Platform Capability Parity Levels and Adapter Contracts
+Status: accepted. Operating systems are fundamentally non-fungible and cannot be flattened into a lowest-common-denominator abstraction. SYSTEM MIND X formalizes a five-tier capability parity hierarchy (LEVEL_1_FULL_PARITY, LEVEL_2_EQUIVALENT_PARITY, LEVEL_3_DEGRADED_PARITY, LEVEL_4_EMULATED_SIMULATED, LEVEL_5_UNSUPPORTED) across eight core domains (FS_OBSERVATION, PROCESS_TELEMETRY, HARDWARE_TELEMETRY, FILE_PROVENANCE, EXECUTION_CONTAINMENT, SYSTEM_SNAPSHOT_ROLLBACK, SYSTEM_PACKAGE_MAINTENANCE, SECURITY_AUTHORITY_ENFORCEMENT). The CapabilityParityEvaluator enforces typed contracts, documented degradation warnings, and mandatory fallback strategies before broker dispatch, ensuring zero capability hallucination or security dilution.

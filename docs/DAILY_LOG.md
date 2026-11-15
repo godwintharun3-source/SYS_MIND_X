@@ -416,3 +416,25 @@
 - Reviewed summary: Architecture decision records for AI and native system split (ADR-021 to ADR-024), four execution planes, and split validator implemented with 116 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (116 passed)
 - Review timestamp: 2026-11-15T20:51:52+05:30
+
+## Day 015 — 2026-11-15 (Awaiting Human Review)
+- **Objective:** Define macOS, Windows and Linux capability parity levels. Turn the product concept into precise interfaces, data contracts, safety requirements and architecture decisions.
+- **Phase:** Requirements and architecture specification (Days 011-025)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_015_CAPABILITY_PARITY_LEVELS.md`: Detailed engineering design note formalizing the five parity levels (`LEVEL_1_FULL_PARITY` through `LEVEL_5_UNSUPPORTED`), 8 capability domains, platform mappings, and four cardinal invariants.
+  - `src/system_mind/platform/parity.py`: Core domain models (`ParityLevel`, `CapabilityDomain`, `PlatformParitySpecification`, `ParityEvaluationResult`, `PlatformCapabilityUnsupportedError`), `CapabilityParityRegistry` (32 cataloged specifications), and `CapabilityParityEvaluator`.
+  - `src/system_mind/platform/__init__.py`: Package initialization exporting the parity types, registry, and evaluator.
+  - `tests/test_capability_parity.py`: 8 unit and contract tests verifying matrix completeness (32 specs), evaluator audit, security critical invariants, lookups and filtering, Level 1 dispatch, degraded/equivalent warnings, strict parity enforcement, and unsupported capability exception handling.
+  - `docs/DECISION_LOG.md`: Added ADR-025 (Cross-Platform Capability Parity Levels and Adapter Contracts).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 015 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 15.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 15`: Transitioned Day 015 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran 124 unit/contract/integration tests across all modules; 124 passed in 0.26s (exit code 0).
+  - `python3 -m py_compile src/system_mind/platform/__init__.py src/system_mind/platform/parity.py tests/test_capability_parity.py`: Compiled all modules with exit code 0.
+- **Security & Platform Limitations:**
+  - Security-critical capability (`SECURITY_AUTHORITY_ENFORCEMENT`) strictly mandated as `LEVEL_1_FULL_PARITY` across all platforms (SIP, WDAC, AppArmor/SELinux, Nix store).
+  - Degraded and equivalent capabilities require explicit, non-empty fallback strategies and documented limitations.
+  - Development host remains completely protected; zero privileged commands executed on macOS host.
+- **Status:** Awaiting human review before advancing tracker to Day 016.
