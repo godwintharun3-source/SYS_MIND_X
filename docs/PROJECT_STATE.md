@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: IN_PROGRESS (Day 019 completed and reviewed; Day 020 ready to start)
+- Project status: AWAITING_REVIEW (Day 020 implemented, verified with 162 passed tests, awaiting review)
 - Current day: 20
 - Last reviewed completed day: 19
 - Current milestone: Requirements and architecture specification (Days 011-025)
 - Current implementation branch: `develop`
-- Last verified commit: `90b719c` (Day 019 implementation)
+- Last verified commit: `9fa2448` (Day 019 reviewed completion)
 - Active blockers: None currently blocking Phase 2. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Start Day 020 via `python3 tools/day_tracker.py start --day 20` and implement file trust states and supported file-handler policy.
+- Next action: Await human review of Day 020 diff; complete Day 020 via `python3 tools/day_tracker.py complete --day 20 ...`.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -21,11 +21,12 @@
 - **Temporal Observations, Provenance and Freshness Metadata (Day 017)**: Formalized temporal observation models, cryptographic provenance, and freshness lifecycle in `src/system_mind/twin/temporal.py`, `src/system_mind/twin/__init__.py`, and design note `docs/design/DAY_017_TEMPORAL_OBSERVATIONS_PROVENANCE_FRESHNESS.md`.
 - **Application Ownership and User-App Exclusion Model (Day 018)**: Formalized application domain models, ownership classifier, and deterministic exclusion enforcer in `src/system_mind/applications/` (`models.py`, `classifier.py`, `exclusion.py`, `__init__.py`) and design note `docs/design/DAY_018_APPLICATION_OWNERSHIP_AND_EXCLUSION_MODEL.md`.
 - **System-Update Ownership Taxonomy (Day 019)**: Formalized update maintenance tiers, lifecycle progression, and policy validator in `src/system_mind/updates/` (`models.py`, `taxonomy.py`, `validator.py`, `__init__.py`) and design note `docs/design/DAY_019_SYSTEM_UPDATE_OWNERSHIP_TAXONOMY.md`.
-  - Defined 6 update maintenance tiers (`OS_SECURITY_HOTFIX`, `SYSTEM_DAEMON_MAINTENANCE`, `OS_CUMULATIVE_UPDATE`, `FIRMWARE_HARDWARE_UPDATE`, `USER_APP_UPDATE`, `PROJECT_DEPENDENCY_UPDATE`).
-  - Implemented `SystemUpdateTaxonomyRegistry` defining safety profiles, snapshot rules, reboot requirements, and AC power constraints.
-  - Built `SystemUpdatePolicyValidator` enforcing Autonomous Scope Invariant (Tiers 1 & 2 only), snapshot precondition verification, AC power enforcement, and user approval for firmware/cumulative updates.
-  - Formalized ADR-029.
-- **Test Suite**: 154 unit, contract, and integration tests in `tests/` verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, and system update taxonomy with 100% pass rate.
+- **File Trust States and Supported File-Handler Policy (Day 020)**: Formalized the 8-state file trust lifecycle (`UNTRUSTED_UNKNOWN` to `SYSTEM_CORE_IMMUTABLE` and `BLOCKED_MALICIOUS`), 7 file categories, 5 handler execution modes, and `FileTrustPolicyEvaluator` in `src/system_mind/files/` (`models.py`, `policy.py`, `__init__.py`) and design note `docs/design/DAY_020_FILE_TRUST_STATES_AND_HANDLER_POLICY.md`.
+  - Implemented the inviolable "Scan != Safe" invariant: static scan clearance allows at most isolated sandboxed viewers or micro-VM detonation, strictly prohibiting native host execution.
+  - Enforced quarantine containment against files carrying Mark-of-the-Web or `com.apple.quarantine` attributes.
+  - Enforced anti-spoofing verification against files masquerading as immutable OS core binaries.
+  - Formalized ADR-030.
+- **Test Suite**: 162 unit, contract, and integration tests in `tests/` verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, and file trust handler policies with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

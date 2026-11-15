@@ -564,3 +564,28 @@
 - Reviewed summary: System-update ownership taxonomy across 6 maintenance tiers, SystemUpdateTaxonomyRegistry, and SystemUpdatePolicyValidator implemented with 154 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (154 passed)
 - Review timestamp: 2026-11-15T21:25:23+05:30
+
+## Day 020 — 2026-11-15 (Awaiting Human Review)
+- **Objective:** Define file trust states and supported file-handler policy. Turn the product concept into precise interfaces, data contracts, safety requirements and architecture decisions.
+- **Phase:** Requirements and architecture specification (Days 011-025)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_020_FILE_TRUST_STATES_AND_HANDLER_POLICY.md`: Detailed engineering design note formalizing file trust lifecycle, category matrix, handler confinement, and security invariants.
+  - `src/system_mind/files/models.py`: Data models (`FileTrustState`, `FileCategory`, `HandlerExecutionMode`, `FileEvidenceRecord`, `FileTrustEvaluation`, `deduce_file_category`).
+  - `src/system_mind/files/policy.py`: Implementation of `FileTrustPolicyEvaluator` enforcing the "Scan != Safe" invariant, quarantine containment, malicious hash blocks, and native execution gating.
+  - `src/system_mind/files/__init__.py`: Package export interface for universal file trust and handler policy engine.
+  - `tests/test_file_trust_policy.py`: 8 comprehensive unit and contract tests verifying category deduction, trust state progression, "Scan != Safe" enforcement, quarantine containment, malicious blocking, executable containment, script user attestation, and active document isolation.
+  - `docs/DECISION_LOG.md`: Recorded ADR-030 (File Trust State Machine and Supported File-Handler Policy).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 020 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 20.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 20`: Transitioned Day 020 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_file_trust_policy.py`: Ran 8 new file trust policy tests; 8 passed in 0.04s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran complete test suite (162 unit/contract/integration tests across all modules); 162 passed in 0.23s (exit code 0).
+  - `python3 -m py_compile src/system_mind/files/__init__.py src/system_mind/files/models.py src/system_mind/files/policy.py tests/test_file_trust_policy.py`: Verified syntax and bytecode compilation with exit code 0.
+- **Security & Platform Limitations:**
+  - Inviolable "Scan != Safe" invariant enforced: static vulnerability scan clearance never grants native host execution permissions.
+  - Active quarantine metadata (`com.apple.quarantine`, Zone.Identifier) strictly prevents native host execution without user dequarantine.
+  - Files masquerading as immutable system core without read-only mount status and valid OS vendor signature are blocked as malicious.
+  - Developer host macOS remains completely protected; zero mutating or unconfined operations executed.
+- **Status:** Awaiting human review before advancing tracker to Day 021.
