@@ -748,3 +748,36 @@
 - Reviewed summary: Frozen v1.0 architecture baseline manifest across 14 subsystems with composite SHA-256 fingerprinting and ArchitectureBaselineVerifier implemented with 199 passed tests, completing Milestone 2
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (199 passed)
 - Review timestamp: 2026-11-15T22:14:19+05:30
+
+## Day 026 — 2026-11-15 (Awaiting Human Review)
+- **Objective:** Create the monorepo with documented top-level boundaries. Create the reproducible monorepo and developer tooling. No privileged system changes.
+- **Phase:** Repository and development foundation (Days 026-040)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_026_MONOREPO_AND_TOP_LEVEL_BOUNDARIES.md`: Comprehensive engineering design note formalizing monorepo topology across 6 canonical zones, boundary contracts, and dependency isolation rules.
+  - `monorepo.json`: Machine-readable workspace manifest declaring paths, primary languages, architectural layers, allowed dependencies, forbidden dependencies, and boundary documentation files.
+  - `schemas/monorepo.schema.json`: JSON Schema (Draft 2020-12) validating `monorepo.json`.
+  - `apps/README.md`: Boundary documentation for Layer 7 presentation and Tauri desktop UI.
+  - `crates/README.md`: Boundary documentation for Layer 1/2/6 native daemon and sensor adapters in Rust.
+  - `src/README.md`: Boundary documentation for Layer 3/4/5/6 cognitive planner, twin, and policy in Python.
+  - `schemas/README.md`: Boundary documentation for Layer 6/7 shared language-neutral contracts.
+  - `tools/README.md`: Boundary documentation for cross-cutting developer tooling and invariant verification.
+  - `docs/README.md`: Boundary documentation for architectural specifications and decision logs.
+  - `src/system_mind/monorepo/models.py`: Data models (`WorkspaceType`, `PrimaryLanguage`, `WorkspaceBoundarySpec`, `MonorepoManifest`, `BoundaryAuditResult`).
+  - `src/system_mind/monorepo/validator.py`: `MonorepoBoundaryValidator` verifying directory existence, boundary documentation, and enforcing unidirectional dependency rules.
+  - `src/system_mind/monorepo/__init__.py`: Export interface for monorepo models and validator.
+  - `tests/test_monorepo_boundaries.py`: 6 comprehensive unit and contract tests verifying manifest loading, structural verification, dependency direction rules, missing directory detection, missing doc detection, and JSON schema syntax.
+  - `docs/DECISION_LOG.md`: Recorded ADR-036 (Monorepo Topology, Top-Level Workspace Boundaries, and Dependency Isolation).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 026 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 26.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 26`: Transitioned Day 026 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_monorepo_boundaries.py`: Ran 6 new monorepo boundary tests; 6 passed in 0.08s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran complete test suite (205 unit/contract/integration tests across all modules); 205 passed in 0.40s (exit code 0).
+  - `python3 -m py_compile src/system_mind/monorepo/__init__.py src/system_mind/monorepo/models.py src/system_mind/monorepo/validator.py tests/test_monorepo_boundaries.py`: Verified syntax and bytecode compilation with exit code 0.
+- **Security & Platform Limitations:**
+  - Strict dependency boundaries: UI (`apps/`) and Python planner (`src/`) cannot directly import internal Rust broker crates or execute unmediated OS syscalls.
+  - Language isolation: `crates/` compiles as standalone Rust without runtime dependency on Python.
+  - Self-contained contracts: `schemas/` contains zero language-specific code or implementations.
+  - Developer host macOS remains completely protected; zero mutating or unconfined operations executed.
+- **Status:** Awaiting human review before advancing tracker to Day 027.

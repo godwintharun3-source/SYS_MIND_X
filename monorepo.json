@@ -1,0 +1,78 @@
+{
+  "$schema": "./schemas/monorepo.schema.json",
+  "name": "system-mind-x",
+  "version": "1.0.0",
+  "monorepo_version": "1.0.0",
+  "description": "SYSTEM MIND X Polyglot Monorepo Specification & Workspace Topology",
+  "root_boundaries": {
+    "apps": {
+      "path": "apps",
+      "type": "APPLICATION",
+      "primary_language": "TYPESCRIPT",
+      "layers": ["LAYER_7_APPLICATION_PRESENTATION"],
+      "allowed_dependencies": ["schemas"],
+      "forbidden_dependencies": ["crates", "src"],
+      "boundary_doc": "apps/README.md",
+      "description": "Desktop UI, Tauri shell, and operator presentation interface."
+    },
+    "crates": {
+      "path": "crates",
+      "type": "SYSTEM_DAEMON_AND_SENSORS",
+      "primary_language": "RUST",
+      "layers": [
+        "LAYER_1_PHYSICAL_SENSORS",
+        "LAYER_2_CAPABILITY_BROKER",
+        "LAYER_6_TRUSTED_BROKER"
+      ],
+      "allowed_dependencies": ["schemas"],
+      "forbidden_dependencies": ["src", "apps"],
+      "boundary_doc": "crates/README.md",
+      "description": "Rust system-agent workspace: narrow privileged capability broker and native OS sensors."
+    },
+    "src": {
+      "path": "src",
+      "type": "CONTROL_PLANE_AND_TWIN",
+      "primary_language": "PYTHON",
+      "layers": [
+        "LAYER_3_APPLICATION_CONTEXT",
+        "LAYER_4_INTELLIGENCE_ENGINES",
+        "LAYER_5_TEMPORAL_TWIN",
+        "LAYER_6_DETERMINISTIC_POLICY"
+      ],
+      "allowed_dependencies": ["schemas"],
+      "forbidden_dependencies": ["crates", "apps"],
+      "boundary_doc": "src/README.md",
+      "description": "Python control plane: 14 intelligence engines, temporal digital twin, policy engine."
+    },
+    "schemas": {
+      "path": "schemas",
+      "type": "SHARED_CONTRACTS",
+      "primary_language": "SCHEMA_IDL",
+      "layers": ["LAYER_6_TYPED_CONTRACTS", "LAYER_7_API_ENVELOPES"],
+      "allowed_dependencies": [],
+      "forbidden_dependencies": ["apps", "crates", "src", "tools"],
+      "boundary_doc": "schemas/README.md",
+      "description": "Language-neutral typed contracts, action contracts, and API wire envelopes."
+    },
+    "tools": {
+      "path": "tools",
+      "type": "DEVELOPER_TOOLING",
+      "primary_language": "PYTHON",
+      "layers": ["CROSS_CUTTING_DEVELOPER_TOOLING"],
+      "allowed_dependencies": ["src", "schemas"],
+      "forbidden_dependencies": ["apps", "crates"],
+      "boundary_doc": "tools/README.md",
+      "description": "Developer tooling, release gate validators, and day tracking infrastructure."
+    },
+    "docs": {
+      "path": "docs",
+      "type": "DOCUMENTATION",
+      "primary_language": "MARKDOWN",
+      "layers": ["GOVERNANCE_AND_ARCHITECTURE"],
+      "allowed_dependencies": [],
+      "forbidden_dependencies": ["apps", "crates", "src", "tools", "schemas"],
+      "boundary_doc": "docs/README.md",
+      "description": "Architectural specifications, decision logs, and research records."
+    }
+  }
+}

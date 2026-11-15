@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://systemmind.local/schemas/monorepo.schema.json",
+  "title": "MonorepoManifest",
+  "description": "Schema definition for the SYSTEM MIND X polyglot monorepo workspace manifest.",
+  "type": "object",
+  "required": ["name", "version", "monorepo_version", "root_boundaries"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "const": "system-mind-x"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "monorepo_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string"
+    },
+    "root_boundaries": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "path",
+          "type",
+          "primary_language",
+          "layers",
+          "allowed_dependencies",
+          "forbidden_dependencies",
+          "boundary_doc",
+          "description"
+        ],
+        "properties": {
+          "path": { "type": "string" },
+          "type": { "type": "string" },
+          "primary_language": { "type": "string" },
+          "layers": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "allowed_dependencies": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "forbidden_dependencies": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "boundary_doc": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  }
+}
