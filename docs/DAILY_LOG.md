@@ -329,3 +329,27 @@
 - Reviewed summary: Functional requirements, input/output schemas, error states, and pipeline topology validator implemented for all fourteen intelligence engines with 97 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (97 passed)
 - Review timestamp: 2026-11-15T19:36:20+05:30
+
+## Day 012 — 2026-11-15 (Awaiting Human Review)
+- **Objective:** Write non-functional requirements for reliability, privacy and performance. Turn the product concept into precise interfaces, data contracts, safety requirements and architecture decisions.
+- **Phase:** Requirements and architecture specification (Days 011-025)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_012_NON_FUNCTIONAL_REQUIREMENTS.md`: Detailed engineering design note defining the four quality dimensions (Reliability, Privacy, Performance, Safety), the 15 quantitative NFR target thresholds, and the benchmark compliance evaluation architecture.
+  - `src/system_mind/nfr/__init__.py`: Package initialization exporting NFR enums, models, registry, and compliance evaluator.
+  - `src/system_mind/nfr/models.py`: Core models for `NfrCategory`, `MetricUnit`, `ComparisonOperator`, `NonFunctionalRequirement`, and `NfrRegistry`.
+  - `src/system_mind/nfr/benchmark.py`: Implementation of `NfrMeasurement`, `NfrEvaluationResult`, and `NfrComplianceEvaluator`.
+  - `tests/test_nfr.py`: Comprehensive test suite verifying registry completeness across all 15 NFRs, category filtering, compliance evaluator pass conditions, threshold breach detection (latency, secrets, memory), and incomplete suite warnings.
+  - `docs/DECISION_LOG.md`: Added ADR-019 (Non-Functional Requirements Framework for Reliability, Privacy, and Performance).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 012 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 12.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 12`: Transitioned Day 012 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran 104 unit/contract/integration tests across all modules; 104 passed in 0.24s (exit code 0).
+  - `python3 -m py_compile src/system_mind/nfr/__init__.py src/system_mind/nfr/models.py src/system_mind/nfr/benchmark.py tests/test_nfr.py`: Compiled all modules with exit code 0.
+- **Security & Platform Limitations:**
+  - Zero tolerance for credential leaks (NFR-PRIV-01) and ambient OCR frame dumps (NFR-PRIV-02).
+  - 100% offline local capability enforced (NFR-PRIV-03).
+  - Host agent memory capped at 50 MB RSS and idle CPU capped at 0.5% (NFR-PERF-03/04).
+  - Development host remains completely protected; zero privileged commands executed on macOS host.
+- **Status:** Awaiting human review before advancing tracker to Day 013.
