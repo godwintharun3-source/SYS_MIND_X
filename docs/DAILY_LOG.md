@@ -595,3 +595,28 @@
 - Reviewed summary: File trust states (8 discrete states), 7 content categories, 5 handler modes, and FileTrustPolicyEvaluator with Scan != Safe invariant implemented with 162 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (162 passed)
 - Review timestamp: 2026-11-15T21:36:15+05:30
+
+## Day 021 — 2026-11-15 (Awaiting Human Review)
+- **Objective:** Define typed action contracts and precondition/postcondition rules. Turn the product concept into precise interfaces, data contracts, safety requirements and architecture decisions.
+- **Phase:** Requirements and architecture specification (Days 011-025)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_021_TYPED_ACTION_CONTRACTS_AND_PREPOST_CONDITIONS.md`: Detailed engineering design note formalizing typed action contracts, precondition/postcondition taxonomies, parameter sanitization, and atomic rollback workflows.
+  - `src/system_mind/contracts/models.py`: Data models (`PreconditionType`, `PostconditionType`, `RollbackStrategy`, `PredicateOperator`, `TypedPrecondition`, `TypedPostcondition`, `RollbackContract`, `TypedActionContract`, `PreconditionEvaluationResult`, `PostconditionEvaluationResult`).
+  - `src/system_mind/contracts/rules.py`: Implementations of `ActionContractValidator` (shell injection prevention, invariant rules, rollback completeness) and `ContractRuleEvaluator` (deterministic predicate evaluation, automated rollback triggering).
+  - `src/system_mind/contracts/__init__.py`: Package export interface for typed action contracts and rule evaluation.
+  - `tests/test_action_contracts.py`: 7 comprehensive unit and contract tests verifying contract SHA-256 calculation, shell injection blocking, pre/postcondition mandates for consequential operations, rollback mandates for high/critical operations, user-app approval requirements, precondition evaluation, and postcondition failure rollback triggers.
+  - `docs/DECISION_LOG.md`: Recorded ADR-031 (Typed Action Contracts, Precondition/Postcondition Rules, and Atomic Rollback).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 021 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 21.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 21`: Transitioned Day 021 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_action_contracts.py`: Ran 7 new action contract tests; 7 passed in 0.04s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran complete test suite (169 unit/contract/integration tests across all modules); 169 passed in 0.21s (exit code 0).
+  - `python3 -m py_compile src/system_mind/contracts/__init__.py src/system_mind/contracts/models.py src/system_mind/contracts/rules.py tests/test_action_contracts.py`: Verified syntax and bytecode compilation with exit code 0.
+- **Security & Platform Limitations:**
+  - Shell injection defense: parameters containing shell meta-characters (`|`, `;`, `&&`, `$()`, `sudo`, `rm -rf`) are rejected at contract validation time.
+  - Consequential operations strictly mandate machine-verifiable preconditions and postconditions.
+  - High-impact and critical privileged operations mandate an executable rollback contract (snapshot revert, file restore, service restore, package downgrade).
+  - Developer host macOS remains completely protected; zero mutating or unconfined operations executed.
+- **Status:** Awaiting human review before advancing tracker to Day 022.
