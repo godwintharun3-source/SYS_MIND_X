@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: IN_PROGRESS (Day 023 completed and reviewed; Day 024 ready to start)
+- Project status: AWAITING_REVIEW (Day 024 implemented; awaiting human review to advance to Day 025)
 - Current day: 24
 - Last reviewed completed day: 23
 - Current milestone: Requirements and architecture specification (Days 011-025)
 - Current implementation branch: `develop`
-- Last verified commit: `e8419e8` (Day 023 implementation)
+- Last verified commit: `978efe0` (Day 023 human review completion)
 - Active blockers: None currently blocking Phase 2. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Start Day 024 via `python3 tools/day_tracker.py start --day 24` and implement API conventions, error model and versioning strategy.
+- Next action: User reviews Day 024 diff and test evidence, then completes Day 024 via `python3 tools/day_tracker.py complete --day 24 ... --reviewed`.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -30,7 +30,12 @@
   - Enforced immutability of `CRITICAL_SECURITY` audit events (zero automated purging).
   - Implemented cryptographic checkpoint anchoring preserving unbroken mathematical verification across pruned epochs.
   - Formalized ADR-033.
-- **Test Suite**: 182 unit, contract, and integration tests in `tests/` verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, and immutable audit ledgers with 100% pass rate.
+- **API Conventions, RFC 7807 Error Model, and Versioning Strategy (Day 024)**: Formalized unified wire envelopes (`ApiRequest`, `ApiResponse`), RFC 7807 structured problem details with categorized error codes (`E1000..E7999`), SemVer 2.0.0 client-server negotiation (`VersionNegotiator`), and structural envelope validator (`ApiEnvelopeValidator`) in `src/system_mind/api/` (`models.py`, `conventions.py`, `__init__.py`) and design note `docs/design/DAY_024_API_CONVENTIONS_ERROR_MODEL_AND_VERSIONING.md`.
+  - Enforced mandatory `idempotency_key` on all mutating operations to prevent duplicate execution across execution planes.
+  - Implemented automatic deep secret scrubbing on all error diagnostic payloads via integration with `SecretRedactor`.
+  - Formalized SemVer 2.0.0 compatibility checks with explicit deprecation schedule warning propagation.
+  - Formalized ADR-034.
+- **Test Suite**: 190 unit, contract, and integration tests in `tests/` verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, and API conventions/versioning with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

@@ -687,3 +687,28 @@
 - Reviewed summary: Immutable cryptographic audit ledger (ImmutableAuditLedger), automated secret redactor, and 5-tier data retention manager implemented with 182 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (182 passed)
 - Review timestamp: 2026-11-15T21:55:26+05:30
+
+## Day 024 — 2026-11-15 (Awaiting Human Review)
+- **Objective:** Define API conventions, error model and versioning strategy. Turn the product concept into precise interfaces, data contracts, safety requirements and architecture decisions.
+- **Phase:** Requirements and architecture specification (Days 011-025)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_024_API_CONVENTIONS_ERROR_MODEL_AND_VERSIONING.md`: Detailed engineering design note formalizing unified API wire envelopes, categorized RFC 7807 problem details, SemVer 2.0.0 negotiation, and mutating idempotency key enforcement.
+  - `src/system_mind/api/models.py`: Data models (`ApiStatus`, `ErrorCodeCategory`, `ErrorCode` [E1000..E7999 ranges], `ApiErrorDetail`, `ApiVersion` [SemVer 2.0.0], `VersionCompatibilityResult`, `ApiRequest`, `ApiResponse`).
+  - `src/system_mind/api/conventions.py`: Implementations of `VersionNegotiator` (SemVer 2.0.0 negotiation and deprecation warnings), `ApiErrorFactory` (secret-scrubbed problem detail builder), and `ApiEnvelopeValidator` (envelope structural and idempotency verification).
+  - `src/system_mind/api/__init__.py`: Package export interface for API conventions, models, and negotiators.
+  - `tests/test_api_conventions.py`: 8 comprehensive unit and contract tests verifying SemVer parsing, client-server negotiation rules, deprecation warning emission, envelope validation, mandatory idempotency keys on mutating requests, deep secret scrubbing in error payloads, error code ranges, and response envelope construction.
+  - `docs/DECISION_LOG.md`: Recorded ADR-034 (Unified API Wire Envelopes, RFC 7807 Structured Error Model, and SemVer Negotiation).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 024 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 24.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 24`: Transitioned Day 024 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_api_conventions.py`: Ran 8 new API convention tests; 8 passed in 0.06s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran complete test suite (190 unit/contract/integration tests across all modules); 190 passed in 0.24s (exit code 0).
+  - `python3 -m py_compile src/system_mind/api/__init__.py src/system_mind/api/models.py src/system_mind/api/conventions.py tests/test_api_conventions.py`: Verified syntax and bytecode compilation with exit code 0.
+- **Security & Platform Limitations:**
+  - Mandatory idempotency: all mutating API requests mandate unique `idempotency_key` tokens to prevent race conditions and duplicate executions.
+  - Secret protection: `ApiErrorFactory` guarantees zero credential/token leakage in diagnostic error payloads via recursive sanitization.
+  - Compatibility enforcement: breaking API changes trigger hard mismatch rejections; deprecated endpoints emit migration notices.
+  - Developer host macOS remains completely protected; zero mutating or unconfined operations executed.
+- **Status:** Awaiting human review before advancing tracker to Day 025.
