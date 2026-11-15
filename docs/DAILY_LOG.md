@@ -502,3 +502,28 @@
 - Reviewed summary: Temporal observations, cryptographic provenance, freshness lifecycle evaluator, and TemporalTimelineStore with staleness guard implemented with 138 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (138 passed)
 - Review timestamp: 2026-11-15T21:10:15+05:30
+
+## Day 018 — 2026-11-15 (Awaiting Human Review)
+- **Objective:** Design the application ownership and user-app exclusion model. Turn the product concept into precise interfaces, data contracts, safety requirements and architecture decisions.
+- **Phase:** Requirements and architecture specification (Days 011-025)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_018_APPLICATION_OWNERSHIP_AND_EXCLUSION_MODEL.md`: Detailed engineering design note formalizing tripartite ownership taxonomy, application types, install scopes, 5 deterministic exclusion rules, and cardinal invariants.
+  - `src/system_mind/applications/models.py`: Data models (`ApplicationType`, `InstallScope`, `ApplicationProfile`, and `ExclusionVerdict`).
+  - `src/system_mind/applications/classifier.py`: Implementation of `ApplicationOwnershipClassifier` categorizing software into tripartite ownership with fail-safe default `USER_MANAGED`.
+  - `src/system_mind/applications/exclusion.py`: Implementation of `UserAppExclusionEnforcer` evaluating exclusion rules, blocking autonomous maintenance on user apps/dependencies, preventing ownership spoofing, and requiring explicit human approval (`user_approved=True`).
+  - `src/system_mind/applications/__init__.py`: Package initialization exporting the application models, classifier, and enforcer.
+  - `tests/test_application_exclusion.py`: 8 comprehensive unit and contract tests verifying enums, profile creation, classification of desktop apps, project dependencies, configs, OS core components, exclusion verdicts, autonomous maintenance blocking, and ownership spoofing detection.
+  - `docs/DECISION_LOG.md`: Added ADR-028 (Application Ownership Classification and User-App Exclusion Model).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 018 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 18.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 18`: Transitioned Day 018 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran 146 unit/contract/integration tests across all modules; 146 passed in 0.21s (exit code 0).
+  - `python3 -m py_compile src/system_mind/applications/__init__.py src/system_mind/applications/models.py src/system_mind/applications/classifier.py src/system_mind/applications/exclusion.py tests/test_application_exclusion.py`: Compiled all modules with exit code 0.
+- **Security & Platform Limitations:**
+  - Fail-safe default to `USER_MANAGED` guarantees unverified software is never automatically updated.
+  - User applications, desktop browsers, IDEs, and developer virtualenvs are permanently excluded from autonomous system maintenance.
+  - Ownership spoofing (falsely claiming a user app is system-managed) is detected and hard-blocked.
+  - Development host remains completely protected; zero privileged commands executed on macOS host.
+- **Status:** Awaiting human review before advancing tracker to Day 019.

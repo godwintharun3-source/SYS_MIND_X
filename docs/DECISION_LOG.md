@@ -80,3 +80,6 @@ Status: accepted. SYSTEM MIND X implements a typed, in-memory directed property 
 
 ## ADR-027: Temporal Observations, Cryptographic Provenance, and Bounded Freshness Enforcement
 Status: accepted. SYSTEM MIND X augments the Digital Twin with an append-only TemporalTimelineStore that logs discrete observations with strictly monotonic sequence numbers, SHA-256 payload integrity hashing, and provenance verification status (VERIFIED_KERNEL, VERIFIED_BROKER, UNVERIFIED_USER_SPACE). The FreshnessEvaluator computes staleness decay scores across configurable TTL windows (FRESH, AGING, STALE, EXPIRED, TOMBSTONED), and the policy engine enforces a Staleness Guard blocking consequential mutating dispatches against stale target entities.
+
+## ADR-028: Application Ownership Classification and User-App Exclusion Model
+Status: accepted. SYSTEM MIND X implements a dedicated ApplicationOwnershipClassifier and UserAppExclusionEnforcer. All host software is categorized into the tripartite ownership model (SYSTEM_MANAGED, VENDOR_MANAGED, USER_MANAGED) with a fail-safe default of USER_MANAGED. All user-installed applications, desktop browsers, IDEs, and developer virtual environments are permanently excluded from autonomous system maintenance pipelines and require explicit human consent (user_approved=True) before any mutation can occur.
