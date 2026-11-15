@@ -359,3 +359,25 @@
 - Reviewed summary: Non-functional requirements framework covering 15 quantitative thresholds for reliability, privacy, performance, and safety with benchmark compliance evaluator implemented with 104 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (104 passed)
 - Review timestamp: 2026-11-15T20:13:04+05:30
+
+## Day 013 — 2026-11-15 (Awaiting Human Review)
+- **Objective:** Define the seven-layer system architecture and component boundaries. Turn the product concept into precise interfaces, data contracts, safety requirements and architecture decisions.
+- **Phase:** Requirements and architecture specification (Days 011-025)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_013_SEVEN_LAYER_SYSTEM_ARCHITECTURE.md`: Detailed engineering design note formalizing the seven architectural layers (L1 Presentation to L7 Kernel/Hardware), component envelopes, privilege boundaries, and three cardinal invariants (Strict Adjacency, Directional Separation, Autonomous Boundary).
+  - `src/system_mind/architecture/__init__.py`: Package initialization exporting layer IDs, directions, specifications, registry, and boundary enforcer.
+  - `src/system_mind/architecture/layers.py`: Implementation of `ArchitectureLayerId`, `DataflowDirection`, `LayerSpecification`, `SevenLayerArchitectureRegistry`, and `ArchitectureBoundaryEnforcer`.
+  - `tests/test_seven_layer_architecture.py`: Comprehensive test suite verifying all 7 layers sequential registration, lookup methods, valid downward execution steps, blocked bypasses (L2 to L5/6/7 direct bypass), upward observation flows, and lateral state query restrictions.
+  - `docs/DECISION_LOG.md`: Added ADR-020 (Seven-Layer System Architecture and Inter-Layer Component Boundaries).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 013 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 13.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 13`: Transitioned Day 013 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran 110 unit/contract/integration tests across all modules; 110 passed in 0.23s (exit code 0).
+  - `python3 -m py_compile src/system_mind/architecture/__init__.py src/system_mind/architecture/layers.py tests/test_seven_layer_architecture.py`: Compiled all modules with exit code 0.
+- **Security & Platform Limitations:**
+  - Rule of Strict Adjacency guarantees the AI Cognitive Plane (Layer 2) can never bypass the Deterministic Policy Engine (Layer 3) to execute commands in the Broker (Layer 5) or Kernel (Layer 7).
+  - Directional separation ensures execution flows strictly downward while telemetry flows upward.
+  - Development host remains completely protected; zero privileged commands executed on macOS host.
+- **Status:** Awaiting human review before advancing tracker to Day 014.
