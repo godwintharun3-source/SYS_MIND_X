@@ -474,3 +474,25 @@
 - Reviewed summary: Digital-twin entity and relationship model with 10 entity types, 9 relationship types, DigitalTwinGraph store, and referential integrity validator implemented with 133 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (133 passed)
 - Review timestamp: 2026-11-15T21:04:10+05:30
+
+## Day 017 — 2026-11-15 (Awaiting Human Review)
+- **Objective:** Design temporal observations, provenance and freshness metadata. Turn the product concept into precise interfaces, data contracts, safety requirements and architecture decisions.
+- **Phase:** Requirements and architecture specification (Days 011-025)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_017_TEMPORAL_OBSERVATIONS_PROVENANCE_FRESHNESS.md`: Detailed engineering design note formalizing observation types, provenance verification status, freshness decay lifecycle, state reconstruction, and Staleness Guard.
+  - `src/system_mind/twin/temporal.py`: Implementation of `ObservationType`, `ProvenanceStatus`, `FreshnessState`, `compute_payload_hash`, `ProvenanceMetadata`, `FreshnessMetadata`, `TemporalObservation`, `StateDelta`, `FreshnessEvaluator`, and `TemporalTimelineStore`.
+  - `src/system_mind/twin/__init__.py`: Package initialization exporting the temporal constructs and timeline store.
+  - `tests/test_temporal_observations.py`: 5 comprehensive unit and contract tests verifying temporal enums, deterministic SHA-256 payload hashing, freshness lifecycle decay, monotonic sequence enforcement, payload tampering detection, state reconstruction, diffing, and staleness guard execution gating.
+  - `docs/DECISION_LOG.md`: Added ADR-027 (Temporal Observations, Cryptographic Provenance, and Bounded Freshness Enforcement).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 017 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 17.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 17`: Transitioned Day 017 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran 138 unit/contract/integration tests across all modules; 138 passed in 0.22s (exit code 0).
+  - `python3 -m py_compile src/system_mind/twin/__init__.py src/system_mind/twin/temporal.py tests/test_temporal_observations.py`: Compiled all modules with exit code 0.
+- **Security & Platform Limitations:**
+  - Consequential mutating operations strictly gated by Staleness Guard; dispatches against stale or expired state are rejected.
+  - Payload integrity guaranteed via SHA-256 payload digest verification.
+  - Development host remains completely protected; zero privileged commands executed on macOS host.
+- **Status:** Awaiting human review before advancing tracker to Day 018.

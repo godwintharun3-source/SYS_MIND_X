@@ -77,3 +77,6 @@ Status: accepted. Operating systems are fundamentally non-fungible and cannot be
 
 ## ADR-026: Digital-Twin Entity and Relationship Model and Graph Referential Integrity
 Status: accepted. SYSTEM MIND X implements a typed, in-memory directed property graph in Layer 4 (DigitalTwinGraph) to represent observed host state across hardware, processes, files, packages, and security postures. The graph models 10 entity types and 9 relationship types with mandatory tripartite component ownership (SYSTEM_MANAGED, VENDOR_MANAGED, USER_MANAGED), provenance attribution, cascading relationship deletion upon entity removal, and strict prohibition of cleartext sensitive credentials.
+
+## ADR-027: Temporal Observations, Cryptographic Provenance, and Bounded Freshness Enforcement
+Status: accepted. SYSTEM MIND X augments the Digital Twin with an append-only TemporalTimelineStore that logs discrete observations with strictly monotonic sequence numbers, SHA-256 payload integrity hashing, and provenance verification status (VERIFIED_KERNEL, VERIFIED_BROKER, UNVERIFIED_USER_SPACE). The FreshnessEvaluator computes staleness decay scores across configurable TTL windows (FRESH, AGING, STALE, EXPIRED, TOMBSTONED), and the policy engine enforces a Staleness Guard blocking consequential mutating dispatches against stale target entities.
