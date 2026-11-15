@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: IN_PROGRESS (Day 015 reviewed complete; Day 016 ready to start)
+- Project status: AWAITING_REVIEW (Day 016 implemented, verified with 133 passed tests, awaiting review)
 - Current day: 16
 - Last reviewed completed day: 15
 - Current milestone: Requirements and architecture specification (Days 011-025)
 - Current implementation branch: `develop`
-- Last verified commit: `f30eb09` (Day 015 implementation)
+- Last verified commit: `2933801` (Day 015 reviewed completion)
 - Active blockers: None currently blocking Phase 2. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Start Day 016 (`python3 tools/day_tracker.py start --day 16`) to design the digital-twin entity and relationship model.
+- Next action: Await human review of Day 016 diff; complete Day 016 via `python3 tools/day_tracker.py complete --day 16 ...`.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -17,10 +17,12 @@
 - **Seven-Layer System Architecture & Component Boundaries (Day 013)**: Formal seven-layer architectural hierarchy and boundary enforcement in `src/system_mind/architecture/` (`layers.py`, `__init__.py`) and design note `docs/design/DAY_013_SEVEN_LAYER_SYSTEM_ARCHITECTURE.md`.
 - **AI and Native System Split ADRs (Day 014)**: Formalized architecture decision records ADR-021 through ADR-024 in `docs/design/DAY_014_AI_NATIVE_SYSTEM_SPLIT_ADRS.md` and programmatic enforcement in `src/system_mind/architecture/split.py` and `src/system_mind/architecture/__init__.py`.
 - **Cross-Platform Capability Parity Levels (Day 015)**: Formalized the five-tier parity hierarchy (`LEVEL_1_FULL_PARITY` through `LEVEL_5_UNSUPPORTED`) across 8 core capability domains for macOS Apple Silicon, Windows 11 x64, Ubuntu LTS x86_64, and NixOS VM in `src/system_mind/platform/parity.py`, `src/system_mind/platform/__init__.py`, and design note `docs/design/DAY_015_CAPABILITY_PARITY_LEVELS.md`.
-  - Registered 32 capability parity specifications in `CapabilityParityRegistry` mapping native APIs, entitlements, limitations, and fallback strategies.
-  - Implemented `CapabilityParityEvaluator` with matrix audit validation, degradation warnings, strict parity enforcement, and typed exception handling (`PlatformCapabilityUnsupportedError`).
-  - Formalized ADR-025 establishing non-fungibility and capability parity invariants.
-- **Test Suite**: 124 unit, contract, and integration tests in `tests/` verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, and capability parity levels with 100% pass rate.
+- **Digital-Twin Entity and Relationship Model (Day 016)**: Formalized the entity-relationship property graph model in `src/system_mind/twin/` (`models.py`, `graph.py`, `__init__.py`) and design note `docs/design/DAY_016_DIGITAL_TWIN_ENTITY_RELATIONSHIP_MODEL.md`.
+  - Defined 10 primary entity types (`TwinEntityType`) and 9 directed relationship types (`TwinRelationType`).
+  - Implemented `DigitalTwinGraph` in-memory graph engine with indexed lookups by ID, type, and ownership, ascending process hierarchy traversal (`get_process_ancestors`), dependency resolution (`get_dependencies`), and cascading deletion upon entity removal.
+  - Enforced four cardinal invariants: mandatory tripartite component ownership (`ComponentOwnership`), referential integrity, provenance attribution, and privacy safeguards preventing cleartext credentials.
+  - Formalized ADR-026.
+- **Test Suite**: 133 unit, contract, and integration tests in `tests/` verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, and digital twin models with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.
