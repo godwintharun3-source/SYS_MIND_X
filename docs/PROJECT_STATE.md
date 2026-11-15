@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: IN_PROGRESS (Day 018 reviewed complete; Day 019 ready to start)
+- Project status: AWAITING_REVIEW (Day 019 implemented, verified with 154 passed tests, awaiting review)
 - Current day: 19
 - Last reviewed completed day: 18
 - Current milestone: Requirements and architecture specification (Days 011-025)
 - Current implementation branch: `develop`
-- Last verified commit: `a2e3430` (Day 018 implementation)
+- Last verified commit: `e2bd47d` (Day 018 reviewed completion)
 - Active blockers: None currently blocking Phase 2. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Start Day 019 (`python3 tools/day_tracker.py start --day 19`) to design the system-update ownership taxonomy.
+- Next action: Await human review of Day 019 diff; complete Day 019 via `python3 tools/day_tracker.py complete --day 19 ...`.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -20,11 +20,12 @@
 - **Digital-Twin Entity and Relationship Model (Day 016)**: Formalized the entity-relationship property graph model in `src/system_mind/twin/` (`models.py`, `graph.py`, `__init__.py`) and design note `docs/design/DAY_016_DIGITAL_TWIN_ENTITY_RELATIONSHIP_MODEL.md`.
 - **Temporal Observations, Provenance and Freshness Metadata (Day 017)**: Formalized temporal observation models, cryptographic provenance, and freshness lifecycle in `src/system_mind/twin/temporal.py`, `src/system_mind/twin/__init__.py`, and design note `docs/design/DAY_017_TEMPORAL_OBSERVATIONS_PROVENANCE_FRESHNESS.md`.
 - **Application Ownership and User-App Exclusion Model (Day 018)**: Formalized application domain models, ownership classifier, and deterministic exclusion enforcer in `src/system_mind/applications/` (`models.py`, `classifier.py`, `exclusion.py`, `__init__.py`) and design note `docs/design/DAY_018_APPLICATION_OWNERSHIP_AND_EXCLUSION_MODEL.md`.
-  - Defined 6 application types (`ApplicationType`), 3 installation scopes (`InstallScope`), and `ApplicationProfile`.
-  - Implemented `ApplicationOwnershipClassifier` categorizing software into tripartite ownership with fail-safe default `USER_MANAGED`.
-  - Built `UserAppExclusionEnforcer` enforcing 5 exclusion rules, blocking autonomous maintenance on user-managed apps/dependencies, preventing ownership spoofing, and requiring explicit human approval (`user_approved=True`).
-  - Formalized ADR-028.
-- **Test Suite**: 146 unit, contract, and integration tests in `tests/` verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, and application exclusion rules with 100% pass rate.
+- **System-Update Ownership Taxonomy (Day 019)**: Formalized update maintenance tiers, lifecycle progression, and policy validator in `src/system_mind/updates/` (`models.py`, `taxonomy.py`, `validator.py`, `__init__.py`) and design note `docs/design/DAY_019_SYSTEM_UPDATE_OWNERSHIP_TAXONOMY.md`.
+  - Defined 6 update maintenance tiers (`OS_SECURITY_HOTFIX`, `SYSTEM_DAEMON_MAINTENANCE`, `OS_CUMULATIVE_UPDATE`, `FIRMWARE_HARDWARE_UPDATE`, `USER_APP_UPDATE`, `PROJECT_DEPENDENCY_UPDATE`).
+  - Implemented `SystemUpdateTaxonomyRegistry` defining safety profiles, snapshot rules, reboot requirements, and AC power constraints.
+  - Built `SystemUpdatePolicyValidator` enforcing Autonomous Scope Invariant (Tiers 1 & 2 only), snapshot precondition verification, AC power enforcement, and user approval for firmware/cumulative updates.
+  - Formalized ADR-029.
+- **Test Suite**: 154 unit, contract, and integration tests in `tests/` verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, and system update taxonomy with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

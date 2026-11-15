@@ -83,3 +83,6 @@ Status: accepted. SYSTEM MIND X augments the Digital Twin with an append-only Te
 
 ## ADR-028: Application Ownership Classification and User-App Exclusion Model
 Status: accepted. SYSTEM MIND X implements a dedicated ApplicationOwnershipClassifier and UserAppExclusionEnforcer. All host software is categorized into the tripartite ownership model (SYSTEM_MANAGED, VENDOR_MANAGED, USER_MANAGED) with a fail-safe default of USER_MANAGED. All user-installed applications, desktop browsers, IDEs, and developer virtual environments are permanently excluded from autonomous system maintenance pipelines and require explicit human consent (user_approved=True) before any mutation can occur.
+
+## ADR-029: System-Update Ownership Taxonomy and Safety Lifecycle
+Status: accepted. SYSTEM MIND X formalizes a six-tier System-Update Ownership Taxonomy (OS_SECURITY_HOTFIX, SYSTEM_DAEMON_MAINTENANCE, OS_CUMULATIVE_UPDATE, FIRMWARE_HARDWARE_UPDATE, USER_APP_UPDATE, PROJECT_DEPENDENCY_UPDATE). Autonomous unattended execution is restricted exclusively to Tier 1 and Tier 2. Cumulative OS updates require pre-update filesystem recovery snapshots and user-scheduled reboot maintenance windows. Firmware updates require explicit human consent, recovery snapshots, and AC power verification. User applications and project dependencies remain strictly excluded from autonomous system updates.
