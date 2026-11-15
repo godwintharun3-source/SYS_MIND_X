@@ -1,5 +1,14 @@
-"""Architecture package for SYSTEM MIND X: Layers, component boundaries, and AI/native system split."""
+"""Architecture package for SYSTEM MIND X: Layers, component boundaries, AI/native split, and baseline freeze."""
 
+from system_mind.architecture.baseline import (
+    ArchitectureBaselineAudit,
+    ArchitectureBaselineManifest,
+    ArchitectureBaselineRegistry,
+    ArchitectureBaselineVerifier,
+    ArchitectureComponentSpec,
+    BaselineComponentId,
+    FreezeStatus,
+)
 from system_mind.architecture.layers import (
     ArchitectureBoundaryEnforcer,
     ArchitectureLayerId,
@@ -28,4 +37,12 @@ __all__ = [
     "ArchitectureDecisionRecord",
     "SplitBoundaryRegistry",
     "AiNativeSplitValidator",
+    # Architecture Baseline Freeze
+    "BaselineComponentId",
+    "FreezeStatus",
+    "ArchitectureComponentSpec",
+    "ArchitectureBaselineManifest",
+    "ArchitectureBaselineAudit",
+    "ArchitectureBaselineRegistry",
+    "ArchitectureBaselineVerifier",
 ]
