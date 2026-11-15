@@ -1,4 +1,4 @@
-"""Governance package for SYSTEM MIND X: Acceptance gates, research questions, and release verification."""
+"""Governance package for SYSTEM MIND X: Acceptance gates, Identity, Role, Approval, and Policy Precedence."""
 
 from system_mind.governance.gates import (
     AcceptanceGate,
@@ -11,6 +11,19 @@ from system_mind.governance.gates import (
     ResearchQuestionId,
     ResearchQuestionRegistry,
 )
+from system_mind.governance.models import (
+    ActorIdentity,
+    ApprovalEvidence,
+    AuthorizationVerdict,
+    IdentityType,
+    PolicyEffect,
+    PolicyPrecedenceTier,
+    PolicyRule,
+    PrecedenceResolutionResult,
+    SecurityRole,
+    SecurityRoleType,
+)
+from system_mind.governance.precedence import PolicyPrecedenceEngine
 
 __all__ = [
     "ResearchQuestionId",
@@ -22,4 +35,15 @@ __all__ = [
     "ResearchQuestionRegistry",
     "AcceptanceGateRegistry",
     "ReleaseGateVerifier",
+    "IdentityType",
+    "SecurityRoleType",
+    "PolicyPrecedenceTier",
+    "PolicyEffect",
+    "AuthorizationVerdict",
+    "ActorIdentity",
+    "SecurityRole",
+    "PolicyRule",
+    "ApprovalEvidence",
+    "PrecedenceResolutionResult",
+    "PolicyPrecedenceEngine",
 ]
