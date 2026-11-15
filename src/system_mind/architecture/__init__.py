@@ -1,4 +1,4 @@
-"""Architecture package for SYSTEM MIND X: Seven-layer system hierarchy, component boundaries, and transition enforcement."""
+"""Architecture package for SYSTEM MIND X: Layers, component boundaries, and AI/native system split."""
 
 from system_mind.architecture.layers import (
     ArchitectureBoundaryEnforcer,
@@ -7,11 +7,25 @@ from system_mind.architecture.layers import (
     LayerSpecification,
     SevenLayerArchitectureRegistry,
 )
+from system_mind.architecture.split import (
+    AiNativeSplitValidator,
+    ArchitectureDecisionRecord,
+    PrivilegeBoundary,
+    SplitBoundaryRegistry,
+    SystemPlaneId,
+)
 
 __all__ = [
+    # 7-Layer system
     "ArchitectureLayerId",
     "DataflowDirection",
     "LayerSpecification",
     "SevenLayerArchitectureRegistry",
     "ArchitectureBoundaryEnforcer",
+    # AI/Native system split
+    "SystemPlaneId",
+    "PrivilegeBoundary",
+    "ArchitectureDecisionRecord",
+    "SplitBoundaryRegistry",
+    "AiNativeSplitValidator",
 ]

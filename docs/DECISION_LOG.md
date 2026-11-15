@@ -59,3 +59,15 @@ Status: accepted. SYSTEM MIND X formalizes fifteen measurable Non-Functional Req
 
 ## ADR-020: Seven-Layer System Architecture and Inter-Layer Component Boundaries
 Status: accepted. SYSTEM MIND X establishes a strict Seven-Layer System Architecture: Layer 1 (Presentation & Interface), Layer 2 (Cognitive Planning & Context Plane), Layer 3 (Deterministic Policy & Governance Engine), Layer 4 (Temporal Digital Twin & Provenance Store), Layer 5 (Narrow Privileged Execution Broker), Layer 6 (Platform Capability Adapters & Sandboxing), and Layer 7 (Native OS Kernel & Physical Hardware). Inter-layer communication is enforced programmatically by ArchitectureBoundaryEnforcer according to three cardinal invariants: the Rule of Strict Adjacency (Layer 2 cannot bypass Layer 3 to directly invoke Layer 5, 6, or 7), Directional Separation (downward execution requests vs upward telemetry/event observations), and Autonomous Non-Interference with user-managed components.
+
+## ADR-021: AI Cognitive Plane as an Untrusted Planner Isolated in User Space
+Status: accepted. The AI cognitive plane runs in unprivileged user space with zero OS mutation rights and communicates outward solely via typed declarative ActionContracts. All consequential actions require downstream deterministic policy approval, ensuring prompt injections cannot trigger native system calls.
+
+## ADR-022: Narrow Privileged Execution Broker with Cryptographic Provenance and Atomic Rollback
+Status: accepted. Consequential state modifications are dispatched exclusively through a narrow broker daemon that validates preconditions, enforces atomic rollbacks upon postcondition failure, and logs immutable SHA-256 audit receipts. Ambient shell execution is eliminated.
+
+## ADR-023: Deterministic Non-LLM Invariant Firewall as Authority Gate
+Status: accepted. An independent deterministic rules engine operating strictly outside LLM weights evaluates all proposed contracts against charter invariants and component ownership boundaries. The AI model cannot convince or bypass the policy engine, and policy evaluation is mathematically guaranteed.
+
+## ADR-024: Native OS Kernel and Security Controls as Authoritative Enforcers
+Status: accepted. Native OS kernels remain the authoritative lower-level security enforcement boundary. SYSTEM MIND X works strictly within native OS entitlements and never disables or weakens native security controls (SIP, Gatekeeper, WDAC, AppArmor).

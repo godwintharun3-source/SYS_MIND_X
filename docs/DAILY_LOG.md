@@ -387,3 +387,26 @@
 - Reviewed summary: Seven-layer system architecture (L1-L7), inter-layer component boundaries, and transition enforcer implemented with 110 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (110 passed)
 - Review timestamp: 2026-11-15T20:46:07+05:30
+
+## Day 014 — 2026-11-15 (Awaiting Human Review)
+- **Objective:** Create architecture decision records for the AI and native system split. Turn the product concept into precise interfaces, data contracts, safety requirements and architecture decisions.
+- **Phase:** Requirements and architecture specification (Days 011-025)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_014_AI_NATIVE_SYSTEM_SPLIT_ADRS.md`: Detailed engineering design note formalizing ADR-021 through ADR-024, the four planes (AI Cognitive Plane, Deterministic Policy Gate, Native Execution Broker, Native Kernel Authority), and the four cardinal invariants.
+  - `src/system_mind/architecture/split.py`: Implementation of `SystemPlaneId`, `PrivilegeBoundary`, `ArchitectureDecisionRecord`, `SplitBoundaryRegistry`, and `AiNativeSplitValidator`.
+  - `src/system_mind/architecture/__init__.py`: Package initialization exporting the split-plane enums, records, registry, and validator.
+  - `tests/test_ai_native_split.py`: Comprehensive test suite verifying registry completeness, lookups, blocking of direct AI-to-broker bypass (ADR-021), requirement of verified capability grants (ADR-022), raw shell rejection (ADR-023), and native security subversion prevention (ADR-024).
+  - `docs/DECISION_LOG.md`: Added ADR-021, ADR-022, ADR-023, and ADR-024.
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 014 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 14.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 14`: Transitioned Day 014 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran 116 unit/contract/integration tests across all modules; 116 passed in 0.25s (exit code 0).
+  - `python3 -m py_compile src/system_mind/architecture/__init__.py src/system_mind/architecture/split.py tests/test_ai_native_split.py`: Compiled all modules with exit code 0.
+- **Security & Platform Limitations:**
+  - AI Cognitive Plane runs strictly unprivileged in user space with zero native OS mutation entitlements.
+  - Broker requires cryptographically verified capability grants issued by deterministic policy engine.
+  - Actions attempting to disable SIP, Gatekeeper, or WDAC are hard-rejected.
+  - Development host remains completely protected; zero privileged commands executed on macOS host.
+- **Status:** Awaiting human review before advancing tracker to Day 015.
