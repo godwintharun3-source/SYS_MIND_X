@@ -12,6 +12,10 @@ from system_mind.packaging.frontend_scaffold import (
     FrontendScaffoldAuditResult,
     FrontendScaffoldValidator,
 )
+from system_mind.packaging.logging_config import (
+    LoggingConfigAuditResult,
+    LoggingConfigValidator,
+)
 from system_mind.packaging.models import (
     PackageMetadata,
     PackageVerificationResult,
@@ -39,6 +43,8 @@ __all__ = [
     "EnvironmentConfigValidator",
     "FrontendScaffoldAuditResult",
     "FrontendScaffoldValidator",
+    "LoggingConfigAuditResult",
+    "LoggingConfigValidator",
     "PackageMetadata",
     "PackageVerificationResult",
     "PackageConfigValidator",

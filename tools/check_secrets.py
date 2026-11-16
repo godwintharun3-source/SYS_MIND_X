@@ -51,6 +51,8 @@ IGNORED_SCAN_FILES = {
     "test_api_conventions.py",     # Contains test token samples for redaction tests
     "test_e2e_governance_session.py",
     "test_integration_pipeline.py",
+    "test_structured_logging.py",   # Contains test token samples for redaction tests
+    "logging_config.py",           # Contains test token samples for validator audit
 }
 
 
