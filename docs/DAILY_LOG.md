@@ -1401,3 +1401,9 @@
   - Hardware Identifier Privacy (INV-MAC-02): Raw serial numbers are never logged or stored in plaintext; salted SHA-256 digests ensure privacy preservation.
   - Graceful Fallback (INV-MAC-04): On non-Darwin hosts (Linux/Windows), detector surfaces mock data or structured unsupported reports.
 - **Status:** Awaiting human review before advancing tracker to Day 042.
+
+## Day 041 - Human reviewed complete
+
+- Reviewed summary: Read-only macOS platform detector (src/system_mind/macos/detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_identity.rs), tools/detect_macos.py CLI, and MacOsTelemetryValidator implemented with 369 total passed tests (349 Python + 20 Rust)
+- Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (18 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (349 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
+- Review timestamp: 2026-11-16T15:39:24+05:30

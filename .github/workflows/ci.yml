@@ -72,7 +72,7 @@ jobs:
       - name: Set up Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.75.0
+          toolchain: stable
           components: rustfmt, clippy
 
       - name: Run Cargo Format Check
