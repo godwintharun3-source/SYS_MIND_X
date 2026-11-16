@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: IN_PROGRESS (Day 028 completed and reviewed; Day 029 ready to start)
+- Project status: IN_PROGRESS (Day 029 completed, awaiting human review)
 - Current day: 29
 - Last reviewed completed day: 28
 - Current milestone: Repository and development foundation (Days 026–040)
 - Current implementation branch: `develop`
-- Last verified commit: `98b7659` (Day 028 human review completion)
+- Last verified commit: `8dfed64` (Update docs/PROJECT_STATE.md to Day 029 ready to start)
 - Active blockers: None currently blocking Milestone 3. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Start Day 029 via `python3 tools/day_tracker.py start --day 29` and create the React and TypeScript desktop frontend scaffold.
+- Next action: Human user reviews Day 029 git diff and test evidence, then runs `python3 tools/day_tracker.py complete --day 29 ... --reviewed`.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -52,7 +52,12 @@
   - Enforced strict unidirectional dependency flow (`broker` -> `sensors` -> `common`) and zero Python runtime dependency.
   - Implemented broker precondition checks enforcing "Scan != Safe" and user-managed component protection.
   - Formalized ADR-038.
-- **Test Suite**: 220 Python unit/contract/integration tests in `tests/` + 7 native Rust unit tests across workspace crates (227 total tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, and Rust system-agent workspace boundaries with 100% pass rate.
+- **React and TypeScript Desktop Frontend Scaffold (Day 029)**: Formalized desktop frontend workspace (`apps/desktop/`, package `@system-mind/desktop` v1.0.0) built on TypeScript, React 18, and Vite, with `FrontendScaffoldValidator` in `src/system_mind/packaging/frontend_scaffold.py` and design note `docs/design/DAY_029_REACT_TYPESCRIPT_FRONTEND_SCAFFOLD.md`.
+  - Enforced sandboxed presentation layer boundaries: zero direct OS shell access (`child_process`, `execa`, `shelljs`, etc. strictly prohibited).
+  - Implemented strongly typed wire client (`SystemMindApiClient`) enforcing client-generated UUIDv4 `idempotency_key` tokens on mutating operations.
+  - Implemented accessible operator console with live sensor metrics, tripartite boundary visualizer, 8-state file trust lifecycle inspector with prominent "Scan != Safe" guardrails, and cryptographic audit ledger.
+  - Formalized ADR-039.
+- **Test Suite**: 230 Python unit/contract/integration tests in `tests/` + 7 native Rust unit tests across workspace crates (237 total tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, and desktop frontend scaffold with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.
