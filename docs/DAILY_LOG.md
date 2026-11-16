@@ -1449,3 +1449,39 @@
 - Reviewed summary: Read-only macOS CPU hardware detector (src/system_mind/macos/cpu_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_cpu.rs), tools/detect_cpu.py CLI, and MacOsCpuValidator implemented with 378 total passed tests (356 Python + 22 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (20 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (356 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T15:51:45+05:30
+
+## Day 043 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Collect memory capacity, pressure indicators and usage safely. Build a read-only macOS companion agent. Use supported APIs, report unavailable telemetry and respect permissions.
+- **Phase:** macOS system agent and telemetry (Days 041–065)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_043_MACOS_MEMORY_CAPACITY_PRESSURE_USAGE.md`: Detailed engineering design note formalizing macOS memory capacity, Mach virtual memory page statistics, dynamic swap metrics, Activity Monitor decomposition formulas, and safety invariants.
+  - `src/system_mind/macos/memory_models.py`: Strongly typed data models (`MemoryPressureLevel`, `MacVmPageStats`, `MacSwapUsage`, `MacMemoryBreakdown`, `MacMemoryTelemetryReport`).
+  - `src/system_mind/macos/memory_detector.py`: Read-only platform detector (`MacMemoryDetector`) querying Darwin sysctl (`hw.memsize`, `vm.swapusage`, `vm.memory_pressure`, `kern.memorystatus_level`) and `vm_stat`.
+  - `src/system_mind/macos/__init__.py`: Exported memory telemetry models and detector.
+  - `crates/system-mind-sensors/src/macos_memory.rs`: Native Rust memory sensor models (`MacOsMemorySnapshot`, `MemoryPressureState`, `MacOsMemoryCollector`, `MockMacOsMemoryCollector`).
+  - `crates/system-mind-sensors/src/lib.rs`: Integrated and exported `macos_memory` in Rust sensors workspace crate.
+  - `tools/detect_memory.py`: Developer CLI tool for inspecting memory capacity, Activity Monitor page breakdown, swap, and pressure level.
+  - `tools/README.md`: Documented `tools/detect_memory.py` in developer tooling catalog.
+  - `src/system_mind/packaging/macos_memory.py`: Programmatic validator (`MacOsMemoryValidator`, `MacOsMemoryAuditResult`) verifying data models, math invariants, CLI, and sensor parity in CI.
+  - `src/system_mind/packaging/__init__.py`: Exported `MacOsMemoryValidator`.
+  - `tests/test_macos_memory_detector.py`: 9 comprehensive unit, contract, and integration tests verifying Darwin live detection, mock simulation, vm_stat parsing, swap parsing, math invariants, fallback behavior, and CLI execution.
+  - `docs/DECISION_LOG.md`: Formalized ADR-053.
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 043 awaiting review with 365 Python + 22 Rust workspace + 2 Rust desktop shell = 389 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 43.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 43`: Started Day 043 (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_memory_detector.py`: 9 passed in 0.62s (exit code 0).
+  - `cargo test --workspace`: 22 passed in 2.21s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/lint.py`: AST safety analysis, syntax compilation, static checks; clean pass (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 670 text files; zero secret leaks detected (exit code 0).
+  - `python3 tools/ci_runner.py all`: All 5 CI stages passed cleanly in 26.43s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 365 passed in 18.79s (exit code 0).
+- **Security & Platform Limitations:**
+  - Passive Read-Only Introspection (SC-01 / INV-MEM-01): Operates strictly in user space using read-only Darwin `sysctl` and `vm_stat` queries. Zero synthetic memory stress or allocation probing.
+  - Zero Ambient Shell Authority (SC-01 / INV-MEM-02): Subprocess executions use tokenized argument lists (`shell=False`) with strict timeouts.
+  - Mathematical Bounds Verification (INV-MEM-03): Verifies that App + Wired + Compressed equals Total Used, and that Total Used does not exceed Total Physical RAM.
+  - Graceful Non-Darwin Fallback (INV-MEM-04): Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin sysctls in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 044.

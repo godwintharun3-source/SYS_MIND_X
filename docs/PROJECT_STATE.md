@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: AWAITING_REVIEW (Day 042 completed and awaiting human review)
-- Current day: 42
-- Last reviewed completed day: 41
+- Project status: AWAITING_REVIEW (Day 043 completed and awaiting human review)
+- Current day: 43
+- Last reviewed completed day: 42
 - Current milestone: macOS system agent and telemetry (Days 041–065)
 - Current implementation branch: `develop`
-- Last verified commit: `develop` head (Day 042: Collect CPU model, core count and supported hardware properties)
+- Last verified commit: `develop` head (Day 043: Collect memory capacity, pressure indicators and usage safely)
 - Active blockers: None currently blocking Milestone 4. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Await human review of Day 042, then complete via `python3 tools/day_tracker.py complete --day 42 ... --reviewed` and start Day 043.
+- Next action: Await human review of Day 043, then complete via `python3 tools/day_tracker.py complete --day 43 ... --reviewed` and start Day 044.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -136,7 +136,14 @@
   - Enforced zero ambient shell authority (`INV-CPU-02`): queries dispatch via tokenized argument lists (`shell=False`) with strict timeouts.
   - Implemented graceful non-Darwin fallback (`INV-CPU-03`): execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin sysctls under `unavailable_telemetry`.
   - Formalized ADR-052.
-- **Test Suite**: 356 Python unit/contract/integration/e2e tests in `tests/` + 20 native Rust workspace tests + 2 Rust desktop shell tests (378 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, and macOS CPU hardware detection with 100% pass rate.
+- **macOS Memory Capacity, Pressure Indicators and Mach VM Statistics (Day 043)**: Formalized read-only memory capacity, Mach virtual memory page allocations, dynamic swap usage, and kernel memory pressure detection in `src/system_mind/macos/` (`memory_models.py`, `memory_detector.py`, `__init__.py`), native Rust sensor collector in `crates/system-mind-sensors/src/macos_memory.rs`, developer CLI (`tools/detect_memory.py`), `MacOsMemoryValidator` in `src/system_mind/packaging/macos_memory.py`, and design note `docs/design/DAY_043_MACOS_MEMORY_CAPACITY_PRESSURE_USAGE.md`.
+  - Enforced unprivileged query interfaces (`SC-01` / `INV-MEM-01`): all memory and swap telemetry queries execute strictly in user space without `sudo` via Darwin `sysctl` (`hw.memsize`, `vm.swapusage`, `vm.memory_pressure`, `kern.memorystatus_level`) and Mach `vm_stat`.
+  - Enforced zero synthetic memory stress (`INV-MEM-01`): allocation-based memory testing or stress commands are strictly forbidden; telemetry is purely passive.
+  - Implemented Activity Monitor mathematical breakdown (`INV-MEM-03`): decomposes memory into App Memory, Wired Memory, Compressed Memory, Cached Files, and Free Memory, enforcing $0 \le \text{total\_used} = \text{app} + \text{wired} + \text{compressed} \le \text{total\_physical}$.
+  - Enforced zero ambient shell authority (`INV-MEM-02`): queries dispatch via tokenized argument lists (`shell=False`) with strict timeouts.
+  - Implemented graceful non-Darwin fallback (`INV-MEM-04`): execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin sysctls under `unavailable_telemetry`.
+  - Formalized ADR-053.
+- **Test Suite**: 365 Python unit/contract/integration/e2e tests in `tests/` + 22 native Rust workspace tests + 2 Rust desktop shell tests (389 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, macOS CPU hardware detection, and macOS memory telemetry with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

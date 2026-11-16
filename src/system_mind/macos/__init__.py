@@ -7,6 +7,14 @@ from system_mind.macos.cpu_models import (
     MacCpuTelemetryReport,
 )
 from system_mind.macos.detector import MacOSIdentityDetector
+from system_mind.macos.memory_detector import MacMemoryDetector
+from system_mind.macos.memory_models import (
+    MacMemoryBreakdown,
+    MacMemoryTelemetryReport,
+    MacSwapUsage,
+    MacVmPageStats,
+    MemoryPressureLevel,
+)
 from system_mind.macos.models import (
     MacArchitecture,
     MacHostIdentity,
@@ -23,5 +31,11 @@ __all__ = [
     "MacHostIdentity",
     "MacOSIdentityDetector",
     "MacOSVersionInfo",
+    "MacMemoryBreakdown",
+    "MacMemoryDetector",
+    "MacMemoryTelemetryReport",
+    "MacSwapUsage",
     "MacTelemetryReport",
+    "MacVmPageStats",
+    "MemoryPressureLevel",
 ]
