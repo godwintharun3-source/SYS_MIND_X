@@ -1,0 +1,37 @@
+name: Dependency Review & Supply Chain Audit
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'requirements*.txt'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'crates/**/Cargo.toml'
+      - 'apps/desktop/package*.json'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'requirements*.txt'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'crates/**/Cargo.toml'
+      - 'apps/desktop/package*.json'
+
+jobs:
+  dependency-audit:
+    name: Audit Pinned Dependencies & Banned Packages
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Programmatic Dependency & Supply-Chain Review
+        env:
+          PYTHONPATH: src
+        run: python3 tools/ci_runner.py deps

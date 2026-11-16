@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: AWAITING_REVIEW (Day 037 completed and awaiting human review)
-- Current day: 37
-- Last reviewed completed day: 36
+- Project status: AWAITING_REVIEW (Day 038 completed and awaiting human review)
+- Current day: 38
+- Last reviewed completed day: 37
 - Current milestone: Repository and development foundation (Days 026–040)
 - Current implementation branch: `develop`
-- Last verified commit: `develop` head (Day 037: Create local development scripts and reproducible setup instructions)
+- Last verified commit: `develop` head (Day 038: Create CI checks for formatting, linting, tests and dependency review)
 - Active blockers: None currently blocking Milestone 3. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Await human review of Day 037, then complete via `python3 tools/day_tracker.py complete --day 37 ... --reviewed` and start Day 038.
+- Next action: Await human review of Day 038, then complete via `python3 tools/day_tracker.py complete --day 38 ... --reviewed` and start Day 039.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -104,7 +104,14 @@
   - Implemented idempotent local repository bootstrap (`bootstrap`) orchestrating configuration defaults, Cargo verification, SQLite database migration, static linting, and smoke tests.
   - Implemented bounded workspace artifact cleaner (`clean`) strictly preventing traversal outside repository root.
   - Formalized ADR-047.
-- **Test Suite**: 306 Python unit/contract/integration/e2e tests in `tests/` + 16 native Rust workspace tests + 2 Rust desktop shell tests (324 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, and local development scripts with 100% pass rate.
+- **CI Checks and Dependency Review (Day 038)**: Formalized production-grade GitHub Actions workflows (`.github/workflows/ci.yml`, `.github/workflows/dependency-review.yml`), programmatic supply-chain dependency auditor (`src/system_mind/packaging/dependency_review.py`), unified local CI runner CLI (`tools/ci_runner.py`), `CiChecksValidator` in `src/system_mind/packaging/ci_checks.py`, and design note `docs/design/DAY_038_CI_CHECKS_AND_DEPENDENCY_REVIEW.md`.
+  - Enforced supply-chain determinism (`INV-CI-01`): strictly requires exact version pinning (`==`) across all Python dependency manifests.
+  - Enforced ambient execution library prohibition (`SC-01` / `INV-CI-02`): bans ambient shell packages (`sh`, `plumbum`, `pexpect`, `ptyprocess`, `fabric`, `child_process`, `execa`, `shelljs`, `sudo-prompt`, `node-pty`) across all manifests.
+  - Enforced pure native Rust isolation (`INV-CI-03`): prevents Python runtime bindings (`pyo3`, `libpython`) or unconfined shell wrappers in Rust crates.
+  - Established polyglot CI matrix pipelines (`INV-CI-04`) spanning Python (3.10, 3.11, 3.12), Rust workspace & Tauri desktop shell, and frontend Vitest suites.
+  - Established local execution parity (`INV-CI-05`) via `tools/ci_runner.py` allowing developers to run all CI checks in unprivileged user space.
+  - Formalized ADR-048.
+- **Test Suite**: 318 Python unit/contract/integration/e2e tests in `tests/` + 16 native Rust workspace tests + 2 Rust desktop shell tests (336 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, and CI checks with dependency review with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

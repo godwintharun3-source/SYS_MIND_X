@@ -1,0 +1,128 @@
+name: SYSTEM MIND X CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-safety:
+    name: Lint, AST Safety & Secrets Scan
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Development Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Verify Python Syntax & Monorepo AST Safety (SC-01)
+        run: python3 tools/lint.py
+
+      - name: Scan Repository for Secret Leaks
+        run: python3 tools/check_secrets.py
+
+      - name: Verify Shared Schemas & Cross-Language Parity
+        run: python3 tools/generate_types.py --check
+
+  test-python:
+    name: Python Test Suites (${{ matrix.python-version }})
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run Unit, Integration & E2E Pytest Suites
+        env:
+          PYTHONPATH: src
+        run: python3 -m pytest -v tests/
+
+  test-rust:
+    name: Rust System-Agent & Desktop Shell Tests
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.75.0
+          components: rustfmt, clippy
+
+      - name: Run Cargo Format Check
+        run: cargo fmt --all -- --check
+
+      - name: Run Cargo Clippy Static Analysis
+        run: cargo clippy --workspace -- -D warnings
+
+      - name: Run Rust Workspace Unit & Integration Tests
+        run: cargo test --workspace
+
+      - name: Run Tauri Desktop Shell Native Tests
+        run: cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml
+
+  test-frontend:
+    name: Desktop Presentation Layer Tests
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Frontend Dependencies
+        working-directory: apps/desktop
+        run: npm ci || npm install
+
+      - name: Run Frontend Tests (Vitest)
+        working-directory: apps/desktop
+        run: npm test
+
+  database-migrations:
+    name: SQLite Database Migrations Lifecycle
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Test Migration Round-Trip Lifecycle
+        env:
+          PYTHONPATH: src
+        run: |
+          python3 tools/migrate.py --db :memory: plan
+          python3 tools/migrate.py --db :memory: apply
+          python3 tools/migrate.py --db :memory: verify
