@@ -101,7 +101,7 @@ jobs:
 
       - name: Install Frontend Dependencies
         working-directory: apps/desktop
-        run: npm ci || npm install
+        run: npm ci --ignore-scripts || npm install --ignore-scripts
 
       - name: Run Frontend Tests (Vitest)
         working-directory: apps/desktop
