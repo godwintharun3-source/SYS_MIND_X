@@ -4,6 +4,7 @@ pub mod macos_battery;
 pub mod macos_cpu;
 pub mod macos_identity;
 pub mod macos_memory;
+pub mod macos_network;
 pub mod macos_storage;
 pub mod telemetry;
 
@@ -17,6 +18,10 @@ pub use macos_identity::{
 };
 pub use macos_memory::{
     MacOsMemoryCollector, MacOsMemorySnapshot, MemoryPressureState, MockMacOsMemoryCollector,
+};
+pub use macos_network::{
+    InterfaceTypeState, LinkStatusState, MacOsInterfaceSnapshot, MacOsNetworkCollector,
+    MacOsNetworkSnapshot, MockMacOsNetworkCollector,
 };
 pub use macos_storage::{
     MacOsStorageCollector, MacOsStorageSnapshot, MacOsVolumeSnapshot, MockMacOsStorageCollector,

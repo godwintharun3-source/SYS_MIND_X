@@ -1620,3 +1620,42 @@
 - Reviewed summary: Read-only macOS battery state and health telemetry detector (src/system_mind/macos/battery_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_battery.rs), tools/detect_battery.py CLI, and MacOsBatteryValidator implemented with 408 total passed tests (379 Python + 29 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (27 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (379 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T16:41:56+05:30
+
+## Day 046 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Collect network interface and connectivity metadata. Build a read-only macOS companion agent. Use supported APIs, report unavailable telemetry and respect permissions.
+- **Phase:** macOS system agent and telemetry (Days 041–065)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_046_MACOS_NETWORK_INTERFACES_CONNECTIVITY.md`: Detailed engineering design note formalizing macOS network interface discovery, link status, IPv4/IPv6 address bindings, hardware port mapping, default gateway, and DNS configuration.
+  - `src/system_mind/macos/network_models.py`: Strongly typed data models (`InterfaceType`, `LinkState`, `MacIpAddress`, `MacNetworkInterface`, `MacNetworkRoute`, `MacNetworkReport`).
+  - `src/system_mind/macos/network_detector.py`: Read-only platform detector (`MacNetworkDetector`) querying Darwin `/sbin/ifconfig`, `/usr/sbin/networksetup -listallhardwareports`, `/usr/sbin/scutil --nwi`, `/usr/sbin/scutil --dns`, and `/usr/sbin/netstat -nr -f inet`.
+  - `src/system_mind/macos/__init__.py`: Exported network telemetry models and detector.
+  - `crates/system-mind-sensors/src/macos_network.rs`: Native Rust network sensor models (`MacOsInterfaceSnapshot`, `MacOsNetworkSnapshot`, `InterfaceTypeState`, `LinkStatusState`, `MacOsNetworkCollector`, `MockMacOsNetworkCollector`).
+  - `crates/system-mind-sensors/src/lib.rs`: Integrated and exported `macos_network` in Rust sensors workspace crate.
+  - `tools/detect_network.py`: Developer CLI tool for inspecting network interfaces, link states, routing, DNS, and assertion gates (`--assert-online`, `--assert-interface <NAME>`).
+  - `tools/README.md`: Documented `tools/detect_network.py` in developer tooling catalog.
+  - `src/system_mind/packaging/macos_network.py`: Programmatic validator (`MacOsNetworkValidator`, `MacOsNetworkAuditResult`) verifying data models, privacy rules, CLI, and sensor parity in CI.
+  - `src/system_mind/packaging/__init__.py`: Exported `MacOsNetworkValidator`.
+  - `tests/test_macos_network_detector.py`: 11 comprehensive unit, contract, and integration tests verifying Darwin live detection, mock simulation, ifconfig parsing, routing table parsing, DNS parsing, MAC anonymization, CLI execution, and validator clean audit.
+  - `docs/DECISION_LOG.md`: Formalized ADR-056.
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 046 awaiting review with 390 Python + 30 Rust workspace + 2 Rust desktop shell = 422 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 46.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 46`: Started Day 046 (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_network_detector.py`: 11 passed in 0.61s (exit code 0).
+  - `cargo test --workspace`: 30 passed in 0.06s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/lint.py`: AST safety analysis, syntax compilation, static checks; clean pass (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 691 text files; zero secret leaks detected (exit code 0).
+  - `python3 tools/ci_runner.py all`: All 5 CI stages passed cleanly in 20.75s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 390 passed in 16.06s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (SC-01 / INV-NET-01): Operates strictly in user space using read-only `/sbin/ifconfig`, `/usr/sbin/networksetup -listallhardwareports`, `/usr/sbin/scutil`, and `/usr/sbin/netstat`. Zero `sudo` or administrator escalation.
+  - Hardware Identifier Privacy (INV-NET-02): Raw hardware MAC addresses are strictly protected; models emit truncated salted SHA-256 digests (`sha256:prefix...`) to prevent tracking across network environments.
+  - Zero Mutating Network Operations (SC-01 / INV-NET-01): Mutating network operations (`ifconfig ... up/down`, `networksetup -set*`, `route add/delete`, etc.) are strictly prohibited.
+  - Zero Ambient Shell Authority (SC-01 / INV-NET-03): Subprocess executions use tokenized argument lists (`shell=False`) with strict 5-second timeouts.
+  - Passive Route Resolution: Discovers default gateway and WAN reachability without establishing outbound socket connections or sending ICMP pings.
+  - Graceful Non-Darwin Fallback: Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin utilities in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 047.
+

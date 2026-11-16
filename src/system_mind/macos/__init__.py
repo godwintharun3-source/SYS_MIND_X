@@ -29,6 +29,15 @@ from system_mind.macos.models import (
     MacOSVersionInfo,
     MacTelemetryReport,
 )
+from system_mind.macos.network_detector import MacNetworkDetector
+from system_mind.macos.network_models import (
+    InterfaceType,
+    LinkState,
+    MacIpAddress,
+    MacNetworkInterface,
+    MacNetworkReport,
+    MacNetworkRoute,
+)
 from system_mind.macos.storage_detector import MacStorageDetector
 from system_mind.macos.storage_models import (
     FilesystemType,
@@ -42,6 +51,8 @@ __all__ = [
     "BatteryHealthCondition",
     "CpuPerfLevelInfo",
     "FilesystemType",
+    "InterfaceType",
+    "LinkState",
     "MacArchitecture",
     "MacBatteryDetector",
     "MacBatteryHealthInfo",
@@ -52,9 +63,14 @@ __all__ = [
     "MacHostIdentity",
     "MacOSIdentityDetector",
     "MacOSVersionInfo",
+    "MacIpAddress",
     "MacMemoryBreakdown",
     "MacMemoryDetector",
     "MacMemoryTelemetryReport",
+    "MacNetworkDetector",
+    "MacNetworkInterface",
+    "MacNetworkReport",
+    "MacNetworkRoute",
     "MacStorageDetector",
     "MacStorageReport",
     "MacSwapUsage",

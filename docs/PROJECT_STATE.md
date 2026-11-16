@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: AWAITING_REVIEW (Day 045 completed and awaiting human review)
-- Current day: 45
-- Last reviewed completed day: 44
+- Project status: AWAITING_REVIEW (Day 046 completed and awaiting human review)
+- Current day: 46
+- Last reviewed completed day: 45
 - Current milestone: macOS system agent and telemetry (Days 041–065)
 - Current implementation branch: `develop`
-- Last verified commit: `develop` head (Day 045: Collect battery state and health information where exposed)
+- Last verified commit: `develop` head (Day 046: Collect network interface and connectivity metadata)
 - Active blockers: None currently blocking Milestone 4. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Await human review of Day 045, then complete via `python3 tools/day_tracker.py complete --day 45 ... --reviewed` and start Day 046.
+- Next action: Await human review of Day 046, then complete via `python3 tools/day_tracker.py complete --day 46 ... --reviewed` and start Day 047.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -159,7 +159,15 @@
   - Enforced zero ambient shell authority (`SC-01` / `INV-BAT-04`): queries dispatch via tokenized argument vectors (`shell=False`) with strict 5-second timeouts.
   - Implemented graceful non-Darwin fallback: execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin utilities under `unavailable_telemetry`.
   - Formalized ADR-055.
-- **Test Suite**: 379 Python unit/contract/integration/e2e tests in `tests/` + 27 native Rust workspace tests + 2 Rust desktop shell tests (408 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, macOS CPU hardware detection, macOS memory telemetry, macOS storage volume metadata, and macOS battery state/health with 100% pass rate.
+- **macOS Network Interfaces, Link States, and Routing Telemetry (Day 046)**: Formalized read-only network interface discovery, link status, IPv4/IPv6 address bindings, hardware port mapping, default routing gateway, and DNS configuration in `src/system_mind/macos/` (`network_models.py`, `network_detector.py`, `__init__.py`), native Rust sensor collector in `crates/system-mind-sensors/src/macos_network.rs`, developer CLI (`tools/detect_network.py`), `MacOsNetworkValidator` in `src/system_mind/packaging/macos_network.py`, and design note `docs/design/DAY_046_MACOS_NETWORK_INTERFACES_CONNECTIVITY.md`.
+  - Enforced unprivileged query interfaces (`SC-01` / `INV-NET-01`): all interface, routing, and DNS queries execute strictly in read-only user space without `sudo` via Darwin `/sbin/ifconfig`, `/usr/sbin/networksetup -listallhardwareports`, `/usr/sbin/scutil --nwi`, `/usr/sbin/scutil --dns`, and `/usr/sbin/netstat -nr -f inet`.
+  - Enforced hardware MAC privacy (`INV-NET-02`): raw hardware MAC addresses are strictly hashed into truncated salted SHA-256 digests (`sha256:prefix...`) to prevent tracking across network environments.
+  - Modeled categorical interface architecture (`INV-NET-04`): accurately classifies interface types (`LOOPBACK`, `WIFI`, `ETHERNET`, `THUNDERBOLT`, `BRIDGE`, `VPN_TUNNEL`, `AWDL`, `OTHER`) and link states (`UP_ACTIVE`, `UP_INACTIVE`, `DOWN`).
+  - Passive reachability & routing: identifies primary WAN route and default gateway IP without active external socket connections or ICMP pings.
+  - Enforced zero ambient shell authority (`SC-01` / `INV-NET-03`): queries dispatch via tokenized argument vectors (`shell=False`) with strict 5-second timeouts.
+  - Implemented graceful non-Darwin fallback: execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin utilities under `unavailable_telemetry`.
+  - Formalized ADR-056.
+- **Test Suite**: 390 Python unit/contract/integration/e2e tests in `tests/` + 30 native Rust workspace tests + 2 Rust desktop shell tests (422 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, macOS CPU hardware detection, macOS memory telemetry, macOS storage volume metadata, macOS battery state/health, and macOS network interface metadata with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.
