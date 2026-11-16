@@ -1665,3 +1665,42 @@
 - Reviewed summary: Read-only macOS network interface and connectivity telemetry detector (src/system_mind/macos/network_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_network.rs), tools/detect_network.py CLI, and MacOsNetworkValidator implemented with 422 total passed tests (390 Python + 32 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (30 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (390 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T17:23:52+05:30
+
+
+## Day 047 - 2026-11-16
+
+- **Objective:** Collect GPU and display inventory using supported APIs (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_047_MACOS_GPU_AND_DISPLAY_INVENTORY.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/gpu_models.py` (`GpuBusType`, `DisplayConnectionType`, `MacDisplayInfo`, `MacGpuInfo`, `MacGpuReport`).
+  - Implemented read-only GPU and display detection engine in `src/system_mind/macos/gpu_detector.py` (`MacGpuDetector`) using unprivileged `/usr/sbin/system_profiler SPDisplaysDataType -json`.
+  - Enforced display hardware serial privacy (`INV-GPU-02`) via deterministic salted SHA-256 digests (`sha256:<16-char-hex>`).
+  - Re-exported GPU models and detector in `src/system_mind/macos/__init__.py`.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_gpu.rs` (`GpuBusTypeState`, `DisplayConnectionTypeState`, `MacOsDisplaySnapshot`, `MacOsGpuInfoSnapshot`, `MacOsGpuSnapshot`, `MacOsGpuCollector`, `MockMacOsGpuCollector`) with 3 unit tests.
+  - Re-exported GPU sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_gpu.py` supporting human-readable output, `--json`, `--mock`, `--assert-gpu`, and `--assert-displays <MIN_COUNT>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_gpu.py` (`MacOsGpuValidator`, `MacOsGpuAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_gpu_detector.py` with 11 tests covering mock profiles, M1 Apple Silicon parsing, Intel dual-GPU fixtures, refresh rate extraction, serial anonymization, non-Darwin fallback, live Darwin detection, validator audits, and CLI execution.
+  - Formalized ADR-057 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 047 milestone achievements and 436 passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_gpu.py --mock`: Executed successfully in unprivileged user space (exit code 0).
+  - `python3 tools/detect_gpu.py`: Executed live on host Darwin (Apple M1, 7 cores, BUILTIN bus, Color LCD 1440x900 @ 60Hz Retina) (exit code 0).
+  - `python3 tools/detect_gpu.py --mock --json`: Returned valid JSON matching `MacGpuReport` schema (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_gpu_detector.py`: 11 passed in 0.82s (exit code 0).
+  - `cargo test --workspace`: 33 passed in 1.63s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 698 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `python3 tools/ci_runner.py all`: All 5 CI stages passed cleanly in 21.65s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 401 passed in 17.33s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-GPU-01`): Operates strictly in user space using read-only `/usr/sbin/system_profiler SPDisplaysDataType -json`. Zero `sudo` or administrator escalation.
+  - Hardware Identifier Privacy (`INV-GPU-02`): Raw hardware display serial numbers are strictly protected; models emit truncated salted SHA-256 digests (`sha256:prefix...`) to prevent device fingerprinting.
+  - Zero Mutating Graphics/Display Operations (`INV-GPU-03`): Mutating display settings (brightness, resolution, gamma, sleep modes) are strictly prohibited.
+  - Zero Ambient Shell Authority (`SC-01`): Subprocess executions use tokenized argument lists (`shell=False`) with strict 10-second timeouts.
+  - Graceful Non-Darwin Fallback (`INV-GPU-04`): Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin utilities in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 048.
+

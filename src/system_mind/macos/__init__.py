@@ -15,6 +15,14 @@ from system_mind.macos.cpu_models import (
     MacCpuTelemetryReport,
 )
 from system_mind.macos.detector import MacOSIdentityDetector
+from system_mind.macos.gpu_detector import MacGpuDetector
+from system_mind.macos.gpu_models import (
+    DisplayConnectionType,
+    GpuBusType,
+    MacDisplayInfo,
+    MacGpuInfo,
+    MacGpuReport,
+)
 from system_mind.macos.memory_detector import MacMemoryDetector
 from system_mind.macos.memory_models import (
     MacMemoryBreakdown,
@@ -50,7 +58,9 @@ __all__ = [
     "BatteryChargingState",
     "BatteryHealthCondition",
     "CpuPerfLevelInfo",
+    "DisplayConnectionType",
     "FilesystemType",
+    "GpuBusType",
     "InterfaceType",
     "LinkState",
     "MacArchitecture",
@@ -60,6 +70,10 @@ __all__ = [
     "MacCpuHardwareDetector",
     "MacCpuHardwareInfo",
     "MacCpuTelemetryReport",
+    "MacDisplayInfo",
+    "MacGpuDetector",
+    "MacGpuInfo",
+    "MacGpuReport",
     "MacHostIdentity",
     "MacOSIdentityDetector",
     "MacOSVersionInfo",

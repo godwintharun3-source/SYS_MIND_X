@@ -2,6 +2,7 @@
 
 pub mod macos_battery;
 pub mod macos_cpu;
+pub mod macos_gpu;
 pub mod macos_identity;
 pub mod macos_memory;
 pub mod macos_network;
@@ -13,6 +14,10 @@ pub use macos_battery::{
     PowerSourceState,
 };
 pub use macos_cpu::{MacOsCpuCollector, MacOsCpuSnapshot, MockMacOsCpuCollector};
+pub use macos_gpu::{
+    DisplayConnectionTypeState, GpuBusTypeState, MacOsDisplaySnapshot, MacOsGpuCollector,
+    MacOsGpuInfoSnapshot, MacOsGpuSnapshot, MockMacOsGpuCollector,
+};
 pub use macos_identity::{
     MacOsIdentityCollector, MacOsIdentitySnapshot, MockMacOsIdentityCollector,
 };

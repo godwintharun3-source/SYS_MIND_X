@@ -44,6 +44,10 @@ from system_mind.packaging.macos_cpu import (
     MacOsCpuAuditResult,
     MacOsCpuValidator,
 )
+from system_mind.packaging.macos_gpu import (
+    MacOsGpuAuditResult,
+    MacOsGpuValidator,
+)
 from system_mind.packaging.macos_memory import (
     MacOsMemoryAuditResult,
     MacOsMemoryValidator,
@@ -107,6 +111,8 @@ __all__ = [
     "MacOsBatteryValidator",
     "MacOsCpuAuditResult",
     "MacOsCpuValidator",
+    "MacOsGpuAuditResult",
+    "MacOsGpuValidator",
     "MacOsMemoryAuditResult",
     "MacOsMemoryValidator",
     "MacOsNetworkAuditResult",
