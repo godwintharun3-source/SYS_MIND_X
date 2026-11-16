@@ -172,7 +172,10 @@ mod tests {
         assert!(!snapshot.is_online);
         assert_eq!(snapshot.default_gateway, None);
         assert_eq!(snapshot.dns_server_count, 0);
-        assert_eq!(snapshot.interfaces[0].interface_type, InterfaceTypeState::Loopback);
+        assert_eq!(
+            snapshot.interfaces[0].interface_type,
+            InterfaceTypeState::Loopback
+        );
     }
 
     #[test]
