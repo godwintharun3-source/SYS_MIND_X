@@ -53,6 +53,16 @@ from system_mind.macos.process_models import (
     ProcessRole,
     ProcessState,
 )
+from system_mind.macos.services_detector import MacServicesDetector
+from system_mind.macos.services_models import (
+    LoginItemKind,
+    MacLaunchdService,
+    MacLoginItem,
+    MacServicesReport,
+    ServiceDomain,
+    ServiceOwnership,
+    ServiceStatus,
+)
 from system_mind.macos.storage_detector import MacStorageDetector
 from system_mind.macos.storage_models import (
     FilesystemType,
@@ -78,6 +88,7 @@ __all__ = [
     "GpuBusType",
     "InterfaceType",
     "LinkState",
+    "LoginItemKind",
     "MacArchitecture",
     "MacBatteryDetector",
     "MacBatteryHealthInfo",
@@ -90,6 +101,8 @@ __all__ = [
     "MacGpuInfo",
     "MacGpuReport",
     "MacHostIdentity",
+    "MacLaunchdService",
+    "MacLoginItem",
     "MacOSIdentityDetector",
     "MacOSVersionInfo",
     "MacIpAddress",
@@ -103,6 +116,8 @@ __all__ = [
     "MacProcessDetector",
     "MacProcessInfo",
     "MacProcessReport",
+    "MacServicesDetector",
+    "MacServicesReport",
     "MacStorageDetector",
     "MacStorageReport",
     "MacSwapUsage",
@@ -117,6 +132,9 @@ __all__ = [
     "PowerSource",
     "ProcessRole",
     "ProcessState",
+    "ServiceDomain",
+    "ServiceOwnership",
+    "ServiceStatus",
     "UsbDeviceClass",
     "UsbSpeed",
     "VolumeRole",

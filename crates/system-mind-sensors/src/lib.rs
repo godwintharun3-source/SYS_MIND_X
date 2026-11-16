@@ -4,6 +4,7 @@ pub mod macos_battery;
 pub mod macos_cpu;
 pub mod macos_gpu;
 pub mod macos_identity;
+pub mod macos_launchd;
 pub mod macos_memory;
 pub mod macos_network;
 pub mod macos_process;
@@ -22,6 +23,11 @@ pub use macos_gpu::{
 };
 pub use macos_identity::{
     MacOsIdentityCollector, MacOsIdentitySnapshot, MockMacOsIdentityCollector,
+};
+pub use macos_launchd::{
+    LoginItemKindSnapshot, MacOsLaunchdItemSnapshot, MacOsLoginItemSnapshot,
+    MacOsServicesCollector, MacOsServicesSnapshot, MockMacOsServicesCollector,
+    ServiceDomainSnapshot, ServiceOwnershipSnapshot, ServiceStatusSnapshot,
 };
 pub use macos_memory::{
     MacOsMemoryCollector, MacOsMemorySnapshot, MemoryPressureState, MockMacOsMemoryCollector,

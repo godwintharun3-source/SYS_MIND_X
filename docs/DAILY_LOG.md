@@ -1805,3 +1805,44 @@
 - Reviewed summary: Read-only macOS process inventory and resource telemetry detector (src/system_mind/macos/process_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_process.rs), tools/detect_processes.py CLI, and MacOsProcessValidator implemented with 464 total passed tests (423 Python + 41 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (39 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (423 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T18:14:56+05:30
+
+
+## Day 050 - 2026-11-16
+
+- **Objective:** Collect launchd service and login-item inventory read-only (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_050_MACOS_LAUNCHD_SERVICES_AND_LOGIN_ITEMS.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/services_models.py` (`ServiceDomain`, `ServiceStatus`, `ServiceOwnership`, `LoginItemKind`, `MacLaunchdService`, `MacLoginItem`, `MacServicesReport`).
+  - Implemented read-only launchd services and login-item detection engine in `src/system_mind/macos/services_detector.py` (`MacServicesDetector`) using unprivileged `/bin/launchctl list`, standard plist parsing via `plistlib`, and read-only System Events AppleScript query for login items.
+  - Enforced zero mutating service operations (`INV-SVC-02`): mutating commands (`launchctl load`, `unload`, `bootout`, `bootstrap`, `enable`, `disable`, `kickstart`, `kill`) are strictly excluded.
+  - Enforced sensitive argument redaction (`INV-SVC-03`): captures executable binary paths (`Program` or `ProgramArguments[0]`) rather than unbounded argument command strings with potential tokens or credentials.
+  - Enforced typed domain and ownership classification (`INV-SVC-04`): categorizes services across domains (`SYSTEM_DAEMON`, `SYSTEM_AGENT`, `GLOBAL_DAEMON`, `GLOBAL_AGENT`, `USER_AGENT`, `RUNTIME_LOADED`) and maintenance ownership tiers (`SYSTEM_MANAGED`, `VENDOR_MANAGED`, `USER_MANAGED`).
+  - Re-exported services models and detector in `src/system_mind/macos/__init__.py`.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_launchd.rs` (`ServiceDomainSnapshot`, `ServiceStatusSnapshot`, `ServiceOwnershipSnapshot`, `LoginItemKindSnapshot`, `MacOsLaunchdItemSnapshot`, `MacOsLoginItemSnapshot`, `MacOsServicesSnapshot`, `MacOsServicesCollector`, `MockMacOsServicesCollector`) with 3 unit tests.
+  - Re-exported services sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_services.py` supporting formatted service tables, `--json`, `--mock`, `--running`, `--domain <DOMAIN>`, `--ownership <OWNERSHIP>`, `--login-items`, and `--assert-services <MIN_COUNT>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_services.py` (`MacOsServicesValidator`, `MacOsServicesAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_services_detector.py` with 11 tests covering mock profiles, `launchctl list` parsing, plist directory scanning, ownership & domain classification, query helpers (`find_by_label`, `filter_by_domain`, `filter_by_ownership`, `get_running_services`), non-Darwin fallback, live Darwin collection, validator audits, and CLI execution.
+  - Formalized ADR-060 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 050 milestone achievements and 478 passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_services.py --mock`: Executed successfully in unprivileged user space; displayed 8 mock services and 2 login items (exit code 0).
+  - `python3 tools/detect_services.py --running`: Executed live on Darwin host; discovered 985 total services and 165 running services with zero `sudo` (exit code 0).
+  - `python3 tools/detect_services.py --mock --json`: Returned valid JSON matching `MacServicesReport` schema (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_services_detector.py`: 11 passed in 2.13s (exit code 0).
+  - `cargo test --workspace`: 42 passed in 0.01s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 719 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 434 passed in 35.07s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-SVC-01`): Operates strictly in user space using read-only `/bin/launchctl list` and standard plist parsing. Zero `sudo` or administrator escalation.
+  - Zero Mutating Service Operations (`INV-SVC-02`): No `launchctl load`, `unload`, `bootout`, or `kill`.
+  - Sensitive Argument Redaction (`INV-SVC-03`): Captures executable binary paths rather than raw arguments with credentials or tokens.
+  - Domain and Ownership Classification (`INV-SVC-04`): Distinguishes Apple core system services from 3rd-party vendor daemons and user agents.
+  - Desktop Login Items Inventory: Safely inventories startup user applications via `System Events` AppleScript with graceful permission/TCC degradation.
+  - Zero Ambient Shell Authority (`SC-01`): Subprocess executions use tokenized argument lists (`shell=False`) with strict timeouts (3-5s).
+  - Graceful Non-Darwin Fallback (`INV-SVC-07`): Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin utilities in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 051.

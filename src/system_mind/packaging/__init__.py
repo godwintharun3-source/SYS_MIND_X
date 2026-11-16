@@ -60,6 +60,10 @@ from system_mind.packaging.macos_process import (
     MacOsProcessAuditResult,
     MacOsProcessValidator,
 )
+from system_mind.packaging.macos_services import (
+    MacOsServicesAuditResult,
+    MacOsServicesValidator,
+)
 from system_mind.packaging.macos_storage import (
     MacOsStorageAuditResult,
     MacOsStorageValidator,
@@ -127,6 +131,8 @@ __all__ = [
     "MacOsNetworkValidator",
     "MacOsProcessAuditResult",
     "MacOsProcessValidator",
+    "MacOsServicesAuditResult",
+    "MacOsServicesValidator",
     "MacOsStorageAuditResult",
     "MacOsStorageValidator",
     "MacOsTelemetryAuditResult",

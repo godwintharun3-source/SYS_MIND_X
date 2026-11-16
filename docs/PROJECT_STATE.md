@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: AWAITING_REVIEW (Day 049 completed and awaiting human review)
-- Current day: 49
-- Last reviewed completed day: 48
+- Project status: AWAITING_REVIEW (Day 050 completed and awaiting human review)
+- Current day: 50
+- Last reviewed completed day: 49
 - Current milestone: macOS system agent and telemetry (Days 041–065)
 - Current implementation branch: `develop`
-- Last verified commit: `develop` head (Day 049: Build a process inventory with PID, owner and resource usage)
+- Last verified commit: `develop` head (Day 050: Collect launchd service and login-item inventory read-only)
 - Active blockers: None currently blocking Milestone 4. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Await human review of Day 049, then complete via `python3 tools/day_tracker.py complete --day 49 ... --reviewed` and start Day 050.
+- Next action: Await human review of Day 050, then complete via `python3 tools/day_tracker.py complete --day 50 ... --reviewed` and start Day 051.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -194,7 +194,16 @@
   - Enforced zero ambient shell authority (`SC-01`): queries dispatch via tokenized argument vectors (`shell=False`) with strict 5-second timeouts.
   - Implemented graceful non-Darwin fallback (`INV-PROC-08`): execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin utilities under `unavailable_telemetry`.
   - Formalized ADR-059.
-- **Test Suite**: 423 Python unit/contract/integration/e2e tests in `tests/` + 39 native Rust workspace tests + 2 Rust desktop shell tests (464 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, macOS CPU hardware detection, macOS memory telemetry, macOS storage volume metadata, macOS battery state/health, macOS network interface metadata, macOS GPU/display inventory, macOS USB/peripheral inventory, and macOS process table inventory & resource usage with 100% pass rate.
+- **macOS launchd Service, Ownership Classification, and Login-Item Telemetry (Day 050)**: Formalized read-only launchd job discovery, execution domains, loaded statuses, PID tracking, exit codes, binary path extraction, plist definition directory scanning, component ownership classification, and desktop login-item inventory in `src/system_mind/macos/` (`services_models.py`, `services_detector.py`, `__init__.py`), native Rust sensor collector in `crates/system-mind-sensors/src/macos_launchd.rs`, developer CLI (`tools/detect_services.py`), `MacOsServicesValidator` in `src/system_mind/packaging/macos_services.py`, and design note `docs/design/DAY_050_MACOS_LAUNCHD_SERVICES_AND_LOGIN_ITEMS.md`.
+  - Enforced unprivileged query interfaces (`SC-01` / `INV-SVC-01`): all service queries execute strictly in read-only user space without `sudo` or root privileges via Darwin `/bin/launchctl list` and standard plist file parsing.
+  - Strictly read-only operation / zero service mutation (`INV-SVC-02`): mutating commands (`launchctl load`, `unload`, `bootout`, `bootstrap`, `enable`, `disable`, `kickstart`, `kill`) are strictly excluded.
+  - Sensitive argument redaction (`INV-SVC-03`): captures executable binary paths (`Program` or `ProgramArguments[0]`) rather than unbounded argument command strings with potential tokens or credentials.
+  - Typed domain and ownership classification (`INV-SVC-04`): categorizes services across domains (`SYSTEM_DAEMON`, `SYSTEM_AGENT`, `GLOBAL_DAEMON`, `GLOBAL_AGENT`, `USER_AGENT`, `RUNTIME_LOADED`) and maintenance ownership tiers (`SYSTEM_MANAGED`, `VENDOR_MANAGED`, `USER_MANAGED`).
+  - Desktop login items inventory: safely inventories startup user applications via `System Events` AppleScript with graceful permission/TCC degradation.
+  - Enforced zero ambient shell authority (`SC-01`): queries dispatch via tokenized argument vectors (`shell=False`) with strict 3 to 5-second timeouts.
+  - Implemented graceful non-Darwin fallback (`INV-SVC-07`): execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin tools under `unavailable_telemetry`.
+  - Formalized ADR-060.
+- **Test Suite**: 434 Python unit/contract/integration/e2e tests in `tests/` + 42 native Rust workspace tests + 2 Rust desktop shell tests (478 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, macOS CPU hardware detection, macOS memory telemetry, macOS storage volume metadata, macOS battery state/health, macOS network interface metadata, macOS GPU/display inventory, macOS USB/peripheral inventory, macOS process table inventory & resource usage, and macOS launchd services & login-item inventory with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.
