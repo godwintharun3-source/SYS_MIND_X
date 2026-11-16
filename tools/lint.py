@@ -142,12 +142,13 @@ def main() -> int:
     parser.add_argument("--rust", action="store_true", help="Run Rust workspace check")
     parser.add_argument("--typescript", action="store_true", help="Run TypeScript AST safety check")
     parser.add_argument("--ast-safety", action="store_true", help="Run AST safety checks (zero ambient shell)")
+    parser.add_argument("--secrets", action="store_true", help="Run secret leak and credential scan")
     parser.add_argument("--all", action="store_true", help="Run all verification suites")
 
     args = parser.parse_args()
 
     # If no flags specified, run --all
-    if not (args.python or args.rust or args.typescript or args.ast_safety or args.all):
+    if not (args.python or args.rust or args.typescript or args.ast_safety or args.secrets or args.all):
         args.all = True
 
     has_failures = False
@@ -195,6 +196,21 @@ def main() -> int:
                 print(f"        * {err}")
         else:
             print("    [+] Rust static analysis clean.")
+
+    if args.secrets or args.all:
+        print("[*] Running secret leak and credential scan...")
+        # Add root dir to sys.path if needed
+        if str(ROOT_DIR) not in sys.path:
+            sys.path.insert(0, str(ROOT_DIR))
+        from tools.check_secrets import scan_repository_for_secrets
+        scanned_count, secret_errors = scan_repository_for_secrets(ROOT_DIR)
+        if secret_errors:
+            has_failures = True
+            print(f"    [-] Secret leak violations ({len(secret_errors)}):")
+            for err in secret_errors:
+                print(f"        * {err}")
+        else:
+            print(f"    [+] Zero secret leaks detected ({scanned_count} files scanned).")
 
     if has_failures:
         print("\n[-] Code quality and static analysis checks failed.")

@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: AWAITING_REVIEW (Day 033 completed and awaiting human review)
-- Current day: 33
-- Last reviewed completed day: 32
+- Project status: AWAITING_REVIEW (Day 034 completed and awaiting human review)
+- Current day: 34
+- Last reviewed completed day: 33
 - Current milestone: Repository and development foundation (Days 026–040)
 - Current implementation branch: `develop`
-- Last verified commit: `develop` head (Day 033: Configure unit, integration and end-to-end test frameworks)
+- Last verified commit: `develop` head (Day 034: Add environment configuration and secret-handling conventions)
 - Active blockers: None currently blocking Milestone 3. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Await human review of Day 033, then complete via `python3 tools/day_tracker.py complete --day 33 ... --reviewed` and start Day 034.
+- Next action: Await human review of Day 034, then complete via `python3 tools/day_tracker.py complete --day 34 ... --reviewed` and start Day 035.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -79,7 +79,12 @@
   - Implemented end-to-end Python pipeline integration test and full operator console governance session test verifying SemVer negotiation, telemetry retrieval, SC-03 file trust quarantine, mutating idempotency enforcement, and SC-02 user app protection with RFC 7807 problem details.
   - Implemented unified test orchestrator CLI (`tools/test_runner.py`) executing targeted suites with duration telemetry and zero ambient shell authority.
   - Formalized ADR-043.
-- **Test Suite**: 265 Python unit/contract/integration/e2e tests in `tests/` + 11 native Rust workspace tests + 2 Rust desktop shell tests (278 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, and polyglot test frameworks with 100% pass rate.
+- **Environment Configuration and Secret-Handling Conventions (Day 034)**: Formalized environment profiles and zero-plaintext credential handling in `src/system_mind/config/` (`environment.py`, `secrets.py`, `__init__.py`), native Rust masked types in `crates/system-mind-common/src/secret.rs`, `.env.example` template, `.gitignore` secret exclusion patterns, CLI leak detector (`tools/check_secrets.py`), and `EnvironmentConfigValidator` in `src/system_mind/packaging/env_config.py` with design note `docs/design/DAY_034_ENVIRONMENT_CONFIG_AND_SECRET_HANDLING.md`.
+  - Enforced deployment profile segregation (`DEVELOPMENT`, `TESTING`, `STAGING`, `PRODUCTION`) with safe default loopback binding (`127.0.0.1`), unprivileged user-space ports (1024–65535), and non-negotiable charter safety invariants (`strict_invariants=True`, `allow_untrusted_execution=False`).
+  - Implemented `SecretStr` in Python and `SecretValue` in Rust guaranteeing automatic masking in `__str__`, `__repr__`, `Display`, and `Debug` formats (`"***REDACTED***"`, `"[REDACTED]"`), with explicit unmasking methods restricted to authorized cryptographic call sites and deterministic SHA-256 fingerprints for tamper-evident audit tracing.
+  - Implemented `SecretLeakDetector` and developer CLI `tools/check_secrets.py` integrated into `tools/lint.py` to prevent accidental credential commits.
+  - Formalized ADR-044.
+- **Test Suite**: 274 Python unit/contract/integration/e2e tests in `tests/` + 13 native Rust workspace tests + 2 Rust desktop shell tests (289 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, and environment secret-handling conventions with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

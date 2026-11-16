@@ -37,8 +37,22 @@ htmlcov/
 .tox/
 .nox/
 
-# Virtual environments
+# Environment & Secrets (Mandatory Charter Safety Exclusions)
 .env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+credentials.json
+secret_*.json
+*.keystore
+*.jks
+
+# Virtual environments
 .venv
 env/
 venv/

@@ -2,10 +2,12 @@
 
 pub mod crypto;
 pub mod error;
+pub mod secret;
 pub mod types;
 
 pub use crypto::compute_payload_fingerprint;
 pub use error::{BrokerError, ErrorCode, ErrorCodeCategory};
+pub use secret::SecretValue;
 pub use types::{
     ApiStatus, CapabilityId, ComponentOwnership, FileTrustState, PrivilegeLevel, RiskTier,
 };

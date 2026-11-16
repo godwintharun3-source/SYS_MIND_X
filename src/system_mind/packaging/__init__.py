@@ -4,6 +4,10 @@ from system_mind.packaging.code_quality import (
     CodeQualityAuditResult,
     CodeQualityValidator,
 )
+from system_mind.packaging.env_config import (
+    EnvironmentConfigAuditResult,
+    EnvironmentConfigValidator,
+)
 from system_mind.packaging.frontend_scaffold import (
     FrontendScaffoldAuditResult,
     FrontendScaffoldValidator,
@@ -31,6 +35,8 @@ __all__ = [
     "CodeQualityAuditResult",
     "CodeQualityValidator",
     "CrateBoundarySpec",
+    "EnvironmentConfigAuditResult",
+    "EnvironmentConfigValidator",
     "FrontendScaffoldAuditResult",
     "FrontendScaffoldValidator",
     "PackageMetadata",
