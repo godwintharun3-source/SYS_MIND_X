@@ -21,6 +21,10 @@ from system_mind.packaging.tauri_shell import (
     TauriShellAuditResult,
     TauriShellValidator,
 )
+from system_mind.packaging.test_framework import (
+    TestFrameworkAuditResult,
+    TestFrameworkValidator,
+)
 from system_mind.packaging.validator import PackageConfigValidator
 
 __all__ = [
@@ -36,4 +40,6 @@ __all__ = [
     "RustWorkspaceValidator",
     "TauriShellAuditResult",
     "TauriShellValidator",
+    "TestFrameworkAuditResult",
+    "TestFrameworkValidator",
 ]

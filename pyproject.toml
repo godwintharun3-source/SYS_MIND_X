@@ -60,6 +60,14 @@ minversion = "7.0"
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-v --strict-markers"
+markers = [
+    "unit: Fast, deterministic unit tests with mocks",
+    "integration: Cross-module pipeline tests",
+    "e2e: End-to-end full system and operator journey tests",
+    "contract: Invariant, schema, and API wire contract tests",
+    "safety_critical: Charter invariant tests (SC-01 through SC-08)",
+]
+
 
 [tool.black]
 line-length = 100

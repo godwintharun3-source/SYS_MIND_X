@@ -1023,3 +1023,43 @@
 - Reviewed summary: Multi-language formatting, linting (Black, Flake8, Mypy, Ruff, Rustfmt, Clippy, ESLint, Prettier), AST zero-ambient-shell checker (tools/lint.py), and CodeQualityValidator implemented with 266 total passed tests (257 Python + 9 Rust)
 - Test evidence: cargo test --workspace (7 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (257 passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T11:50:00+05:30
+
+
+## Day 033 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Configure unit, integration and end-to-end test frameworks. Create the reproducible monorepo and developer tooling. No privileged system changes.
+- **Phase:** Repository and development foundation (Days 026-040)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_033_TEST_FRAMEWORKS_AND_ORCHESTRATION.md`: Architectural design note formalizing the polyglot testing pyramid, test marker categorization, and test orchestrator strategy.
+  - `pyproject.toml`: Registered 5 canonical pytest markers (`unit`, `integration`, `e2e`, `contract`, `safety_critical`) with `--strict-markers` option.
+  - `crates/system-mind-broker/tests/broker_integration.rs`: Native Rust cross-crate integration tests (4 tests) verifying hardware sensor telemetry collection through broker, SC-03 quarantined execution rejection, user app protection under SC-02, and immutable system core file launch.
+  - `apps/desktop/vitest.config.ts`: Vitest configuration file for frontend client testing.
+  - `apps/desktop/src/__tests__/client.test.ts`: TypeScript unit tests for `SystemMindApiClient` verifying sandboxed presentation boundaries, offline fallback telemetry, SC-03 quarantine inspection, mutating governance approval idempotency keys, and tamper-evident audit ledger entries.
+  - `apps/desktop/package.json`: Updated test script to support Vitest test suite.
+  - `tests/test_integration_pipeline.py`: Comprehensive Python integration test pipeline (marked `@pytest.mark.integration`, `@pytest.mark.safety_critical`) verifying cross-module flow from temporal observation and digital twin graph, through policy precedence engine, typed action contracts, and precondition evaluator, to immutable cryptographic audit ledger with deep secret scrubbing.
+  - `tests/test_e2e_governance_session.py`: Full end-to-end operator console session test (marked `@pytest.mark.e2e`, `@pytest.mark.safety_critical`) verifying client-server SemVer negotiation, read telemetry envelope validation, SC-03 file trust quarantine, mutating request idempotency enforcement (`ErrorCode.E7003_IDEMPOTENCY_KEY_MISSING`), approved governance execution, and SC-02 user app mutation rejection with RFC 7807 problem details.
+  - `tools/test_runner.py`: Unified polyglot test orchestrator CLI supporting `--unit`, `--integration`, `--e2e`, `--rust`, `--frontend`, and `--all` with duration telemetry, failure isolation, and zero ambient shell authority.
+  - `src/system_mind/packaging/test_framework.py`: `TestFrameworkValidator` and `TestFrameworkAuditResult` auditing pytest marker registration, tier completeness, Vitest configuration, and CLI orchestrator readiness.
+  - `src/system_mind/packaging/__init__.py`: Exported `TestFrameworkValidator` and `TestFrameworkAuditResult`.
+  - `tests/test_test_framework_config.py`: Unit and contract tests (4 tests) verifying clean test framework audit, missing marker detection, missing test file detection, and test runner CLI execution.
+  - `docs/DECISION_LOG.md`: Recorded ADR-043 (Polyglot Test Pyramid, Categorized Pytest Markers, and Unified Test Orchestrator).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 033 awaiting review with 265 Python + 11 Rust workspace + 2 Rust desktop shell = 278 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 33.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 33`: Transitioned Day 033 to in_progress (exit code 0).
+  - `cargo test --workspace`: Ran all 11 native Rust workspace tests (3 common + 1 sensors + 3 broker unit + 4 broker integration); 11 passed in 0.39s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: Ran all 2 native Rust desktop shell tests; 2 passed in 0.01s (exit code 0).
+  - `cd apps/desktop && npm test`: Ran desktop frontend test script; passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_integration_pipeline.py`: Ran 2 new cross-module integration tests; 2 passed in 0.06s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_e2e_governance_session.py`: Ran 2 new operator E2E governance tests; 2 passed in 0.07s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_test_framework_config.py`: Ran 4 new test framework config tests; 4 passed in 0.74s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran complete Python test suite (265 unit/contract/integration/e2e tests across all modules); 265 passed in 2.89s (exit code 0).
+  - `python3 tools/test_runner.py --all`: Executed all 6 test tiers via unified orchestrator; all 6 passed in 4.48s (exit code 0).
+  - `python3 tools/lint.py`: Executed AST safety analysis, syntax compilation, and static checks; clean pass (exit code 0).
+  - `python3 tools/generate_types.py --check`: Verified zero enum drift across JSON Schemas, Python, TypeScript, and Rust; clean pass (exit code 0).
+- **Security & Platform Limitations:**
+  - Zero Ambient Shell Authority (SC-01): Test orchestrator invokes commands with explicit argument lists and `shell=False`.
+  - Inviolable SC-03 Enforcement: All test tiers explicitly verify that unverified/quarantined payloads cannot run natively on host.
+  - Tripartite Protection (SC-02): Autonomous mutation of user applications is blocked across integration, E2E, and broker tiers.
+  - Developer host macOS remains completely protected; zero mutating or privileged host operations executed.
+- **Status:** Awaiting human review before advancing tracker to Day 034.
