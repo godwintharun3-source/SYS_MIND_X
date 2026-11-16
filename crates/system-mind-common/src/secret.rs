@@ -1,7 +1,7 @@
 //! Masked secret value wrappers ensuring zero token leakage in logs and debug formats.
 
-use std::fmt;
 use crate::crypto::compute_payload_fingerprint;
+use std::fmt;
 
 /// Strongly typed secret value wrapper that masks contents in `Display` and `Debug` output.
 #[derive(Clone, PartialEq, Eq)]

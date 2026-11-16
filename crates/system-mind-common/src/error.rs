@@ -36,8 +36,12 @@ impl ErrorCode {
             Self::E1001UnauthenticatedIdentity => "E1001_UNAUTHENTICATED_IDENTITY",
             Self::E1002InsufficientRoleAuthority => "E1002_INSUFFICIENT_ROLE_AUTHORITY",
             Self::E2001CharterInvariantBreach => "E2001_CHARTER_INVARIANT_BREACH",
-            Self::E2002UserAppAutonomousMutationBlocked => "E2002_USER_APP_AUTONOMOUS_MUTATION_BLOCKED",
-            Self::E2003UncontainedFileExecutionBlocked => "E2003_UNCONTAINED_FILE_EXECUTION_BLOCKED",
+            Self::E2002UserAppAutonomousMutationBlocked => {
+                "E2002_USER_APP_AUTONOMOUS_MUTATION_BLOCKED"
+            }
+            Self::E2003UncontainedFileExecutionBlocked => {
+                "E2003_UNCONTAINED_FILE_EXECUTION_BLOCKED"
+            }
             Self::E3001PreconditionFailed => "E3001_PRECONDITION_FAILED",
             Self::E3002InsufficientStorage => "E3002_INSUFFICIENT_STORAGE",
             Self::E3003AcPowerRequired => "E3003_AC_POWER_REQUIRED",

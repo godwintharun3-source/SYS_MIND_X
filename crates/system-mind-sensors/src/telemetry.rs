@@ -29,7 +29,7 @@ impl MockSensorAdapter {
     pub fn new() -> Self {
         Self {
             simulated_cpu_pct: 12.5,
-            simulated_rss_bytes: 42_000_000, // 42MB
+            simulated_rss_bytes: 42_000_000,       // 42MB
             simulated_disk_bytes: 120_000_000_000, // 120GB
         }
     }

@@ -23,13 +23,13 @@ mod tests {
         let broker = PrivilegedCapabilityBroker::new(Box::new(MockSensorAdapter::new()));
 
         // Quarantined file rejected
-        let res_quarantined = broker.execute_file_launch(
-            "act-1",
-            "/tmp/untrusted.bin",
-            FileTrustState::Quarantined,
-        );
+        let res_quarantined =
+            broker.execute_file_launch("act-1", "/tmp/untrusted.bin", FileTrustState::Quarantined);
         assert!(res_quarantined.is_err());
-        assert!(res_quarantined.unwrap_err().message.contains("cannot be executed natively"));
+        assert!(res_quarantined
+            .unwrap_err()
+            .message
+            .contains("cannot be executed natively"));
 
         // Statically inspected file still rejected under "Scan != Safe"
         let res_inspected = broker.execute_file_launch(
@@ -59,7 +59,10 @@ mod tests {
             ComponentOwnership::UserManaged,
         );
         assert!(res_user_app.is_err());
-        assert!(res_user_app.unwrap_err().message.contains("User applications"));
+        assert!(res_user_app
+            .unwrap_err()
+            .message
+            .contains("User applications"));
 
         // System managed component accepted
         let res_system = broker.execute_maintenance_update(

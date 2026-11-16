@@ -1,7 +1,11 @@
 //! SYSTEM MIND X Sensors: Hardware sensor abstractions and telemetry collection.
 
+pub mod macos_identity;
 pub mod telemetry;
 
+pub use macos_identity::{
+    MacOsIdentityCollector, MacOsIdentitySnapshot, MockMacOsIdentityCollector,
+};
 pub use telemetry::{MockSensorAdapter, SensorAdapter, SensorSnapshot};
 
 #[cfg(test)]

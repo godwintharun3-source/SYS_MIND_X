@@ -1370,3 +1370,34 @@
 - Reviewed summary: Clean-clone bootstrap verifier (tools/clean_clone_verifier.py), setup results report (docs/records/CLEAN_CLONE_BOOTSTRAP_REPORT.md), CleanBootstrapValidator, and Milestone 3 Foundation Freeze completed with 359 total passed tests (341 Python + 18 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (16 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (341 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T15:25:23+05:30
+
+## Day 041 - macOS Version, Build, Architecture and Host Identity Detection
+
+- **Changed Files & Design Decisions:**
+  - `src/system_mind/macos/models.py`: Strongly typed macOS models (`MacOsIdentityReport`, `DarwinVersionInfo`, `ArchitectureInfo`, `PrivacyHardwareIdentity`) enforcing anonymous salted SHA-256 serialization for hardware identifiers (`INV-MAC-02`).
+  - `src/system_mind/macos/detector.py`: Read-only identity detector (`MacOsIdentityDetector`) resolving product versions, builds, kernel releases, Rosetta 2 translation status (`sysctl.proc_translated`), and graceful non-Darwin fallback (`INV-MAC-04`).
+  - `src/system_mind/macos/__init__.py`: Exported macOS identity detection module components.
+  - `crates/system-mind-sensors/src/macos_identity.rs`: Native Rust identity collector (`MacOsIdentityCollector`, `MacOsIdentitySnapshot`) with pure-Rust mock collector (`MockMacOsIdentityCollector`).
+  - `crates/system-mind-sensors/src/lib.rs`: Integrated and exported `macos_identity` in Rust sensor crate.
+  - `src/system_mind/packaging/macos_telemetry.py`: Implemented `MacOsTelemetryValidator` and `MacOsTelemetryAuditResult` validating models, Rust parity, and non-privileged boundary compliance.
+  - `src/system_mind/packaging/__init__.py`: Exported `MacOsTelemetryValidator`.
+  - `tools/detect_macos.py`: Non-privileged developer CLI for macOS system identity inspection with JSON output.
+  - `tools/README.md`: Documented `tools/detect_macos.py` in developer tools catalog.
+  - `tests/test_macos_identity_detector.py`: 8 unit and integration tests verifying Darwin detection, serial anonymization, mock modes, and CLI execution.
+  - `requirements-dev.txt`: Added `PyYAML==6.0.2` and `jsonschema==4.23.0` pinned dependencies for CI parity.
+  - `docs/DECISION_LOG.md`: Formalized ADR-051 (Milestone 4 Kickoff).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 041 awaiting review with 349 Python + 18 Rust workspace + 2 Rust desktop shell = 369 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 41.
+- **Commands Executed & Real Results:**
+  - `cargo fmt --all`: Cleaned and formatted all Rust workspace crates to pass CI formatting gate (exit code 0).
+  - `cargo clippy --workspace -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `cargo test --workspace`: 18 passed in 1.37s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_identity_detector.py`: 8 passed in 0.51s (exit code 0).
+  - `python3 tools/lint.py`: AST safety analysis, syntax compilation, static checks; clean pass (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 656 text files; zero secret leaks detected (exit code 0).
+  - `python3 tools/ci_runner.py all`: All 5 CI stages passed cleanly in 27.16s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (SC-01): Operates entirely in user-space using non-privileged Darwin system APIs (`platform`, `sysctl`, `sw_vers`). Zero `sudo` or administrator escalation.
+  - Hardware Identifier Privacy (INV-MAC-02): Raw serial numbers are never logged or stored in plaintext; salted SHA-256 digests ensure privacy preservation.
+  - Graceful Fallback (INV-MAC-04): On non-Darwin hosts (Linux/Windows), detector surfaces mock data or structured unsupported reports.
+- **Status:** Awaiting human review before advancing tracker to Day 042.

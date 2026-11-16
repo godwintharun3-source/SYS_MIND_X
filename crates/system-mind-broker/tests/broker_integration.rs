@@ -1,9 +1,7 @@
 //! End-to-end integration test for the Rust capability broker and native sensor subsystem.
 
 use system_mind_broker::PrivilegedCapabilityBroker;
-use system_mind_common::{
-    ApiStatus, CapabilityId, ComponentOwnership, ErrorCode, FileTrustState,
-};
+use system_mind_common::{ApiStatus, CapabilityId, ComponentOwnership, ErrorCode, FileTrustState};
 use system_mind_sensors::{MockSensorAdapter, SensorAdapter};
 
 #[test]
@@ -80,7 +78,10 @@ fn test_broker_executes_immutable_system_core_action() {
         FileTrustState::SystemCoreImmutable,
     );
 
-    assert!(result.is_ok(), "System core immutable file launch must succeed");
+    assert!(
+        result.is_ok(),
+        "System core immutable file launch must succeed"
+    );
     let receipt = result.unwrap();
     assert_eq!(receipt.action_id, "act-sys-core-test");
     assert_eq!(receipt.capability, CapabilityId::FileMetadataRead);
