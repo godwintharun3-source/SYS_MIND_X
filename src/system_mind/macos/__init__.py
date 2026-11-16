@@ -1,5 +1,11 @@
 """macOS system agent and read-only telemetry collection module for SYSTEM MIND X."""
 
+from system_mind.macos.app_detector import MacAppDetector
+from system_mind.macos.app_models import (
+    ApplicationCategory,
+    MacAppInfo,
+    MacAppInventoryReport,
+)
 from system_mind.macos.battery_detector import MacBatteryDetector
 from system_mind.macos.battery_models import (
     BatteryChargingState,
@@ -80,6 +86,7 @@ from system_mind.macos.usb_models import (
 )
 
 __all__ = [
+    "ApplicationCategory",
     "BatteryChargingState",
     "BatteryHealthCondition",
     "CpuPerfLevelInfo",
@@ -89,6 +96,9 @@ __all__ = [
     "InterfaceType",
     "LinkState",
     "LoginItemKind",
+    "MacAppDetector",
+    "MacAppInfo",
+    "MacAppInventoryReport",
     "MacArchitecture",
     "MacBatteryDetector",
     "MacBatteryHealthInfo",

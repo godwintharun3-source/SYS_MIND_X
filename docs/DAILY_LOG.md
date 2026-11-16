@@ -1852,3 +1852,42 @@
 - Reviewed summary: Read-only macOS launchd service and login-item inventory detector (src/system_mind/macos/services_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_launchd.rs), tools/detect_services.py CLI, and MacOsServicesValidator implemented with 478 total passed tests (434 Python + 44 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (42 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (434 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T18:29:53+05:30
+
+
+## Day 051 - 2026-11-16
+
+- **Objective:** Collect installed application inventory and bundle identifiers (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_051_MACOS_INSTALLED_APP_INVENTORY_BUNDLE_IDS.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/app_models.py` (`ApplicationCategory`, `MacAppInfo`, `MacAppInventoryReport`).
+  - Implemented read-only application inventory detector in `src/system_mind/macos/app_detector.py` (`MacAppDetector`) traversing standard application domains (`/Applications`, `/System/Applications`, `/System/Applications/Utilities`, `~/Applications`, and `/System/Library/CoreServices/Applications`) and parsing `Contents/Info.plist` manifests with sub-100ms unprivileged traversal.
+  - Enforced autonomous update exclusion (`SC-02` / `ADR-006` / `INV-APP-03`): all non-system applications (`VENDOR_MANAGED` and `USER_MANAGED`) are flagged with `is_user_app=True`, establishing programmatic update immunity.
+  - Enforced functional application categorization heuristics (`WEB_BROWSER`, `DEVELOPER_TOOL`, `PRODUCTIVITY`, `UTILITY`, `MEDIA`, `CORE_SYSTEM`, `OTHER`).
+  - Enforced zero mutating bundle operations (`INV-APP-02`): modifying, deleting, renaming, or launching applications is strictly excluded.
+  - Re-exported application models and detector in `src/system_mind/macos/__init__.py`.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_apps.rs` (`ApplicationCategorySnapshot`, `AppOwnershipSnapshot`, `MacOsAppItemSnapshot`, `MacOsAppInventorySnapshot`, `MacOsAppCollector`, `MockMacOsAppCollector`) with 3 unit tests.
+  - Re-exported application sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_apps.py` supporting formatted application tables, `--json`, `--mock`, `--ownership <OWNERSHIP>`, `--category <CATEGORY>`, `--user-apps`, `--system-apps`, and `--assert-apps <MIN_COUNT>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_apps.py` (`MacOsAppValidator`, `MacOsAppAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_app_detector.py` with 11 tests covering mock profiles, ownership and SC-02 update immunity, category classification, bundle Info.plist scanning, query helpers (`find_by_bundle_id`, `find_by_name`, `filter_by_ownership`, `filter_by_category`), non-Darwin fallback, live Darwin collection, validator audits, and CLI execution.
+  - Formalized ADR-061 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 051 milestone achievements and 492 passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_apps.py --mock`: Executed successfully in unprivileged user space; displayed 7 mock applications across ownership tiers (exit code 0).
+  - `python3 tools/detect_apps.py`: Executed live on Darwin host; discovered 103 installed applications (78 system-managed, 24 vendor-managed, 1 user-managed) in 60ms with zero `sudo` (exit code 0).
+  - `python3 tools/detect_apps.py --mock --json`: Returned valid JSON matching `MacAppInventoryReport` schema (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_app_detector.py`: 11 passed in 1.26s (exit code 0).
+  - `cargo test --workspace`: 45 passed in 0.01s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 726 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 445 passed in 33.57s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-APP-01`): Operates strictly in user space using read-only directory traversal and `plistlib`. Zero `sudo` or administrator escalation.
+  - Zero Mutating Bundle Operations (`INV-APP-02`): No application modifications, deletions, renames, or launches.
+  - Autonomous Update Immunity (`SC-02` / `ADR-006`): Non-system desktop apps are tagged `is_user_app=True` to guarantee immunity from automated updates.
+  - Zero Ambient Shell Authority (`SC-01`): Traversal is native Python and Spotlight lookups use tokenized argument lists (`shell=False`) with strict timeouts.
+  - Graceful Non-Darwin Fallback (`INV-APP-06`): Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin utilities in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 052.

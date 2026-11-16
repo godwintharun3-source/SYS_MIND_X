@@ -36,6 +36,10 @@ from system_mind.packaging.logging_config import (
     LoggingConfigAuditResult,
     LoggingConfigValidator,
 )
+from system_mind.packaging.macos_apps import (
+    MacOsAppAuditResult,
+    MacOsAppValidator,
+)
 from system_mind.packaging.macos_battery import (
     MacOsBatteryAuditResult,
     MacOsBatteryValidator,
@@ -119,6 +123,8 @@ __all__ = [
     "FrontendScaffoldValidator",
     "LoggingConfigAuditResult",
     "LoggingConfigValidator",
+    "MacOsAppAuditResult",
+    "MacOsAppValidator",
     "MacOsBatteryAuditResult",
     "MacOsBatteryValidator",
     "MacOsCpuAuditResult",

@@ -1,5 +1,6 @@
 //! SYSTEM MIND X Sensors: Hardware sensor abstractions and telemetry collection.
 
+pub mod macos_apps;
 pub mod macos_battery;
 pub mod macos_cpu;
 pub mod macos_gpu;
@@ -12,6 +13,10 @@ pub mod macos_storage;
 pub mod macos_usb;
 pub mod telemetry;
 
+pub use macos_apps::{
+    AppOwnershipSnapshot, ApplicationCategorySnapshot, MacOsAppCollector,
+    MacOsAppInventorySnapshot, MacOsAppItemSnapshot, MockMacOsAppCollector,
+};
 pub use macos_battery::{
     BatteryConditionState, MacOsBatteryCollector, MacOsBatterySnapshot, MockMacOsBatteryCollector,
     PowerSourceState,
