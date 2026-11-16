@@ -1710,3 +1710,45 @@
 - Reviewed summary: Read-only macOS GPU and display inventory telemetry detector (src/system_mind/macos/gpu_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_gpu.rs), tools/detect_gpu.py CLI, and MacOsGpuValidator implemented with 436 total passed tests (401 Python + 35 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (33 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (401 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T17:44:49+05:30
+
+
+## Day 048 - 2026-11-16
+
+- **Objective:** Collect USB and peripheral inventory with privacy constraints (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_048_MACOS_USB_AND_PERIPHERAL_INVENTORY.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/usb_models.py` (`UsbDeviceClass`, `UsbSpeed`, `MacUsbDevice`, `MacUsbController`, `MacUsbReport`).
+  - Implemented read-only USB and peripheral detection engine in `src/system_mind/macos/usb_detector.py` (`MacUsbDetector`) using unprivileged `/usr/sbin/system_profiler SPUSBDataType -json`.
+  - Enforced peripheral hardware serial privacy (`INV-USB-02`) via deterministic salted SHA-256 digests (`sha256:<16-char-hex>`).
+  - Enforced mass storage file content exclusion (`INV-USB-03`) and passive descriptors only / zero HID sniffing (`INV-USB-04`).
+  - Re-exported USB models and detector in `src/system_mind/macos/__init__.py`.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_usb.rs` (`UsbDeviceClassState`, `UsbSpeedState`, `MacOsUsbDeviceSnapshot`, `MacOsUsbControllerSnapshot`, `MacOsUsbSnapshot`, `MacOsUsbCollector`, `MockMacOsUsbCollector`) with 3 unit tests.
+  - Re-exported USB sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_usb.py` supporting human-readable output, `--json`, `--mock`, `--assert-usb`, and `--assert-devices <MIN_COUNT>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_usb.py` (`MacOsUsbValidator`, `MacOsUsbAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_usb_detector.py` with 11 tests covering mock profiles, Apple Silicon internal peripherals, recursive hub topologies, device/speed classification, serial anonymization, non-Darwin fallback, live Darwin collection, validator audits, and CLI execution.
+  - Formalized ADR-058 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 048 milestone achievements and 450 passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_usb.py --mock`: Executed successfully in unprivileged user space (exit code 0).
+  - `python3 tools/detect_usb.py`: Executed live on host Darwin (exit code 0).
+  - `python3 tools/detect_usb.py --mock --json`: Returned valid JSON matching `MacUsbReport` schema (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_usb_detector.py`: 11 passed in 0.72s (exit code 0).
+  - `cargo test --workspace`: 36 passed in 1.11s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 705 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `python3 tools/ci_runner.py all`: All 5 CI stages passed cleanly in 24.14s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 412 passed in 18.74s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-USB-01`): Operates strictly in user space using read-only `/usr/sbin/system_profiler SPUSBDataType -json`. Zero `sudo` or administrator escalation.
+  - Hardware Identifier Privacy (`INV-USB-02`): Raw hardware device serial numbers are strictly protected; models emit truncated salted SHA-256 digests (`sha256:prefix...`) to prevent peripheral fingerprinting.
+  - Storage Traversal Exclusion (`INV-USB-03`): USB Mass Storage devices are strictly inventoried at the descriptor level; filesystems on attached flash drives are never mounted or browsed.
+  - Passive Descriptors Only (`INV-USB-04`): Zero HID packet interception or event taps.
+  - Zero Mutating Peripheral Operations (`INV-USB-05`): No port resets, power toggles, or device ejections.
+  - Zero Ambient Shell Authority (`SC-01`): Subprocess executions use tokenized argument lists (`shell=False`) with strict 10-second timeouts.
+  - Graceful Non-Darwin Fallback (`INV-USB-06`): Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin utilities in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 049.
+

@@ -64,6 +64,10 @@ from system_mind.packaging.macos_telemetry import (
     MacOsTelemetryAuditResult,
     MacOsTelemetryValidator,
 )
+from system_mind.packaging.macos_usb import (
+    MacOsUsbAuditResult,
+    MacOsUsbValidator,
+)
 from system_mind.packaging.mock_platform import (
     MockPlatformAuditResult,
     MockPlatformValidator,
@@ -121,6 +125,8 @@ __all__ = [
     "MacOsStorageValidator",
     "MacOsTelemetryAuditResult",
     "MacOsTelemetryValidator",
+    "MacOsUsbAuditResult",
+    "MacOsUsbValidator",
     "MockPlatformAuditResult",
     "MockPlatformValidator",
     "PackageMetadata",

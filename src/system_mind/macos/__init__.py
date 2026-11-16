@@ -53,6 +53,14 @@ from system_mind.macos.storage_models import (
     MacVolumeInfo,
     VolumeRole,
 )
+from system_mind.macos.usb_detector import MacUsbDetector
+from system_mind.macos.usb_models import (
+    MacUsbController,
+    MacUsbDevice,
+    MacUsbReport,
+    UsbDeviceClass,
+    UsbSpeed,
+)
 
 __all__ = [
     "BatteryChargingState",
@@ -89,9 +97,15 @@ __all__ = [
     "MacStorageReport",
     "MacSwapUsage",
     "MacTelemetryReport",
+    "MacUsbController",
+    "MacUsbDetector",
+    "MacUsbDevice",
+    "MacUsbReport",
     "MacVmPageStats",
     "MacVolumeInfo",
     "MemoryPressureLevel",
     "PowerSource",
+    "UsbDeviceClass",
+    "UsbSpeed",
     "VolumeRole",
 ]

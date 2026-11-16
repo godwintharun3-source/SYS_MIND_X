@@ -7,6 +7,7 @@ pub mod macos_identity;
 pub mod macos_memory;
 pub mod macos_network;
 pub mod macos_storage;
+pub mod macos_usb;
 pub mod telemetry;
 
 pub use macos_battery::{
@@ -30,6 +31,10 @@ pub use macos_network::{
 };
 pub use macos_storage::{
     MacOsStorageCollector, MacOsStorageSnapshot, MacOsVolumeSnapshot, MockMacOsStorageCollector,
+};
+pub use macos_usb::{
+    MacOsUsbCollector, MacOsUsbControllerSnapshot, MacOsUsbDeviceSnapshot, MacOsUsbSnapshot,
+    MockMacOsUsbCollector, UsbDeviceClassState, UsbSpeedState,
 };
 pub use telemetry::{MockSensorAdapter, SensorAdapter, SensorSnapshot};
 
