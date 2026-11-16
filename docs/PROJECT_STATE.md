@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: IN_PROGRESS (Day 030 completed and reviewed; Day 031 ready to start)
+- Project status: IN_PROGRESS (Day 031 completed, awaiting human review)
 - Current day: 31
 - Last reviewed completed day: 30
 - Current milestone: Repository and development foundation (Days 026–040)
 - Current implementation branch: `develop`
-- Last verified commit: `67ef5a2` (Day 030: Create the Tauri desktop shell with a minimal safe window)
+- Last verified commit: `6d675ca` (Day 030 marked human-reviewed complete; transition to Day 031)
 - Active blockers: None currently blocking Milestone 3. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Start Day 031 via `python3 tools/day_tracker.py start --day 31` and create shared schemas and generated API type strategy.
+- Next action: Human user reviews Day 031 git diff and test evidence, then runs `python3 tools/day_tracker.py complete --day 31 ... --reviewed`.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -63,7 +63,12 @@
   - Enforced zero ambient shell execution: permanently excluded `shell:allow-execute` and `shell:allow-spawn` from capability grants.
   - Implemented native shell library with standalone unit tests.
   - Formalized ADR-040.
-- **Test Suite**: 239 Python unit/contract/integration tests in `tests/` + 9 native Rust unit tests across workspace and shell crates (248 total tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, and Tauri desktop safe shell with 100% pass rate.
+- **Shared Schemas and Generated API Type Strategy (Day 031)**: Formalized canonical JSON Schemas (Draft 2020-12) in `schemas/` (`api_envelope.schema.json`, `file_trust.schema.json`, `component_ownership.schema.json`, `action_contract.schema.json`, `audit_event.schema.json`), polyglot `TypeGenerator` and `tools/generate_types.py`, and `SchemaStrategyValidator` in `src/system_mind/schemas/` with design note `docs/design/DAY_031_SHARED_SCHEMAS_AND_CODEGEN_STRATEGY.md`.
+  - Single source of truth across Python, TypeScript, and Rust execution domains.
+  - Enforces JSON Schema Draft 2020-12 compliance with mandatory `$id`, `title`, and `description`.
+  - Validates zero enum drift across Python dataclasses, TypeScript interfaces, and Rust enums.
+  - Formalized ADR-041.
+- **Test Suite**: 248 Python unit/contract/integration tests in `tests/` + 9 native Rust unit tests across workspace and shell crates (257 total tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, and shared schema codegen strategy with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

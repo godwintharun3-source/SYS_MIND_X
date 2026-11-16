@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.systemmind.org/v1/audit_event.schema.json",
+  "title": "SystemMindAuditEvent",
+  "description": "Cryptographically linked, tamper-evident audit event record for SYSTEM MIND X.",
+  "type": "object",
+  "required": [
+    "sequence_id",
+    "timestamp",
+    "actor_urn",
+    "action_name",
+    "status",
+    "payload_sha256",
+    "previous_event_sha256",
+    "retention_tier"
+  ],
+  "properties": {
+    "sequence_id": { "type": "integer", "minimum": 1 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "actor_urn": { "type": "string", "pattern": "^urn:[a-z0-9_\\-\\.:]+$" },
+    "action_name": { "type": "string", "pattern": "^[a-z0-9_]+\\.[a-z0-9_]+$" },
+    "status": {
+      "type": "string",
+      "enum": ["AUTHORIZED", "DENIED", "EXECUTED", "FAILED", "ROLLED_BACK"]
+    },
+    "payload_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "previous_event_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "retention_tier": { "$ref": "#/$defs/AuditRetentionTier" },
+    "redacted_secrets_count": { "type": "integer", "minimum": 0 },
+    "event_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "AuditRetentionTier": {
+      "type": "string",
+      "enum": [
+        "EPHEMERAL_TRACE",
+        "OPERATIONAL_DEBUG",
+        "STANDARD_AUDIT",
+        "COMPLIANCE_LONGTERM",
+        "CRITICAL_SECURITY"
+      ],
+      "description": "Tiered lifecycle classification. CRITICAL_SECURITY records are permanent and never purged."
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.systemmind.org/v1/action_contract.schema.json",
+  "title": "SystemMindActionContract",
+  "description": "Typed action contract schema governing consequential capability dispatch through the narrow broker.",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "operation_name",
+    "risk_tier",
+    "privilege_level",
+    "reversibility",
+    "component_ownership",
+    "parameters"
+  ],
+  "properties": {
+    "contract_id": { "type": "string", "minLength": 1 },
+    "operation_name": { "type": "string", "pattern": "^[a-z0-9_]+\\.[a-z0-9_]+$" },
+    "risk_tier": { "$ref": "#/$defs/RiskTier" },
+    "privilege_level": { "$ref": "#/$defs/PrivilegeLevel" },
+    "reversibility": { "$ref": "#/$defs/Reversibility" },
+    "component_ownership": {
+      "$ref": "./component_ownership.schema.json#/$defs/ComponentOwnership"
+    },
+    "parameters": { "type": "object" },
+    "preconditions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ContractCondition" }
+    },
+    "postconditions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ContractCondition" }
+    },
+    "rollback_contract": { "$ref": "#/$defs/RollbackContractSpec" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "RiskTier": {
+      "type": "string",
+      "enum": [
+        "READ_ONLY",
+        "LOW_IMPACT",
+        "MEDIUM_IMPACT",
+        "HIGH_IMPACT",
+        "CRITICAL_PRIVILEGED"
+      ]
+    },
+    "PrivilegeLevel": {
+      "type": "string",
+      "enum": [
+        "UNPRIVILEGED_USER",
+        "USER_CONSENT_GRANTED",
+        "ELEVATED_BROKER_REQUIRED",
+        "HARDWARE_FIRMWARE_ENTITLED"
+      ]
+    },
+    "Reversibility": {
+      "type": "string",
+      "enum": [
+        "REVERSIBLE",
+        "PARTIALLY_REVERSIBLE",
+        "IRREVERSIBLE"
+      ]
+    },
+    "ContractCondition": {
+      "type": "object",
+      "required": ["predicate_name", "target_key"],
+      "properties": {
+        "predicate_name": { "type": "string" },
+        "target_key": { "type": "string" },
+        "expected_value": {},
+        "comparator": { "type": "string", "enum": ["eq", "neq", "gt", "lt", "contains", "exists"] }
+      },
+      "additionalProperties": false
+    },
+    "RollbackContractSpec": {
+      "type": "object",
+      "required": ["strategy", "inverse_operation"],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": [
+            "ATOMIC_FILE_RESTORE",
+            "STATE_INVERSE_ACTION",
+            "TRANSACTIONAL_SNAPSHOT",
+            "NOT_REVERSIBLE_COMPENSATION_ONLY"
+          ]
+        },
+        "inverse_operation": { "type": "string" },
+        "rollback_parameters": { "type": "object" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

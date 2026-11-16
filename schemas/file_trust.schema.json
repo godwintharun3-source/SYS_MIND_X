@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.systemmind.org/v1/file_trust.schema.json",
+  "title": "SystemMindFileTrust",
+  "description": "Inviolable 8-state file trust lifecycle and supported execution handler policy enforcing SC-03 (Scan != Safe).",
+  "type": "object",
+  "required": ["path", "trust_state", "handler_mode", "sha256_hash", "last_inspected"],
+  "properties": {
+    "path": { "type": "string", "minLength": 1 },
+    "trust_state": { "$ref": "#/$defs/FileTrustState" },
+    "handler_mode": { "$ref": "#/$defs/FileHandlerExecutionMode" },
+    "sha256_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "quarantined": { "type": "boolean" },
+    "last_inspected": { "type": "string", "format": "date-time" },
+    "justification": { "type": "string" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "FileTrustState": {
+      "type": "string",
+      "enum": [
+        "UNTRUSTED_UNKNOWN",
+        "QUARANTINED",
+        "STATICALLY_INSPECTED",
+        "SANDBOX_VERIFIED",
+        "USER_ATTESTED",
+        "VENDOR_SIGNED_VERIFIED",
+        "SYSTEM_CORE_IMMUTABLE",
+        "BLOCKED_MALICIOUS"
+      ],
+      "description": "The discrete eight-state trust progression. Static analysis alone never promotes to VERIFIED or native execution."
+    },
+    "FileHandlerExecutionMode": {
+      "type": "string",
+      "enum": [
+        "DENIED",
+        "STATIC_PARSER_ONLY",
+        "HARDENED_ISOLATED_VIEWER",
+        "DISPOSABLE_SANDBOX_EXECUTION",
+        "NATIVE_HOST_EXECUTION"
+      ],
+      "description": "Execution containment tier assigned to target file payloads."
+    }
+  }
+}

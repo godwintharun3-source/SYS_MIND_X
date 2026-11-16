@@ -941,3 +941,39 @@
 - Reviewed summary: Tauri desktop shell (@system-mind-desktop v1.0.0), safe window geometry (1280x860, non-fullscreen), airtight CSP, zero-ambient-shell capability restriction, and TauriShellValidator implemented with 248 total passed tests (239 Python + 9 Rust)
 - Test evidence: cargo test --workspace (7 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (239 passed)
 - Review timestamp: 2026-11-16T11:28:22+05:30
+
+## Day 031 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Create shared schemas and generated API type strategy. Create the reproducible monorepo and developer tooling. No privileged system changes.
+- **Phase:** Repository and development foundation (Days 026-040)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_031_SHARED_SCHEMAS_AND_CODEGEN_STRATEGY.md`: Comprehensive engineering design note formalizing JSON Schema canonicalization, polyglot code generation strategy, and cross-language parity validation.
+  - `schemas/api_envelope.schema.json`: Canonical JSON Schema (Draft 2020-12) for unified wire protocol: `ApiRequest`, `ApiResponse`, RFC 7807 `ApiErrorDetail`, machine-readable error codes `E1000..E7999`, and mutating `idempotency_key` requirement.
+  - `schemas/file_trust.schema.json`: Canonical JSON Schema for the discrete 8-state file trust lifecycle (`UNTRUSTED_UNKNOWN` to `BLOCKED_MALICIOUS`), file categories, execution handler tiers, and SC-03 ("Scan != Safe") guardrails.
+  - `schemas/component_ownership.schema.json`: Canonical JSON Schema for tripartite component boundaries (`SYSTEM_MANAGED`, `VENDOR_MANAGED`, `USER_MANAGED`) and update exclusions.
+  - `schemas/action_contract.schema.json`: Canonical JSON Schema for typed action contracts, 5 risk tiers (`READ_ONLY` to `CRITICAL_PRIVILEGED`), privilege levels, preconditions, postconditions, and rollback contracts.
+  - `schemas/audit_event.schema.json`: Canonical JSON Schema for tamper-evident audit ledger entries with SHA-256 hash chaining, actor URNs, and 5-tier retention rules.
+  - `apps/desktop/src/types/api.ts`: Synchronized TypeScript `FileTrustState` union with canonical 8 states alongside presentation aliases.
+  - `src/system_mind/schemas/models.py`: Data models for schema metadata, validation reports, and cross-language parity reports.
+  - `src/system_mind/schemas/generator.py`: Polyglot `TypeGenerator` extracting schema definitions and generating TypeScript unions, Python Enums, and Rust enums.
+  - `src/system_mind/schemas/validator.py`: `SchemaStrategyValidator` verifying Draft 2020-12 schema compliance and enforcing cross-language parity across Python, TypeScript, and Rust files.
+  - `src/system_mind/schemas/__init__.py`: Package export interface for schema models, validator, and generator.
+  - `tools/generate_types.py`: Developer CLI tool supporting `--check` (dry-run parity verification) and `--generate` across TypeScript, Python, and Rust targets.
+  - `tests/test_schema_strategy.py`: 9 comprehensive unit and contract tests verifying schema validation, missing directory/metadata detection, cross-language parity verification, drift detection, jsonschema instance validation on ApiRequest and FileTrust (SC-03 forgery rejection), type generator bundling, and CLI dry-run execution.
+  - `docs/DECISION_LOG.md`: Recorded ADR-041 (Language-Neutral Canonical JSON Schemas, Polyglot Type Generation Strategy, and Cross-Language Parity Enforcement).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 031 awaiting review with 248 Python + 9 Rust = 257 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 31.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 31`: Transitioned Day 031 to in_progress (exit code 0).
+  - `python3 tools/generate_types.py --check`: Validated all 6 canonical schemas and verified cross-language parity across FileTrustState and ComponentOwnership (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_schema_strategy.py`: Ran 9 new schema strategy tests; 9 passed in 0.35s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran complete Python test suite (248 unit/contract/integration tests across all modules); 248 passed in 1.74s (exit code 0).
+  - `cargo test --workspace && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: Ran all 9 native Rust tests across workspace and desktop shell crates; 9 passed in 0.00s (exit code 0).
+  - `python3 -m py_compile src/system_mind/schemas/*.py tools/generate_types.py tests/test_schema_strategy.py`: Verified syntax and bytecode compilation with exit code 0.
+- **Security & Platform Limitations:**
+  - Single Source of Truth: All language targets derive from canonical JSON Schemas; manual drift is prohibited and caught in CI.
+  - Mandatory Mutating Idempotency: Schema enforces UUIDv4 idempotency keys on mutating API requests.
+  - Inviolable SC-03 Enforcement: Schema rejects forged or unverified trust states ("SAFE" / "CLEAN" are illegal).
+  - Developer host macOS remains completely protected; zero mutating or unconfined operations executed.
+- **Status:** Awaiting human review before advancing tracker to Day 032.
+

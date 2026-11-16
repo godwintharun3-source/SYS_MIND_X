@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.systemmind.org/v1/api_envelope.schema.json",
+  "title": "SystemMindApiEnvelope",
+  "description": "Canonical wire envelopes, RFC 7807 problem details, and error taxonomy for SYSTEM MIND X.",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/$defs/ApiRequest" },
+    { "$ref": "#/$defs/ApiResponse" }
+  ],
+  "$defs": {
+    "ApiStatus": {
+      "type": "string",
+      "enum": ["success", "error", "pending", "accepted"]
+    },
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "E1000", "E1001", "E1002",
+        "E2001", "E2002", "E2003",
+        "E3001", "E3002", "E3003",
+        "E4001", "E4002", "E4003",
+        "E5001", "E5002",
+        "E6001", "E6002",
+        "E7001", "E7002"
+      ],
+      "description": "Standardized machine-readable error codes partitioned across 7 functional failure domains."
+    },
+    "ApiErrorDetail": {
+      "type": "object",
+      "required": ["code", "message", "timestamp"],
+      "properties": {
+        "code": { "$ref": "#/$defs/ErrorCode" },
+        "message": { "type": "string", "minLength": 1 },
+        "target": { "type": "string" },
+        "details": { "type": "object" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "request_id": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "ApiRequest": {
+      "type": "object",
+      "required": [
+        "version",
+        "request_id",
+        "timestamp",
+        "caller_identity",
+        "operation",
+        "payload"
+      ],
+      "properties": {
+        "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+" },
+        "request_id": { "type": "string", "minLength": 1 },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "caller_identity": { "type": "string", "minLength": 1 },
+        "operation": { "type": "string", "pattern": "^[a-z0-9_]+\\.[a-z0-9_]+$" },
+        "payload": {},
+        "idempotency_key": { "type": "string", "minLength": 8 }
+      },
+      "additionalProperties": false
+    },
+    "ApiResponse": {
+      "type": "object",
+      "required": ["version", "request_id", "timestamp", "status"],
+      "properties": {
+        "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+" },
+        "request_id": { "type": "string", "minLength": 1 },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "status": { "$ref": "#/$defs/ApiStatus" },
+        "data": {},
+        "error": { "$ref": "#/$defs/ApiErrorDetail" },
+        "execution_duration_ms": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  }
+}

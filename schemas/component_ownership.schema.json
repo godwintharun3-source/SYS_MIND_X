@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.systemmind.org/v1/component_ownership.schema.json",
+  "title": "SystemMindComponentOwnership",
+  "description": "Tripartite component ownership classification and non-interference boundaries.",
+  "type": "object",
+  "required": ["component_id", "ownership", "path_root", "allow_autonomous_update"],
+  "properties": {
+    "component_id": { "type": "string", "minLength": 1 },
+    "ownership": { "$ref": "#/$defs/ComponentOwnership" },
+    "path_root": { "type": "string", "minLength": 1 },
+    "allow_autonomous_update": { "type": "boolean" },
+    "managed_by": { "type": "string" },
+    "isolation_boundary": { "type": "string" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "ComponentOwnership": {
+      "type": "string",
+      "enum": [
+        "SYSTEM_MANAGED",
+        "VENDOR_MANAGED",
+        "USER_MANAGED"
+      ],
+      "description": "Tripartite component partition. USER_MANAGED components are strictly excluded from automated modification."
+    }
+  }
+}

@@ -41,7 +41,15 @@ export type ErrorCode =
  * SC-03: A static or AI scan NEVER proves a file is safe.
  */
 export type FileTrustState =
+  | "UNTRUSTED_UNKNOWN"
   | "QUARANTINED"
+  | "STATICALLY_INSPECTED"
+  | "SANDBOX_VERIFIED"
+  | "USER_ATTESTED"
+  | "VENDOR_SIGNED_VERIFIED"
+  | "SYSTEM_CORE_IMMUTABLE"
+  | "BLOCKED_MALICIOUS"
+  // Presentation & lifecycle aliases:
   | "VERIFIED"
   | "SANDBOXED"
   | "BLOCKED"
