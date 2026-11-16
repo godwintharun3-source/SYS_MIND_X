@@ -3,6 +3,7 @@
 pub mod macos_cpu;
 pub mod macos_identity;
 pub mod macos_memory;
+pub mod macos_storage;
 pub mod telemetry;
 
 pub use macos_cpu::{MacOsCpuCollector, MacOsCpuSnapshot, MockMacOsCpuCollector};
@@ -11,6 +12,9 @@ pub use macos_identity::{
 };
 pub use macos_memory::{
     MacOsMemoryCollector, MacOsMemorySnapshot, MemoryPressureState, MockMacOsMemoryCollector,
+};
+pub use macos_storage::{
+    MacOsStorageCollector, MacOsStorageSnapshot, MacOsVolumeSnapshot, MockMacOsStorageCollector,
 };
 pub use telemetry::{MockSensorAdapter, SensorAdapter, SensorSnapshot};
 

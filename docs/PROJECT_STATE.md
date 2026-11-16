@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: AWAITING_REVIEW (Day 043 completed and awaiting human review)
-- Current day: 43
-- Last reviewed completed day: 42
+- Project status: AWAITING_REVIEW (Day 044 completed and awaiting human review)
+- Current day: 44
+- Last reviewed completed day: 43
 - Current milestone: macOS system agent and telemetry (Days 041–065)
 - Current implementation branch: `develop`
-- Last verified commit: `develop` head (Day 043: Collect memory capacity, pressure indicators and usage safely)
+- Last verified commit: `develop` head (Day 044: Collect storage volumes, capacity and filesystem metadata)
 - Active blockers: None currently blocking Milestone 4. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Await human review of Day 043, then complete via `python3 tools/day_tracker.py complete --day 43 ... --reviewed` and start Day 044.
+- Next action: Await human review of Day 044, then complete via `python3 tools/day_tracker.py complete --day 44 ... --reviewed` and start Day 045.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -143,7 +143,15 @@
   - Enforced zero ambient shell authority (`INV-MEM-02`): queries dispatch via tokenized argument lists (`shell=False`) with strict timeouts.
   - Implemented graceful non-Darwin fallback (`INV-MEM-04`): execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin sysctls under `unavailable_telemetry`.
   - Formalized ADR-053.
-- **Test Suite**: 365 Python unit/contract/integration/e2e tests in `tests/` + 22 native Rust workspace tests + 2 Rust desktop shell tests (389 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, macOS CPU hardware detection, and macOS memory telemetry with 100% pass rate.
+- **macOS Storage Volumes, APFS Containers, and Filesystem Metadata Detection (Day 044)**: Formalized read-only storage volume discovery, APFS container capacity, sealed system volume (SSV) verification, and volume role classification in `src/system_mind/macos/` (`storage_models.py`, `storage_detector.py`, `__init__.py`), native Rust sensor collector in `crates/system-mind-sensors/src/macos_storage.rs`, developer CLI (`tools/detect_storage.py`), `MacOsStorageValidator` in `src/system_mind/packaging/macos_storage.py`, and design note `docs/design/DAY_044_MACOS_STORAGE_VOLUMES_CAPACITY_METADATA.md`.
+  - Enforced unprivileged query interfaces (`SC-01` / `INV-STOR-01`): all storage telemetry queries execute strictly in read-only user space without `sudo` via POSIX `os.statvfs`, `/sbin/mount`, and unprivileged `diskutil info`.
+  - Mutating command prohibition (`SC-01` / `INV-STOR-01`): destructive or modifying disk utilities (`eraseVolume`, `partitionDisk`, `fdisk`, `newfs_apfs`, `umount`, etc.) are strictly prohibited.
+  - Modeled APFS container sharing and cryptographic seals (`INV-STOR-04`): captures Apple Silicon Signed System Volume (SSV) seal status (`is_sealed`), FileVault encryption (`is_encrypted`), container capacity, and volume role categorization (`SYSTEM`, `DATA`, `PREBOOT`, `RECOVERY`, `VM_SWAP`).
+  - Enforced privacy boundary (`INV-STOR-03`): collection is strictly confined to mountpoint-level metadata and capacity metrics; user home directories and document trees are never scanned or traversed.
+  - Enforced zero ambient shell authority (`SC-01` / `INV-STOR-02`): queries dispatch with tokenized argument vectors (`shell=False`) and 5-second timeouts.
+  - Implemented graceful non-Darwin fallback: execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin utilities under `unavailable_telemetry`.
+  - Formalized ADR-054.
+- **Test Suite**: 373 Python unit/contract/integration/e2e tests in `tests/` + 24 native Rust workspace tests + 2 Rust desktop shell tests (399 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, macOS CPU hardware detection, macOS memory telemetry, and macOS storage volume metadata with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

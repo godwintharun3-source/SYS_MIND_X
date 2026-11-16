@@ -1491,3 +1491,42 @@
 - Reviewed summary: Read-only macOS memory telemetry detector (src/system_mind/macos/memory_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_memory.rs), tools/detect_memory.py CLI, and MacOsMemoryValidator implemented with 389 total passed tests (365 Python + 24 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (22 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (365 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T16:03:59+05:30
+
+## Day 044 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Collect storage volumes, capacity and filesystem metadata. Build a read-only macOS companion agent. Use supported APIs, report unavailable telemetry and respect permissions.
+- **Phase:** macOS system agent and telemetry (Days 041–065)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_044_MACOS_STORAGE_VOLUMES_CAPACITY_METADATA.md`: Detailed engineering design note formalizing macOS storage volume discovery, APFS container capacity, Sealed System Volume (SSV) verification, FileVault encryption status, volume roles, and safety invariants.
+  - `src/system_mind/macos/storage_models.py`: Strongly typed data models (`VolumeRole`, `FilesystemType`, `MacVolumeInfo`, `MacStorageReport`).
+  - `src/system_mind/macos/storage_detector.py`: Read-only platform detector (`MacStorageDetector`) querying `/sbin/mount`, POSIX `os.statvfs`, and unprivileged `diskutil info`.
+  - `src/system_mind/macos/__init__.py`: Exported storage telemetry models and detector.
+  - `crates/system-mind-sensors/src/macos_storage.rs`: Native Rust storage sensor models (`MacOsVolumeSnapshot`, `MacOsStorageSnapshot`, `MacOsStorageCollector`, `MockMacOsStorageCollector`).
+  - `crates/system-mind-sensors/src/lib.rs`: Integrated and exported `macos_storage` in Rust sensors workspace crate.
+  - `tools/detect_storage.py`: Developer CLI tool for inspecting storage volumes, capacity, mount flags, SSV seal status, and free space checks (`--check-free-space-gb`).
+  - `tools/README.md`: Documented `tools/detect_storage.py` in developer tooling catalog.
+  - `src/system_mind/packaging/macos_storage.py`: Programmatic validator (`MacOsStorageValidator`, `MacOsStorageAuditResult`) verifying data models, safety invariants, CLI, and sensor parity in CI.
+  - `src/system_mind/packaging/__init__.py`: Exported `MacOsStorageValidator`.
+  - `tests/test_macos_storage_detector.py`: 8 comprehensive unit, contract, and integration tests verifying Darwin live detection, mock simulation, mount parsing, volume role deduction, fallback behavior, CLI execution, and model immutability.
+  - `docs/DECISION_LOG.md`: Formalized ADR-054.
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 044 awaiting review with 373 Python + 24 Rust workspace + 2 Rust desktop shell = 399 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 44.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 44`: Started Day 044 (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_storage_detector.py`: 8 passed in 2.23s (exit code 0).
+  - `cargo test --workspace`: 24 passed in 2.25s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/lint.py`: AST safety analysis, syntax compilation, static checks; clean pass (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 677 text files; zero secret leaks detected (exit code 0).
+  - `python3 tools/ci_runner.py all`: All 5 CI stages passed cleanly in 28.96s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 373 passed in 20.81s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (SC-01 / INV-STOR-01): Operates strictly in user space using read-only `/sbin/mount`, POSIX `os.statvfs`, and unprivileged `diskutil info`. Zero `sudo` or administrator escalation.
+  - Zero Destructive Disk Operations (SC-01 / INV-STOR-01): Commands that modify disks or partitions (`eraseVolume`, `partitionDisk`, `fdisk`, `newfs_apfs`, `umount`, etc.) are strictly prohibited.
+  - Privacy Perimeter (INV-STOR-03): Telemetry is restricted to filesystem mounts and volume metrics; no traversal or scanning of personal user folders.
+  - APFS Sealed System Volume (SSV) Awareness (INV-STOR-04): Accurately detects cryptographically sealed root filesystem (`/`) and separate writable data partition (`/System/Volumes/Data`).
+  - Zero Ambient Shell Authority (SC-01 / INV-STOR-02): Subprocess executions use tokenized argument lists (`shell=False`) with strict timeouts.
+  - Graceful Non-Darwin Fallback: Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin utilities in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 045.
+

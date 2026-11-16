@@ -21,9 +21,17 @@ from system_mind.macos.models import (
     MacOSVersionInfo,
     MacTelemetryReport,
 )
+from system_mind.macos.storage_detector import MacStorageDetector
+from system_mind.macos.storage_models import (
+    FilesystemType,
+    MacStorageReport,
+    MacVolumeInfo,
+    VolumeRole,
+)
 
 __all__ = [
     "CpuPerfLevelInfo",
+    "FilesystemType",
     "MacArchitecture",
     "MacCpuHardwareDetector",
     "MacCpuHardwareInfo",
@@ -34,8 +42,12 @@ __all__ = [
     "MacMemoryBreakdown",
     "MacMemoryDetector",
     "MacMemoryTelemetryReport",
+    "MacStorageDetector",
+    "MacStorageReport",
     "MacSwapUsage",
     "MacTelemetryReport",
     "MacVmPageStats",
+    "MacVolumeInfo",
     "MemoryPressureLevel",
+    "VolumeRole",
 ]

@@ -44,6 +44,10 @@ from system_mind.packaging.macos_memory import (
     MacOsMemoryAuditResult,
     MacOsMemoryValidator,
 )
+from system_mind.packaging.macos_storage import (
+    MacOsStorageAuditResult,
+    MacOsStorageValidator,
+)
 from system_mind.packaging.macos_telemetry import (
     MacOsTelemetryAuditResult,
     MacOsTelemetryValidator,
@@ -95,6 +99,8 @@ __all__ = [
     "MacOsCpuValidator",
     "MacOsMemoryAuditResult",
     "MacOsMemoryValidator",
+    "MacOsStorageAuditResult",
+    "MacOsStorageValidator",
     "MacOsTelemetryAuditResult",
     "MacOsTelemetryValidator",
     "MockPlatformAuditResult",
