@@ -28,6 +28,29 @@ export class SystemMindApiClient {
   }
 
   /**
+   * Inspects the native desktop presentation shell (Tauri v2).
+   */
+  getDesktopShellInfo(): {
+    isTauri: boolean;
+    appIdentifier: string;
+    version: string;
+    cspEnforced: boolean;
+    ambientShellDisabled: boolean;
+  } {
+    const isTauri =
+      typeof window !== "undefined" &&
+      ("__TAURI_INTERNALS__" in window || "__TAURI__" in window);
+
+    return {
+      isTauri,
+      appIdentifier: "org.systemmind.desktop",
+      version: "1.0.0",
+      cspEnforced: true,
+      ambientShellDisabled: true,
+    };
+  }
+
+  /**
    * Helper to generate a client-side UUIDv4 idempotency key.
    */
   private generateUuid(): string {

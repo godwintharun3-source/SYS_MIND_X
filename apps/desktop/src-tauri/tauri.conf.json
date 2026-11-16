@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.tauri.app/v2",
+  "productName": "SYSTEM MIND X",
+  "version": "1.0.0",
+  "identifier": "org.systemmind.desktop",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "SYSTEM MIND X - Universal Computer Governance",
+        "label": "main",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 960,
+        "minHeight": 640,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "center": true,
+        "transparent": false,
+        "focus": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:*;",
+      "capabilities": ["default"]
+    }
+  },
+  "bundle": {
+    "active": false,
+    "targets": "all",
+    "category": "DeveloperTool",
+    "shortDescription": "Universal Computer Governance Desktop Console",
+    "longDescription": "Safe, sandboxed desktop presentation shell for SYSTEM MIND X with zero ambient authority."
+  }
+}

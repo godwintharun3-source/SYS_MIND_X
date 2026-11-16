@@ -1,0 +1,20 @@
+[package]
+name = "system-mind-desktop"
+version = "1.0.0"
+description = "SYSTEM MIND X Native Desktop Presentation Shell"
+edition = "2021"
+authors = ["SYSTEM MIND Core Team"]
+license = "Apache-2.0"
+
+[workspace]
+
+[lib]
+name = "system_mind_desktop_lib"
+path = "src/lib.rs"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "system-mind-desktop"
+path = "src/main.rs"
+
+[dependencies]

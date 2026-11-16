@@ -87,7 +87,10 @@ export const App: React.FC = () => {
             <span>Identity: <strong>LOCAL_CONSOLE_USER</strong></span>
           </div>
           <div className="status-pill">
-            <span>Epoch: <strong>{twin?.temporal_epoch ?? 29}</strong></span>
+            <span>Shell: <strong>Tauri v2 (Safe Window)</strong></span>
+          </div>
+          <div className="status-pill">
+            <span>Epoch: <strong>{twin?.temporal_epoch ?? 30}</strong></span>
           </div>
         </div>
       </header>

@@ -900,3 +900,38 @@
 - Reviewed summary: React and TypeScript desktop frontend scaffold (@system-mind/desktop v1.0.0), sandboxed UI boundaries, wire protocol client, and FrontendScaffoldValidator implemented with 237 total passed tests
 - Test evidence: cargo test --workspace (7 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (230 passed)
 - Review timestamp: 2026-11-16T11:18:09+05:30
+
+## Day 030 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Create the Tauri desktop shell with a minimal safe window. Create the reproducible monorepo and developer tooling. No privileged system changes.
+- **Phase:** Repository and development foundation (Days 026-040)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_030_TAURI_DESKTOP_SHELL_SAFE_WINDOW.md`: Architectural design note formalizing Tauri v2 desktop shell architecture, minimal safe window invariants, Content Security Policy, and capability containment.
+  - `apps/desktop/src-tauri/tauri.conf.json`: Tauri v2 application configuration defining product identity (`SYSTEM MIND X`, `org.systemmind.desktop`), window geometry (1280x860, min 960x640, centered, decorated, non-fullscreen), and strict Content Security Policy (`default-src 'self'`).
+  - `apps/desktop/src-tauri/capabilities/default.json`: Tauri v2 capability configuration granting restricted core window permissions while strictly excluding ambient shell execution (`shell:allow-execute`, `shell:allow-spawn`).
+  - `apps/desktop/src-tauri/Cargo.toml`: Cargo manifest for native shell crate (`system-mind-desktop` v1.0.0) configured with independent workspace definition.
+  - `apps/desktop/src-tauri/src/lib.rs`: Native desktop shell library exposing `get_shell_security_info()`, `get_default_window_geometry()`, `run()`, and native unit tests verifying security and geometry invariants.
+  - `apps/desktop/src-tauri/src/main.rs`: Native desktop binary entrypoint.
+  - `apps/desktop/package.json`: Updated with `@tauri-apps/api` dependency, `@tauri-apps/cli` devDependency, and `"tauri": "tauri"` script.
+  - `apps/desktop/src/services/client.ts`: Added `getDesktopShellInfo()` method reporting Tauri runtime environment, app identifier, and CSP posture.
+  - `apps/desktop/src/App.tsx`: Added Shell status pill displaying `Tauri v2 (Safe Window)`.
+  - `src/system_mind/packaging/tauri_shell.py`: Implemented `TauriShellValidator` and `TauriShellAuditResult` enforcing window geometry, non-fullscreen requirement, CSP strength, capability exclusion, and manifest validity.
+  - `src/system_mind/packaging/__init__.py`: Exported `TauriShellValidator` and `TauriShellAuditResult`.
+  - `tests/test_tauri_shell.py`: 9 comprehensive unit and contract tests verifying shell audit success, missing directory detection, missing file detection, fullscreen safety violation, weak CSP detection, prohibited capability detection, window geometry underflow, native cargo test execution, and packaging exports.
+  - `docs/DECISION_LOG.md`: Recorded ADR-040 (Tauri Desktop Presentation Shell, Minimal Safe Window Invariants, and Airtight Content Security Policy).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 030 awaiting review with 239 Python + 9 Rust = 248 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 30.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 30`: Transitioned Day 030 to in_progress (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: Ran 2 native shell Rust tests; 2 passed in 0.00s (exit code 0).
+  - `cargo test --workspace`: Ran 7 system-agent Rust tests; 7 passed in 0.00s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_tauri_shell.py`: Ran 9 new Tauri shell tests; 9 passed in 0.72s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran complete Python test suite (239 unit/contract/integration tests across all modules); 239 passed in 0.90s (exit code 0).
+  - `python3 -m py_compile src/system_mind/packaging/tauri_shell.py src/system_mind/packaging/__init__.py tests/test_tauri_shell.py`: Verified syntax and bytecode compilation with exit code 0.
+- **Security & Platform Limitations:**
+  - Zero ambient shell authority: `shell:allow-execute` is strictly excluded; webview cannot invoke arbitrary host processes.
+  - Mandatory non-fullscreen default: Operator console never obscures native desktop context or host system alerts.
+  - Airtight CSP: Prevents untrusted CDN script loading or arbitrary remote exfiltration.
+  - Developer host macOS remains completely protected; zero mutating or unconfined operations executed.
+- **Status:** Awaiting human review before advancing tracker to Day 031.
+

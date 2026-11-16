@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: IN_PROGRESS (Day 029 completed and reviewed; Day 030 ready to start)
+- Project status: IN_PROGRESS (Day 030 completed, awaiting human review)
 - Current day: 30
 - Last reviewed completed day: 29
 - Current milestone: Repository and development foundation (Days 026–040)
 - Current implementation branch: `develop`
-- Last verified commit: `c850de7` (Day 029: Create the React and TypeScript desktop frontend scaffold)
+- Last verified commit: `027b19b` (Day 029 marked human-reviewed complete; transition to Day 030)
 - Active blockers: None currently blocking Milestone 3. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Start Day 030 via `python3 tools/day_tracker.py start --day 30` and set up developer tooling, linting, formatting and pre-commit hooks.
+- Next action: Human user reviews Day 030 git diff and test evidence, then runs `python3 tools/day_tracker.py complete --day 30 ... --reviewed`.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -57,7 +57,13 @@
   - Implemented strongly typed wire client (`SystemMindApiClient`) enforcing client-generated UUIDv4 `idempotency_key` tokens on mutating operations.
   - Implemented accessible operator console with live sensor metrics, tripartite boundary visualizer, 8-state file trust lifecycle inspector with prominent "Scan != Safe" guardrails, and cryptographic audit ledger.
   - Formalized ADR-039.
-- **Test Suite**: 230 Python unit/contract/integration tests in `tests/` + 7 native Rust unit tests across workspace crates (237 total tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, and desktop frontend scaffold with 100% pass rate.
+- **Tauri Desktop Shell with a Minimal Safe Window (Day 030)**: Formalized native desktop presentation shell (`apps/desktop/src-tauri/`, package `system-mind-desktop` v1.0.0) built on Tauri v2, with `TauriShellValidator` in `src/system_mind/packaging/tauri_shell.py` and design note `docs/design/DAY_030_TAURI_DESKTOP_SHELL_SAFE_WINDOW.md`.
+  - Enforced safe window containment: 1280x860 default, 960x640 minimum, centered, decorated, with mandatory non-fullscreen default (`fullscreen: false`).
+  - Enforced airtight Content Security Policy (`default-src 'self'`) blocking untrusted external scripts and unmediated remote exfiltration.
+  - Enforced zero ambient shell execution: permanently excluded `shell:allow-execute` and `shell:allow-spawn` from capability grants.
+  - Implemented native shell library with standalone unit tests.
+  - Formalized ADR-040.
+- **Test Suite**: 239 Python unit/contract/integration tests in `tests/` + 9 native Rust unit tests across workspace and shell crates (248 total tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, and Tauri desktop safe shell with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

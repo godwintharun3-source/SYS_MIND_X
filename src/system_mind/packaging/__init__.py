@@ -13,6 +13,10 @@ from system_mind.packaging.rust_workspace import (
     RustWorkspaceAuditResult,
     RustWorkspaceValidator,
 )
+from system_mind.packaging.tauri_shell import (
+    TauriShellAuditResult,
+    TauriShellValidator,
+)
 from system_mind.packaging.validator import PackageConfigValidator
 
 __all__ = [
@@ -24,4 +28,6 @@ __all__ = [
     "PackageConfigValidator",
     "RustWorkspaceAuditResult",
     "RustWorkspaceValidator",
+    "TauriShellAuditResult",
+    "TauriShellValidator",
 ]
