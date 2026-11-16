@@ -1443,3 +1443,9 @@
   - Graceful Non-Darwin Fallback (INV-CPU-03): Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin sysctls in `unavailable_telemetry`.
   - Developer host macOS remains completely protected; zero mutating host actions.
 - **Status:** Awaiting human review before advancing tracker to Day 043.
+
+## Day 042 - Human reviewed complete
+
+- Reviewed summary: Read-only macOS CPU hardware detector (src/system_mind/macos/cpu_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_cpu.rs), tools/detect_cpu.py CLI, and MacOsCpuValidator implemented with 378 total passed tests (356 Python + 22 Rust)
+- Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (20 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (356 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
+- Review timestamp: 2026-11-16T15:51:45+05:30
