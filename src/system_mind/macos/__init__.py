@@ -1,5 +1,11 @@
 """macOS system agent and read-only telemetry collection module for SYSTEM MIND X."""
 
+from system_mind.macos.cpu_detector import MacCpuHardwareDetector
+from system_mind.macos.cpu_models import (
+    CpuPerfLevelInfo,
+    MacCpuHardwareInfo,
+    MacCpuTelemetryReport,
+)
 from system_mind.macos.detector import MacOSIdentityDetector
 from system_mind.macos.models import (
     MacArchitecture,
@@ -9,7 +15,11 @@ from system_mind.macos.models import (
 )
 
 __all__ = [
+    "CpuPerfLevelInfo",
     "MacArchitecture",
+    "MacCpuHardwareDetector",
+    "MacCpuHardwareInfo",
+    "MacCpuTelemetryReport",
     "MacHostIdentity",
     "MacOSIdentityDetector",
     "MacOSVersionInfo",

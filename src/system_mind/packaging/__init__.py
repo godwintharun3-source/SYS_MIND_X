@@ -36,6 +36,10 @@ from system_mind.packaging.logging_config import (
     LoggingConfigAuditResult,
     LoggingConfigValidator,
 )
+from system_mind.packaging.macos_cpu import (
+    MacOsCpuAuditResult,
+    MacOsCpuValidator,
+)
 from system_mind.packaging.macos_telemetry import (
     MacOsTelemetryAuditResult,
     MacOsTelemetryValidator,
@@ -83,6 +87,8 @@ __all__ = [
     "FrontendScaffoldValidator",
     "LoggingConfigAuditResult",
     "LoggingConfigValidator",
+    "MacOsCpuAuditResult",
+    "MacOsCpuValidator",
     "MacOsTelemetryAuditResult",
     "MacOsTelemetryValidator",
     "MockPlatformAuditResult",

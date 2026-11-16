@@ -29,6 +29,7 @@ The `tools/` workspace contains developer-facing automation, gate verification s
 | `tools/mock_platform_cli.py` | Mock platform adapter inspection, telemetry & matrix audit | `python3 tools/mock_platform_cli.py inspect` |
 | `tools/clean_clone_verifier.py` | Clean-clone bootstrap verification and telemetry recorder | `python3 tools/clean_clone_verifier.py` |
 | `tools/detect_macos.py` | macOS product version, build, architecture & host identity | `python3 tools/detect_macos.py` |
+| `tools/detect_cpu.py` | macOS CPU model, core counts, P/E topology & hardware cache | `python3 tools/detect_cpu.py` |
 | `tools/migrate.py` | SQLite database migration & integrity auditor | `python3 tools/migrate.py status` |
 | `tools/test_runner.py` | Unified polyglot test orchestrator (Pytest, Cargo, Vitest) | `python3 tools/test_runner.py --all` |
 | `tools/lint.py` | AST zero-ambient-shell checker & multi-tier static linter | `python3 tools/lint.py` |

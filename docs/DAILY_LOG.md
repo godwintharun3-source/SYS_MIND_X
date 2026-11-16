@@ -1407,3 +1407,39 @@
 - Reviewed summary: Read-only macOS platform detector (src/system_mind/macos/detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_identity.rs), tools/detect_macos.py CLI, and MacOsTelemetryValidator implemented with 369 total passed tests (349 Python + 20 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (18 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (349 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T15:39:24+05:30
+
+## Day 042 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Collect CPU model, core count and supported hardware properties. Build a read-only macOS companion agent. Use supported APIs, report unavailable telemetry and respect permissions.
+- **Phase:** macOS system agent and telemetry (Days 041–065)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_042_MACOS_CPU_CORE_COUNT_HARDWARE_PROPERTIES.md`: Detailed engineering design note formalizing macOS CPU model, core topology (P/E cores), cache hierarchy, vector features, and safety invariants.
+  - `src/system_mind/macos/cpu_models.py`: Strongly typed data models (`CpuPerfLevelInfo`, `MacCpuHardwareInfo`, `MacCpuTelemetryReport`).
+  - `src/system_mind/macos/cpu_detector.py`: Read-only platform detector (`MacCpuHardwareDetector`) querying Darwin sysctl interfaces (`machdep.cpu.brand_string`, `hw.model`, `hw.physicalcpu`, `hw.logicalcpu`, `hw.nperflevels`, `hw.perflevel*`, `hw.cachelinesize`, `hw.pagesize`, `hw.tbfrequency`, `hw.memsize`, `hw.optional.*`).
+  - `src/system_mind/macos/__init__.py`: Exported CPU telemetry models and detector.
+  - `crates/system-mind-sensors/src/macos_cpu.rs`: Native Rust compute sensor models (`MacOsCpuSnapshot`, `MacOsCpuCollector`, `MockMacOsCpuCollector`).
+  - `crates/system-mind-sensors/src/lib.rs`: Integrated and exported `macos_cpu` in Rust sensors workspace crate.
+  - `tools/detect_cpu.py`: Developer CLI tool for inspecting CPU model, core topology, cache sizes, memory bus, and ARM vector extensions.
+  - `tools/README.md`: Documented `tools/detect_cpu.py` in developer tooling catalog.
+  - `src/system_mind/packaging/macos_cpu.py`: Programmatic validator (`MacOsCpuValidator`, `MacOsCpuAuditResult`) verifying data models, topology rules, CLI, and sensor parity in CI.
+  - `src/system_mind/packaging/__init__.py`: Exported `MacOsCpuValidator`.
+  - `tests/test_macos_cpu_detector.py`: 7 comprehensive unit, contract, and integration tests verifying Darwin live detection, mock Apple Silicon simulation, topology heterogeneity, fallback behavior, and CLI execution.
+  - `docs/DECISION_LOG.md`: Formalized ADR-052.
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 042 awaiting review with 356 Python + 20 Rust workspace + 2 Rust desktop shell = 378 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 42.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 42`: Started Day 042 (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_cpu_detector.py`: 7 passed in 0.69s (exit code 0).
+  - `cargo test --workspace`: 20 passed in 0.01s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/lint.py`: AST safety analysis, syntax compilation, static checks; clean pass (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 663 text files; zero secret leaks detected (exit code 0).
+  - `python3 tools/ci_runner.py all`: All 5 CI stages passed cleanly in 32.72s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 356 passed in 18.77s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (SC-01 / INV-CPU-01): Operates strictly in user space using read-only Darwin `sysctl` queries; zero `sudo` or privilege escalation.
+  - Zero Ambient Shell Authority (SC-01 / INV-CPU-02): Subprocess executions use tokenized argument lists (`shell=False`) with strict timeouts.
+  - Core Topology Modeling (INV-CPU-04): Accurately models asymmetric Performance vs. Efficiency cores and L2 cache clusters on Apple Silicon.
+  - Graceful Non-Darwin Fallback (INV-CPU-03): Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin sysctls in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 043.

@@ -2,7 +2,10 @@
 
 from pathlib import Path
 import subprocess
-import tomllib
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib  # type: ignore
 import pytest
 from system_mind.packaging.rust_workspace import (
     CrateBoundarySpec,

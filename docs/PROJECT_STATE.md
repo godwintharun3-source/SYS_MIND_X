@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: AWAITING_REVIEW (Day 041 completed and awaiting human review)
-- Current day: 41
-- Last reviewed completed day: 40
+- Project status: AWAITING_REVIEW (Day 042 completed and awaiting human review)
+- Current day: 42
+- Last reviewed completed day: 41
 - Current milestone: macOS system agent and telemetry (Days 041–065)
 - Current implementation branch: `develop`
-- Last verified commit: `develop` head (Day 041: Detect macOS version, build, architecture and host identity)
+- Last verified commit: `develop` head (Day 042: Collect CPU model, core count and supported hardware properties)
 - Active blockers: None currently blocking Milestone 4. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Await human review of Day 041, then complete via `python3 tools/day_tracker.py complete --day 41 ... --reviewed` and start Day 042.
+- Next action: Await human review of Day 042, then complete via `python3 tools/day_tracker.py complete --day 42 ... --reviewed` and start Day 043.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -130,7 +130,13 @@
   - Implemented Apple Silicon verification (`INV-MAC-03`): detects native `arm64` architecture and queries `sysctl.proc_translated` to detect Rosetta 2 execution modes.
   - Implemented graceful non-Darwin fallback (`INV-MAC-04`): execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin APIs in `unavailable_telemetry`.
   - Formalized ADR-051, commencing Milestone 4 (macOS system agent and telemetry, Days 041–065).
-- **Test Suite**: 349 Python unit/contract/integration/e2e tests in `tests/` + 18 native Rust workspace tests + 2 Rust desktop shell tests (369 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, and macOS identity detection with 100% pass rate.
+- **macOS CPU Model, Core Counts, and Supported Hardware Properties (Day 042)**: Formalized read-only CPU model, core topology, cache hierarchy, and vector extension detection in `src/system_mind/macos/` (`cpu_models.py`, `cpu_detector.py`, `__init__.py`), native Rust sensor collector in `crates/system-mind-sensors/src/macos_cpu.rs`, developer CLI (`tools/detect_cpu.py`), `MacOsCpuValidator` in `src/system_mind/packaging/macos_cpu.py`, and design note `docs/design/DAY_042_MACOS_CPU_CORE_COUNT_HARDWARE_PROPERTIES.md`.
+  - Enforced unprivileged query interfaces (`SC-01` / `INV-CPU-01`): all CPU, core, cache, and bus properties execute strictly in user space without `sudo` via Darwin `sysctl`.
+  - Modeled heterogeneous core topology (`INV-CPU-04`): accurately distinguishes Apple Silicon Performance cores (P-cores) from Efficiency cores (E-cores) with dedicated L2 cache boundaries.
+  - Enforced zero ambient shell authority (`INV-CPU-02`): queries dispatch via tokenized argument lists (`shell=False`) with strict timeouts.
+  - Implemented graceful non-Darwin fallback (`INV-CPU-03`): execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin sysctls under `unavailable_telemetry`.
+  - Formalized ADR-052.
+- **Test Suite**: 356 Python unit/contract/integration/e2e tests in `tests/` + 20 native Rust workspace tests + 2 Rust desktop shell tests (378 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, and macOS CPU hardware detection with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.
