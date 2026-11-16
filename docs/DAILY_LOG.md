@@ -1536,3 +1536,81 @@
 - Reviewed summary: Read-only macOS storage telemetry detector (src/system_mind/macos/storage_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_storage.rs), tools/detect_storage.py CLI, and MacOsStorageValidator implemented with 399 total passed tests (373 Python + 26 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (24 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (373 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T16:17:07+05:30
+
+## Day 045 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Collect battery state and health information where exposed. Build a read-only macOS companion agent. Use supported APIs, report unavailable telemetry and respect permissions.
+- **Phase:** macOS system agent and telemetry (Days 041–065)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_045_MACOS_BATTERY_STATE_AND_HEALTH.md`: Detailed engineering design note formalizing macOS battery presence, charging states, power sources, health cycle counts, maximum capacity degradation, and privacy invariants.
+  - `src/system_mind/macos/battery_models.py`: Strongly typed data models (`PowerSource`, `BatteryHealthCondition`, `BatteryChargingState`, `MacBatteryHealthInfo`, `MacBatteryTelemetryReport`).
+  - `src/system_mind/macos/battery_detector.py`: Read-only platform detector (`MacBatteryDetector`) querying unprivileged `/usr/bin/pmset -g batt` and `/usr/sbin/system_profiler SPPowerDataType -json`.
+  - `src/system_mind/macos/__init__.py`: Exported battery telemetry models and detector.
+  - `crates/system-mind-sensors/src/macos_battery.rs`: Native Rust battery sensor models (`PowerSourceState`, `BatteryConditionState`, `MacOsBatterySnapshot`, `MacOsBatteryCollector`, `MockMacOsBatteryCollector`).
+  - `crates/system-mind-sensors/src/lib.rs`: Integrated and exported `macos_battery` in Rust sensors workspace crate.
+  - `tools/detect_battery.py`: Developer CLI tool for inspecting battery presence, charging state, cycle counts, health condition, and power source.
+  - `tools/README.md`: Documented `tools/detect_battery.py` in developer tooling catalog.
+  - `src/system_mind/packaging/macos_battery.py`: Programmatic validator (`MacOsBatteryValidator`, `MacOsBatteryAuditResult`) verifying data models, privacy rules, CLI, and sensor parity in CI.
+  - `src/system_mind/packaging/__init__.py`: Exported `MacOsBatteryValidator`.
+  - `tests/test_macos_battery_detector.py`: 6 comprehensive unit, contract, and integration tests verifying Darwin live detection, mock simulation, serial anonymization, condition parsing, validator clean audit, and CLI execution.
+  - `docs/DECISION_LOG.md`: Formalized ADR-055.
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 045 awaiting review with 379 Python + 27 Rust workspace + 2 Rust desktop shell = 408 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 45.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 45`: Started Day 045 (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_battery_detector.py`: 6 passed in 0.79s (exit code 0).
+  - `cargo test --workspace`: 27 passed in 2.53s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
+  - `cargo clippy --workspace -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/lint.py`: AST safety analysis, syntax compilation, static checks; clean pass (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 684 text files; zero secret leaks detected (exit code 0).
+  - `python3 tools/ci_runner.py all`: All 5 CI stages passed cleanly in 44.98s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 379 passed in 23.62s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (SC-01 / INV-BAT-01): Operates strictly in user space using read-only Darwin `pmset -g batt` and `system_profiler SPPowerDataType -json`. Zero `sudo` or administrator escalation.
+  - Hardware Serial Privacy (INV-BAT-02): Raw hardware serial numbers are never logged or stored in plaintext; salted SHA-256 digests ensure privacy preservation.
+  - Desktop Mac / Cloud VM Support: Gracefully detects when internal battery is absent (`is_battery_present=False`) on desktop Macs or cloud runners without failing.
+  - Zero Ambient Shell Authority (SC-01 / INV-BAT-04): Subprocess executions use tokenized argument lists (`shell=False`) with strict timeouts.
+  - Graceful Non-Darwin Fallback: Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin utilities in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 046.
+
+## Day 045 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Collect battery state and health information where exposed. Build a read-only macOS companion agent. Use supported APIs, report unavailable telemetry and respect permissions.
+- **Phase:** macOS system agent and telemetry (Days 041–065)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_045_MACOS_BATTERY_STATE_AND_HEALTH.md`: Detailed engineering design note formalizing macOS battery presence, power source, charging dynamics, cycle count, condition assessment, maximum capacity health, and safety invariants.
+  - `src/system_mind/macos/battery_models.py`: Strongly typed data models (`PowerSource`, `BatteryHealthCondition`, `BatteryChargingState`, `MacBatteryHealthInfo`, `MacBatteryTelemetryReport`).
+  - `src/system_mind/macos/battery_detector.py`: Read-only platform detector (`MacBatteryDetector`) querying Darwin `/usr/bin/pmset -g batt` and `/usr/sbin/system_profiler SPPowerDataType -json`.
+  - `src/system_mind/macos/__init__.py`: Exported battery telemetry models and detector.
+  - `crates/system-mind-sensors/src/macos_battery.rs`: Native Rust battery sensor models (`MacOsBatterySnapshot`, `PowerSourceState`, `BatteryConditionState`, `MacOsBatteryCollector`, `MockMacOsBatteryCollector`).
+  - `crates/system-mind-sensors/src/lib.rs`: Integrated and exported `macos_battery` in Rust sensors workspace crate.
+  - `tools/detect_battery.py`: Developer CLI tool for inspecting battery state, AC power, charging dynamics, health, and assertion gates (`--assert-min-battery-pct`, `--assert-ac-power`).
+  - `tools/README.md`: Documented `tools/detect_battery.py` in developer tooling catalog.
+  - `src/system_mind/packaging/macos_battery.py`: Programmatic validator (`MacOsBatteryValidator`, `MacOsBatteryAuditResult`) verifying data models, privacy rules, CLI, and sensor parity in CI.
+  - `src/system_mind/packaging/__init__.py`: Exported `MacOsBatteryValidator`.
+  - `tests/test_macos_battery_detector.py`: 6 comprehensive unit, contract, and integration tests verifying Darwin live detection, mock simulation, serial anonymization, condition mapping, CLI execution, and validator clean audit.
+  - `docs/DECISION_LOG.md`: Formalized ADR-055.
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 045 awaiting review with 379 Python + 27 Rust workspace + 2 Rust desktop shell = 408 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 45.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 45`: Started Day 045 (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_battery_detector.py`: 6 passed in 0.65s (exit code 0).
+  - `cargo test --workspace`: 27 passed in 0.05s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/lint.py`: AST safety analysis, syntax compilation, static checks; clean pass (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 684 text files; zero secret leaks detected (exit code 0).
+  - `python3 tools/ci_runner.py all`: All 5 CI stages passed cleanly in 29.68s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 379 passed in 32.23s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (SC-01 / INV-BAT-01): Operates strictly in user space using read-only `/usr/bin/pmset -g batt` and `/usr/sbin/system_profiler SPPowerDataType -json`. Zero `sudo` or administrator escalation.
+  - Hardware Identifier Privacy (INV-BAT-02): Raw battery pack serial numbers are strictly banned from plaintext logging; salted SHA-256 digests ensure privacy preservation.
+  - Zero Mutating Power Operations (SC-01 / INV-BAT-01): Mutating power management commands (`pmset schedule`, `pmset sleepnow`, modifying sleep timers or hibernatemode) are strictly prohibited.
+  - Zero Ambient Shell Authority (SC-01 / INV-BAT-04): Subprocess executions use tokenized argument lists (`shell=False`) with strict 5-second timeouts.
+  - Desktop & Non-Battery Mac Graceful Handling: Accurately reports `is_battery_present=False` on desktop Macs without error.
+  - Graceful Non-Darwin Fallback: Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin utilities in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 046.
+

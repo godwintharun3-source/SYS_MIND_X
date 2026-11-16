@@ -1,5 +1,13 @@
 """macOS system agent and read-only telemetry collection module for SYSTEM MIND X."""
 
+from system_mind.macos.battery_detector import MacBatteryDetector
+from system_mind.macos.battery_models import (
+    BatteryChargingState,
+    BatteryHealthCondition,
+    MacBatteryHealthInfo,
+    MacBatteryTelemetryReport,
+    PowerSource,
+)
 from system_mind.macos.cpu_detector import MacCpuHardwareDetector
 from system_mind.macos.cpu_models import (
     CpuPerfLevelInfo,
@@ -30,9 +38,14 @@ from system_mind.macos.storage_models import (
 )
 
 __all__ = [
+    "BatteryChargingState",
+    "BatteryHealthCondition",
     "CpuPerfLevelInfo",
     "FilesystemType",
     "MacArchitecture",
+    "MacBatteryDetector",
+    "MacBatteryHealthInfo",
+    "MacBatteryTelemetryReport",
     "MacCpuHardwareDetector",
     "MacCpuHardwareInfo",
     "MacCpuTelemetryReport",
@@ -49,5 +62,6 @@ __all__ = [
     "MacVmPageStats",
     "MacVolumeInfo",
     "MemoryPressureLevel",
+    "PowerSource",
     "VolumeRole",
 ]

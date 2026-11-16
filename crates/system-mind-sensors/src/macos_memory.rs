@@ -101,7 +101,9 @@ impl MacOsMemoryCollector for MockMacOsMemoryCollector {
             swap_total_bytes: 3_221_225_472, // 3GB
             swap_used_bytes: 536_870_912,    // 512MB
             swap_encrypted: true,
-            pressure_state: self.simulated_pressure.unwrap_or(MemoryPressureState::Normal),
+            pressure_state: self
+                .simulated_pressure
+                .unwrap_or(MemoryPressureState::Normal),
             pressure_pct: self.simulated_pressure_pct,
             is_mock: true,
         }
@@ -123,7 +125,10 @@ mod tests {
         assert!(mem.swap_encrypted);
         assert!(mem.is_mock);
         assert!(mem.used_bytes > 0);
-        assert_eq!(mem.app_bytes + mem.wired_bytes + mem.compressed_bytes, mem.used_bytes);
+        assert_eq!(
+            mem.app_bytes + mem.wired_bytes + mem.compressed_bytes,
+            mem.used_bytes
+        );
 
         let json = mem.to_json_summary();
         assert!(json.contains("\"total\":8589934592"));

@@ -1,11 +1,16 @@
 //! SYSTEM MIND X Sensors: Hardware sensor abstractions and telemetry collection.
 
+pub mod macos_battery;
 pub mod macos_cpu;
 pub mod macos_identity;
 pub mod macos_memory;
 pub mod macos_storage;
 pub mod telemetry;
 
+pub use macos_battery::{
+    BatteryConditionState, MacOsBatteryCollector, MacOsBatterySnapshot, MockMacOsBatteryCollector,
+    PowerSourceState,
+};
 pub use macos_cpu::{MacOsCpuCollector, MacOsCpuSnapshot, MockMacOsCpuCollector};
 pub use macos_identity::{
     MacOsIdentityCollector, MacOsIdentitySnapshot, MockMacOsIdentityCollector,
