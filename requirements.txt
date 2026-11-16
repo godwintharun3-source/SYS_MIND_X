@@ -1,0 +1,3 @@
+# SYSTEM MIND X Control Plane - Production Dependencies
+# Core domain models, engines, and validators strictly utilize Python 3.10+ standard library.
+# Zero third-party runtime dependencies required for core control-plane operation.

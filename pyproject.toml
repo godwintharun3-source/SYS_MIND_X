@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "system-mind-backend"
+version = "1.0.0"
+description = "SYSTEM MIND X - Universal AI Computer-Operation and Governance Platform (Control Plane & Twin)"
+readme = "src/README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }
+authors = [
+    { name = "SYSTEM MIND X Core Architecture Team", email = "architecture@systemmind.local" }
+]
+keywords = [
+    "operating-system",
+    "ai-agent",
+    "governance",
+    "temporal-twin",
+    "safety-critical",
+    "audit-ledger",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: System :: Operating System",
+    "Topic :: Security",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==4.1.0",
+]
+lint = [
+    "black==24.3.0",
+    "flake8==7.0.0",
+]
+types = [
+    "mypy==1.9.0",
+]
+
+[project.scripts]
+system-mind = "system_mind.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v --strict-markers"
