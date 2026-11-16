@@ -1704,3 +1704,9 @@
   - Developer host macOS remains completely protected; zero mutating host actions.
 - **Status:** Awaiting human review before advancing tracker to Day 048.
 
+
+## Day 047 - Human reviewed complete
+
+- Reviewed summary: Read-only macOS GPU and display inventory telemetry detector (src/system_mind/macos/gpu_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_gpu.rs), tools/detect_gpu.py CLI, and MacOsGpuValidator implemented with 436 total passed tests (401 Python + 35 Rust)
+- Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (33 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (401 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
+- Review timestamp: 2026-11-16T17:44:49+05:30
