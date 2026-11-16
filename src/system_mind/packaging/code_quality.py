@@ -7,7 +7,11 @@ import json
 from pathlib import Path
 import tomllib
 from typing import Any, Dict, List, Optional
-import yaml
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
 
 
 @dataclass(frozen=True)
@@ -106,19 +110,26 @@ class CodeQualityValidator:
         precommit_configured = False
         precommit_path = root / ".pre-commit-config.yaml"
         if precommit_path.exists():
-            try:
-                with open(precommit_path, "r", encoding="utf-8") as f:
-                    pc_data = yaml.safe_load(f)
-                repos = pc_data.get("repos", [])
-                has_ast_hook = any(
-                    any("ambient-shell" in hook.get("id", "") for hook in repo.get("hooks", []))
-                    for repo in repos
-                )
-                if not has_ast_hook:
+            if yaml is None:
+                # Basic string fallback if yaml parser not available
+                content = precommit_path.read_text(encoding="utf-8")
+                if "ambient-shell" not in content:
                     issues.append(".pre-commit-config.yaml missing ambient-shell safety hook")
                 precommit_configured = True
-            except Exception as e:
-                issues.append(f"Failed to parse .pre-commit-config.yaml: {e}")
+            else:
+                try:
+                    with open(precommit_path, "r", encoding="utf-8") as f:
+                        pc_data = yaml.safe_load(f)
+                    repos = pc_data.get("repos", []) if isinstance(pc_data, dict) else []
+                    has_ast_hook = any(
+                        any("ambient-shell" in hook.get("id", "") for hook in repo.get("hooks", []))
+                        for repo in repos
+                    )
+                    if not has_ast_hook:
+                        issues.append(".pre-commit-config.yaml missing ambient-shell safety hook")
+                    precommit_configured = True
+                except Exception as e:
+                    issues.append(f"Failed to parse .pre-commit-config.yaml: {e}")
 
         is_valid = len(issues) == 0
 

@@ -31,6 +31,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Development Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
       - name: Run Programmatic Dependency & Supply-Chain Review
         env:
           PYTHONPATH: src

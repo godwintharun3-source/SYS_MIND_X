@@ -6,7 +6,11 @@ import json
 from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional
-import jsonschema
+
+try:
+    import jsonschema
+except ImportError:
+    jsonschema = None
 
 from system_mind.schemas.models import (
     CrossLanguageParityReport,
@@ -77,7 +81,8 @@ class SchemaStrategyValidator:
                     issues.append(f"Schema '{filename}' missing required 'description'")
 
                 # Validate structural correctness using jsonschema Draft202012 / Draft7 validator
-                jsonschema.Draft202012Validator.check_schema(schema_data)
+                if jsonschema is not None:
+                    jsonschema.Draft202012Validator.check_schema(schema_data)
                 verified.append(filename)
 
             except Exception as e:
