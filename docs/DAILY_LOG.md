@@ -823,3 +823,32 @@
 - Reviewed summary: Python backend package (system-mind-backend v1.0.0), pyproject.toml, strict dependency pinning, system-mind CLI, and PackageConfigValidator implemented with 215 passed tests
 - Test evidence: PYTHONPATH=src python3 -m pytest -v tests/ (215 passed)
 - Review timestamp: 2026-11-16T10:53:25+05:30
+
+## Day 028 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Create the Rust system-agent workspace and crate boundaries. Create the reproducible monorepo and developer tooling. No privileged system changes.
+- **Phase:** Repository and development foundation (Days 026-040)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_028_RUST_SYSTEM_AGENT_WORKSPACE_AND_CRATE_BOUNDARIES.md`: Comprehensive engineering design note formalizing Cargo workspace topology across 3 segregated crates, acyclic dependency rules, and capability broker invariants.
+  - `Cargo.toml`: Multi-crate Cargo workspace root manifest declaring members (`crates/system-mind-common`, `crates/system-mind-sensors`, `crates/system-mind-broker`), resolver v2, and workspace metadata.
+  - `crates/system-mind-common/`: Leaf crate defining `CapabilityId`, `PrivilegeLevel`, `RiskTier`, `FileTrustState`, `ComponentOwnership`, `BrokerError` taxonomy, and deterministic payload fingerprinting.
+  - `crates/system-mind-sensors/`: Hardware telemetry crate defining `SensorSnapshot`, `SensorAdapter` trait, and safe `MockSensorAdapter`.
+  - `crates/system-mind-broker/`: Narrow privileged capability broker daemon library and binary (`system-mind-broker`) enforcing "Scan != Safe" and user-managed component protection.
+  - `src/system_mind/packaging/rust_workspace.py`: `RustWorkspaceValidator` and domain models enforcing Cargo workspace member compliance and acyclic crate dependencies.
+  - `src/system_mind/packaging/__init__.py`: Package export interface updated with Rust workspace validator primitives.
+  - `tests/test_rust_workspace.py`: 5 comprehensive unit and contract tests verifying root Cargo.toml, workspace audit, missing crate detection, prohibited dependency detection, and programmatic `cargo test --workspace` execution.
+  - `docs/DECISION_LOG.md`: Recorded ADR-038 (Rust System-Agent Workspace Architecture and Crate Boundary Invariants).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 028 awaiting review.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 28.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 28`: Transitioned Day 028 to in_progress (exit code 0).
+  - `cargo check --workspace && cargo test --workspace`: Compiled and ran 7 native Rust tests across all 3 workspace crates; 7 passed in 4.67s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_rust_workspace.py`: Ran 5 new Rust workspace boundary tests; 5 passed in 0.84s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran complete Python test suite (220 unit/contract/integration tests across all modules); 220 passed in 0.71s (exit code 0).
+  - `python3 -m py_compile src/system_mind/packaging/rust_workspace.py src/system_mind/packaging/__init__.py tests/test_rust_workspace.py`: Verified syntax and bytecode compilation with exit code 0.
+- **Security & Platform Limitations:**
+  - Strict unidirectional dependency flow: `broker` -> `sensors` -> `common`. Crates cannot circularly depend on each other.
+  - Standalone native compilation: zero dependency on `libpython` or Python runtimes.
+  - "Scan != Safe" enforced in Rust: unverified/quarantined files cannot be launched natively.
+  - Developer host macOS remains completely protected; all sensor telemetry runs through safe mock adapters in user space.
+- **Status:** Awaiting human review before advancing tracker to Day 029.

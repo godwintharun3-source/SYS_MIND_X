@@ -1,0 +1,11 @@
+[package]
+name = "system-mind-sensors"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Native OS sensors and hardware telemetry collection for SYSTEM MIND X"
+
+[dependencies]
+system-mind-common = { path = "../system-mind-common" }

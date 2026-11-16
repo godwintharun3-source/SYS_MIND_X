@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/system-mind-common",
+    "crates/system-mind-sensors",
+    "crates/system-mind-broker",
+]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+authors = ["SYSTEM MIND X Core Architecture Team <architecture@systemmind.local>"]
+license = "Proprietary"
+repository = "https://github.com/system-mind-x/system-mind"
+rust-version = "1.75"

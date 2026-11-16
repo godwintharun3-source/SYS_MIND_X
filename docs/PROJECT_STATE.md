@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: IN_PROGRESS (Day 027 completed and reviewed; Day 028 ready to start)
+- Project status: AWAITING_REVIEW (Day 028 implemented; awaiting human review to advance to Day 029)
 - Current day: 28
 - Last reviewed completed day: 27
 - Current milestone: Repository and development foundation (Days 026–040)
 - Current implementation branch: `develop`
-- Last verified commit: `8a47b77` (Day 027 human review completion)
+- Last verified commit: `ad5e908` (Day 028 ready to start)
 - Active blockers: None currently blocking Milestone 3. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Start Day 028 via `python3 tools/day_tracker.py start --day 28` and create the Rust system-agent workspace and crate boundaries.
+- Next action: User reviews Day 028 diff and test evidence, then completes Day 028 via `python3 tools/day_tracker.py complete --day 28 ... --reviewed`.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -48,7 +48,11 @@
   - Enforced strict dependency pinning and prohibited ambient execution libraries (e.g. `sh`, `plumbum`, `pexpect`).
   - Implemented non-privileged inspection commands (`--version`, `--status`, `--audit-baseline`, `--verify-boundaries`).
   - Formalized ADR-037.
-- **Test Suite**: 215 unit, contract, and integration tests in `tests/` verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, and Python backend packaging with 100% pass rate.
+- **Rust System-Agent Workspace and Crate Boundaries (Day 028)**: Formalized multi-crate Cargo workspace (`Cargo.toml`) across 3 segregated crates: `crates/system-mind-common`, `crates/system-mind-sensors`, and `crates/system-mind-broker` (daemon executable), with `RustWorkspaceValidator` in `src/system_mind/packaging/rust_workspace.py` and design note `docs/design/DAY_028_RUST_SYSTEM_AGENT_WORKSPACE_AND_CRATE_BOUNDARIES.md`.
+  - Enforced strict unidirectional dependency flow (`broker` -> `sensors` -> `common`) and zero Python runtime dependency.
+  - Implemented broker precondition checks enforcing "Scan != Safe" and user-managed component protection.
+  - Formalized ADR-038.
+- **Test Suite**: 220 Python unit/contract/integration tests in `tests/` + 7 native Rust unit tests across workspace crates (227 total tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, and Rust system-agent workspace boundaries with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.
