@@ -17,3 +17,18 @@ The `tools/` workspace contains developer-facing automation, gate verification s
 1. **No Production Runtime Inclusion:** Tools code is strictly for local developer workflows and CI verification; it must never be bundled into the production daemon or UI release packages.
 2. **Deterministic Verification:** Release gate checks and day tracking scripts must report truthful, evidence-backed results without mocking away failures.
 3. **Host Safety:** Developer tools must not modify host macOS configurations, security settings, or system extensions without explicit approval.
+
+## 4. Developer Tools Catalog
+
+| Script / Tool | Primary Purpose | Invocation Example |
+|---------------|-----------------|--------------------|
+| `tools/dev_setup.py` | Local development bootstrap & prerequisite diagnostics | `python3 tools/dev_setup.py check` |
+| `tools/setup_dev.sh` | Unprivileged POSIX shell wrapper for macOS / Linux | `./tools/setup_dev.sh` |
+| `tools/setup_dev.ps1` | Unprivileged PowerShell wrapper for Windows 11 | `.\tools\setup_dev.ps1` |
+| `tools/migrate.py` | SQLite database migration & integrity auditor | `python3 tools/migrate.py status` |
+| `tools/test_runner.py` | Unified polyglot test orchestrator (Pytest, Cargo, Vitest) | `python3 tools/test_runner.py --all` |
+| `tools/lint.py` | AST zero-ambient-shell checker & multi-tier static linter | `python3 tools/lint.py` |
+| `tools/check_secrets.py` | High-entropy secret and credential file scanner | `python3 tools/check_secrets.py` |
+| `tools/generate_types.py` | Canonical JSON Schema cross-language type generator | `python3 tools/generate_types.py --check` |
+| `tools/day_tracker.py` | 365-day plan progress state machine & gate reviewer | `python3 tools/day_tracker.py status` |
+

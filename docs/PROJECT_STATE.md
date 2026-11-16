@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: AWAITING_REVIEW (Day 036 completed and awaiting human review)
-- Current day: 36
-- Last reviewed completed day: 35
+- Project status: AWAITING_REVIEW (Day 037 completed and awaiting human review)
+- Current day: 37
+- Last reviewed completed day: 36
 - Current milestone: Repository and development foundation (Days 026–040)
 - Current implementation branch: `develop`
-- Last verified commit: `develop` head (Day 036: Create database migration infrastructure for SQLite)
+- Last verified commit: `develop` head (Day 037: Create local development scripts and reproducible setup instructions)
 - Active blockers: None currently blocking Milestone 3. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Await human review of Day 036, then complete via `python3 tools/day_tracker.py complete --day 36 ... --reviewed` and start Day 037.
+- Next action: Await human review of Day 037, then complete via `python3 tools/day_tracker.py complete --day 37 ... --reviewed` and start Day 038.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -98,7 +98,13 @@
   - Enforced mandatory bidirectional reversibility (`INV-DB-04`): validates non-empty UP and DOWN sections across all migrations.
   - Enforced durable PRAGMA policies: foreign keys enabled (`PRAGMA foreign_keys = ON;`), WAL mode, normal synchronous, and 5000ms busy timeouts.
   - Formalized ADR-046.
-- **Test Suite**: 294 Python unit/contract/integration/e2e tests in `tests/` + 16 native Rust workspace tests + 2 Rust desktop shell tests (312 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, and SQLite database migration infrastructure with 100% pass rate.
+- **Local Development Scripts and Setup Instructions (Day 037)**: Formalized reproducible unprivileged developer setup infrastructure, toolchain orchestrator (`tools/dev_setup.py`), POSIX and PowerShell wrappers (`tools/setup_dev.sh`, `tools/setup_dev.ps1`), authoritative developer setup documentation (`docs/DEVELOPMENT_SETUP.md`), `DevSetupValidator` in `src/system_mind/packaging/dev_setup.py`, and design note `docs/design/DAY_037_LOCAL_DEV_SCRIPTS_AND_SETUP_INSTRUCTIONS.md`.
+  - Enforced unprivileged user-space operation: commands never invoke `sudo` or modify host OS security, SIP, Gatekeeper, system extensions, or user applications.
+  - Implemented automated prerequisite diagnostics (`check`) verifying Python (>=3.10), Rust/Cargo (>=1.75), Node.js (>=18), npm (>=9), Git (>=2.20), environment configs, and SQLite storage.
+  - Implemented idempotent local repository bootstrap (`bootstrap`) orchestrating configuration defaults, Cargo verification, SQLite database migration, static linting, and smoke tests.
+  - Implemented bounded workspace artifact cleaner (`clean`) strictly preventing traversal outside repository root.
+  - Formalized ADR-047.
+- **Test Suite**: 306 Python unit/contract/integration/e2e tests in `tests/` + 16 native Rust workspace tests + 2 Rust desktop shell tests (324 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, and local development scripts with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

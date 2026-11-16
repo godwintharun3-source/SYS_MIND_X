@@ -8,6 +8,10 @@ from system_mind.packaging.database_migration import (
     DatabaseMigrationAuditResult,
     DatabaseMigrationValidator,
 )
+from system_mind.packaging.dev_setup import (
+    DevSetupAuditResult,
+    DevSetupValidator,
+)
 from system_mind.packaging.env_config import (
     EnvironmentConfigAuditResult,
     EnvironmentConfigValidator,
@@ -45,6 +49,8 @@ __all__ = [
     "CrateBoundarySpec",
     "DatabaseMigrationAuditResult",
     "DatabaseMigrationValidator",
+    "DevSetupAuditResult",
+    "DevSetupValidator",
     "EnvironmentConfigAuditResult",
     "EnvironmentConfigValidator",
     "FrontendScaffoldAuditResult",
