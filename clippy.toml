@@ -1,0 +1,20 @@
+# SYSTEM MIND X — Rust Static Analysis & Clippy Configuration
+cognitive-complexity-threshold = 25
+too-many-arguments-threshold = 8
+doc-valid-idents = [
+    "SYSTEM",
+    "MIND",
+    "Tauri",
+    "Wasm",
+    "UUID",
+    "SHA",
+    "NixOS",
+    "POSIX",
+    "API",
+    "IPC",
+    "CPU",
+    "RAM",
+    "SIP",
+]
+disallowed-names = ["foo", "bar", "baz", "temp", "tmp_var"]
+warn-on-all-wildcard-imports = true
