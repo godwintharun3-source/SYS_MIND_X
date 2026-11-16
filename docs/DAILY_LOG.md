@@ -1157,3 +1157,42 @@
 - Reviewed summary: Structured JSON logging with ISO timestamps, trace context propagation, multi-tier sensitive credential scrubbing, native Rust StructuredLogRecord, and LoggingConfigValidator implemented with 300 total passed tests (282 Python + 18 Rust)
 - Test evidence: python3 tools/test_runner.py --all (6 passed) && cargo test --workspace (16 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (282 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T13:57:22+05:30
+
+
+## Day 036 — 2026-11-16 (Awaiting Human Review)
+- **Objective:** Create database migration infrastructure for SQLite. Create the reproducible monorepo and developer tooling. No privileged system changes.
+- **Phase:** Repository and development foundation (Days 026-040)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_036_SQLITE_DATABASE_MIGRATION_INFRASTRUCTURE.md`: Architectural design note formalizing transactional atomicity (`INV-DB-01`), monotonic sequencing (`INV-DB-02`), cryptographic SHA-256 checksum tracking (`INV-DB-03`), bidirectional reversibility (`INV-DB-04`), PRAGMA policies, and schema definitions.
+  - `src/system_mind/database/__init__.py`: Package entrypoint exporting connection, models, migrations loader, and migrator primitives.
+  - `src/system_mind/database/connection.py`: `DatabaseConfig`, `DatabaseConnectionManager`, and `transaction(conn)` enforcing WAL mode, foreign keys (`PRAGMA foreign_keys = ON;`), and 5000ms busy timeouts.
+  - `src/system_mind/database/models.py`: Domain models (`MigrationDefinition`, `AppliedMigrationRecord`, `MigrationPlan`, `DatabaseIntegrityReport`, `MigrationDirection`, `MigrationStatus`).
+  - `src/system_mind/database/migrator.py`: `DatabaseMigrator` and `split_sql_statements` managing monotonic execution, rollback, dry-run planning, and PRAGMA integrity auditing.
+  - `src/system_mind/database/migrations/0001_initial_schema.sql`: Canonical initial schema establishing `audit_events`, `twin_entities`, `twin_relationships`, and `temporal_observations`.
+  - `src/system_mind/database/migrations/0002_add_component_ownership_indices.sql`: Canonical multi-step schema migration demonstrating indexing and clean reversibility.
+  - `src/system_mind/database/migrations/__init__.py`: Migration file loader and bidirectional SQL parser.
+  - `src/system_mind/logging/logger.py`: Updated `StructuredLogger._log` to accept `message_or_event` and extract `event` from kwargs, preventing parameter collision.
+  - `tools/migrate.py`: Unprivileged developer CLI tool with `status`, `plan`, `apply`, `rollback`, and `verify` commands supporting human and JSON outputs.
+  - `src/system_mind/packaging/database_migration.py`: `DatabaseMigrationValidator` and `DatabaseMigrationAuditResult` auditing migration files, monotonic ordering, and executing full in-memory round-trip lifecycle in CI.
+  - `src/system_mind/packaging/__init__.py`: Exported `DatabaseMigrationValidator` and `DatabaseMigrationAuditResult`.
+  - `tests/test_database_migrations.py`: 12 comprehensive unit, integration, and contract tests verifying checksums, connection pragmas, transactions, atomicity on failure, rollbacks, foreign key cascades, tamper detection, validator audit, and CLI execution.
+  - `docs/DECISION_LOG.md`: Recorded ADR-046 (Transactional SQLite Migration Engine, Monotonic Checksum Verification, and Reversible Schema Lifecycle).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state to Day 036 awaiting review with 294 Python + 16 Rust workspace + 2 Rust desktop shell = 312 passed tests.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with current_day: 36.
+- **Commands Executed & Real Results:**
+  - `python3 tools/day_tracker.py start --day 36`: Transitioned Day 036 to in_progress (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_database_migrations.py`: Ran 12 new database migration tests; 12 passed in 0.80s (exit code 0).
+  - `cargo test --workspace`: Ran all 16 native Rust workspace tests; 16 passed in 0.00s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: Ran all 2 native Rust desktop shell tests; 2 passed in 0.00s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 622 text files across repository; zero secret leaks detected (exit code 0).
+  - `python3 tools/lint.py`: Executed AST safety analysis, syntax compilation, static checks, and secret leak scanning; clean pass (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: Ran complete Python test suite (294 unit/contract/integration/e2e tests across all modules); 294 passed in 6.49s (exit code 0).
+  - `python3 tools/test_runner.py --all`: Executed all 6 test tiers via unified orchestrator; all 6 passed in 8.90s (exit code 0).
+- **Security & Platform Limitations:**
+  - Zero Ambient Shell Authority (SC-01): SQLite engine operates exclusively through standard library `sqlite3` without child processes.
+  - Transactional Atomicity: All DDL and DML operations execute within `BEGIN IMMEDIATE ... COMMIT`, rolling back completely on error.
+  - Tamper Detection: Historical migration modifications trigger SHA-256 checksum mismatches.
+  - Foreign Key Integrity: Referential integrity actively enforced on all connections (`PRAGMA foreign_keys = ON;`).
+  - Developer host macOS remains completely protected; zero mutating or privileged host operations executed.
+- **Status:** Awaiting human review before advancing tracker to Day 037.

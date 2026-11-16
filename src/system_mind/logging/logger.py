@@ -34,7 +34,7 @@ class StructuredLogger:
     def _log(
         self,
         level: int,
-        event: str,
+        message_or_event: str,
         *args: Any,
         exc_info: bool = False,
         **kwargs: Any,
@@ -43,10 +43,12 @@ class StructuredLogger:
         if not self._logger.isEnabledFor(level):
             return
 
+        event_name = kwargs.pop("event", message_or_event)
         combined_context = dict(self._context)
         combined_context.update(kwargs)
 
         extra = {
+            "event": event_name,
             "context": combined_context,
             "trace_id": combined_context.get("trace_id"),
             "span_id": combined_context.get("span_id"),
@@ -54,31 +56,31 @@ class StructuredLogger:
 
         self._logger.log(
             level,
-            event,
+            message_or_event,
             *args,
             exc_info=exc_info,
             extra=extra,
         )
 
-    def debug(self, event: str, *args: Any, **kwargs: Any) -> None:
+    def debug(self, message_or_event: str, *args: Any, **kwargs: Any) -> None:
         """Logs a DEBUG level structured event."""
-        self._log(logging.DEBUG, event, *args, **kwargs)
+        self._log(logging.DEBUG, message_or_event, *args, **kwargs)
 
-    def info(self, event: str, *args: Any, **kwargs: Any) -> None:
+    def info(self, message_or_event: str, *args: Any, **kwargs: Any) -> None:
         """Logs an INFO level structured event."""
-        self._log(logging.INFO, event, *args, **kwargs)
+        self._log(logging.INFO, message_or_event, *args, **kwargs)
 
-    def warning(self, event: str, *args: Any, **kwargs: Any) -> None:
+    def warning(self, message_or_event: str, *args: Any, **kwargs: Any) -> None:
         """Logs a WARNING level structured event."""
-        self._log(logging.WARNING, event, *args, **kwargs)
+        self._log(logging.WARNING, message_or_event, *args, **kwargs)
 
-    def error(self, event: str, *args: Any, exc_info: bool = False, **kwargs: Any) -> None:
+    def error(self, message_or_event: str, *args: Any, exc_info: bool = False, **kwargs: Any) -> None:
         """Logs an ERROR level structured event."""
-        self._log(logging.ERROR, event, *args, exc_info=exc_info, **kwargs)
+        self._log(logging.ERROR, message_or_event, *args, exc_info=exc_info, **kwargs)
 
-    def critical(self, event: str, *args: Any, exc_info: bool = False, **kwargs: Any) -> None:
+    def critical(self, message_or_event: str, *args: Any, exc_info: bool = False, **kwargs: Any) -> None:
         """Logs a CRITICAL level structured event."""
-        self._log(logging.CRITICAL, event, *args, exc_info=exc_info, **kwargs)
+        self._log(logging.CRITICAL, message_or_event, *args, exc_info=exc_info, **kwargs)
 
 
 def configure_logging(

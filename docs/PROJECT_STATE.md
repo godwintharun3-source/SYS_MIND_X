@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: AWAITING_REVIEW (Day 035 completed and awaiting human review)
-- Current day: 35
-- Last reviewed completed day: 34
+- Project status: AWAITING_REVIEW (Day 036 completed and awaiting human review)
+- Current day: 36
+- Last reviewed completed day: 35
 - Current milestone: Repository and development foundation (Days 026–040)
 - Current implementation branch: `develop`
-- Last verified commit: `develop` head (Day 035: Create structured logging with sensitive-data redaction)
+- Last verified commit: `develop` head (Day 036: Create database migration infrastructure for SQLite)
 - Active blockers: None currently blocking Milestone 3. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Await human review of Day 035, then complete via `python3 tools/day_tracker.py complete --day 35 ... --reviewed` and start Day 036.
+- Next action: Await human review of Day 036, then complete via `python3 tools/day_tracker.py complete --day 36 ... --reviewed` and start Day 037.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -91,7 +91,14 @@
   - Implemented native Rust structured logging records (`StructuredLogRecord`) with field-level sensitive key detection and text scrubbing.
   - Implemented `LoggingConfigValidator` auditing logging configurations, formatters, and redactor filter presence in CI.
   - Formalized ADR-045.
-- **Test Suite**: 282 Python unit/contract/integration/e2e tests in `tests/` + 16 native Rust workspace tests + 2 Rust desktop shell tests (300 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, and structured logging with sensitive-data redaction with 100% pass rate.
+- **SQLite Database Migration Infrastructure (Day 036)**: Formalized zero-dependency transactional migration engine in `src/system_mind/database/` (`models.py`, `connection.py`, `migrator.py`, `__init__.py`), canonical baseline schemas in `src/system_mind/database/migrations/` (`0001_initial_schema.sql`, `0002_add_component_ownership_indices.sql`), developer CLI tool (`tools/migrate.py`), `DatabaseMigrationValidator` in `src/system_mind/packaging/database_migration.py`, and design note `docs/design/DAY_036_SQLITE_DATABASE_MIGRATION_INFRASTRUCTURE.md`.
+  - Enforced strict transactional atomicity (`INV-DB-01`): forward and rollback operations execute within explicit `BEGIN IMMEDIATE ... COMMIT` blocks, preventing partial schema corruption.
+  - Enforced monotonic sequencing (`INV-DB-02`): migrations are indexed by contiguous ascending integers with duplicate and gap detection.
+  - Enforced cryptographic SHA-256 checksum tracking (`INV-DB-03`): seals schema definitions in `_schema_migrations` and detects historical drift and tampering.
+  - Enforced mandatory bidirectional reversibility (`INV-DB-04`): validates non-empty UP and DOWN sections across all migrations.
+  - Enforced durable PRAGMA policies: foreign keys enabled (`PRAGMA foreign_keys = ON;`), WAL mode, normal synchronous, and 5000ms busy timeouts.
+  - Formalized ADR-046.
+- **Test Suite**: 294 Python unit/contract/integration/e2e tests in `tests/` + 16 native Rust workspace tests + 2 Rust desktop shell tests (312 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, and SQLite database migration infrastructure with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

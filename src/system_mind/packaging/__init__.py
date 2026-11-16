@@ -4,6 +4,10 @@ from system_mind.packaging.code_quality import (
     CodeQualityAuditResult,
     CodeQualityValidator,
 )
+from system_mind.packaging.database_migration import (
+    DatabaseMigrationAuditResult,
+    DatabaseMigrationValidator,
+)
 from system_mind.packaging.env_config import (
     EnvironmentConfigAuditResult,
     EnvironmentConfigValidator,
@@ -39,6 +43,8 @@ __all__ = [
     "CodeQualityAuditResult",
     "CodeQualityValidator",
     "CrateBoundarySpec",
+    "DatabaseMigrationAuditResult",
+    "DatabaseMigrationValidator",
     "EnvironmentConfigAuditResult",
     "EnvironmentConfigValidator",
     "FrontendScaffoldAuditResult",
