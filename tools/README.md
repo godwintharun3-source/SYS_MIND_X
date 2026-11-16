@@ -26,6 +26,7 @@ The `tools/` workspace contains developer-facing automation, gate verification s
 | `tools/setup_dev.sh` | Unprivileged POSIX shell wrapper for macOS / Linux | `./tools/setup_dev.sh` |
 | `tools/setup_dev.ps1` | Unprivileged PowerShell wrapper for Windows 11 | `.\tools\setup_dev.ps1` |
 | `tools/ci_runner.py` | Local multi-tier CI pipeline runner & dependency auditor | `python3 tools/ci_runner.py all` |
+| `tools/mock_platform_cli.py` | Mock platform adapter inspection, telemetry & matrix audit | `python3 tools/mock_platform_cli.py inspect` |
 | `tools/migrate.py` | SQLite database migration & integrity auditor | `python3 tools/migrate.py status` |
 | `tools/test_runner.py` | Unified polyglot test orchestrator (Pytest, Cargo, Vitest) | `python3 tools/test_runner.py --all` |
 | `tools/lint.py` | AST zero-ambient-shell checker & multi-tier static linter | `python3 tools/lint.py` |

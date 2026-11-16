@@ -32,6 +32,10 @@ from system_mind.packaging.logging_config import (
     LoggingConfigAuditResult,
     LoggingConfigValidator,
 )
+from system_mind.packaging.mock_platform import (
+    MockPlatformAuditResult,
+    MockPlatformValidator,
+)
 from system_mind.packaging.models import (
     PackageMetadata,
     PackageVerificationResult,
@@ -69,6 +73,8 @@ __all__ = [
     "FrontendScaffoldValidator",
     "LoggingConfigAuditResult",
     "LoggingConfigValidator",
+    "MockPlatformAuditResult",
+    "MockPlatformValidator",
     "PackageMetadata",
     "PackageVerificationResult",
     "PackageConfigValidator",

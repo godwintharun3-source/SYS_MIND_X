@@ -106,55 +106,62 @@ def cmd_plan(args: argparse.Namespace) -> int:
 def cmd_apply(args: argparse.Namespace) -> int:
     """Applies pending migrations in forward direction."""
     migrator = get_migrator(args)
-    plan = migrator.plan(MigrationDirection.UP, target_version=args.target)
+    conn = migrator._get_connection()
+    try:
+        plan = migrator.plan(MigrationDirection.UP, target_version=args.target, conn=conn)
 
-    if plan.is_noop:
+        if plan.is_noop:
+            if args.json:
+                print(json.dumps({"applied": [], "message": "Database is already up to date."}))
+            else:
+                print("[+] Database is already up to date. No migrations to apply.")
+            return 0
+
+        applied_records = []
+        for m in plan.migrations:
+            record = migrator.apply_migration(m.version, conn=conn)
+            applied_records.append(record)
+            if not args.json:
+                print(
+                    f"[+] Applied {record.version:04d}_{record.name} "
+                    f"({record.execution_time_ms:.1f}ms) [{record.checksum[:12]}...]"
+                )
+
         if args.json:
-            print(json.dumps({"applied": [], "message": "Database is already up to date."}))
-        else:
-            print("[+] Database is already up to date. No migrations to apply.")
+            print(json.dumps({"applied": [r.to_dict() for r in applied_records]}, indent=2))
+
         return 0
-
-    applied_records = []
-    for m in plan.migrations:
-        record = migrator.apply_migration(m.version)
-        applied_records.append(record)
-        if not args.json:
-            print(
-                f"[+] Applied {record.version:04d}_{record.name} "
-                f"({record.execution_time_ms:.1f}ms) [{record.checksum[:12]}...]"
-            )
-
-    if args.json:
-        print(json.dumps({"applied": [r.to_dict() for r in applied_records]}, indent=2))
-
-    return 0
+    finally:
+        conn.close()
 
 
 def cmd_rollback(args: argparse.Namespace) -> int:
     """Rolls back applied migrations in reverse direction."""
     migrator = get_migrator(args)
-
-    if args.target is not None:
-        rolled_back = migrator.rollback_to(args.target)
-    else:
-        rec = migrator.rollback_last()
-        rolled_back = [rec] if rec else []
-
-    if not rolled_back:
-        if args.json:
-            print(json.dumps({"rolled_back": [], "message": "No migrations to roll back."}))
+    conn = migrator._get_connection()
+    try:
+        if args.target is not None:
+            rolled_back = migrator.rollback_to(args.target, conn=conn)
         else:
-            print("[*] No migrations to roll back.")
+            rec = migrator.rollback_last(conn=conn)
+            rolled_back = [rec] if rec else []
+
+        if not rolled_back:
+            if args.json:
+                print(json.dumps({"rolled_back": [], "message": "No migrations to roll back."}))
+            else:
+                print("[*] No migrations to roll back.")
+            return 0
+
+        if not args.json:
+            for r in rolled_back:
+                print(f"[-] Rolled back {r.version:04d}_{r.name} [{r.checksum[:12]}...]")
+        else:
+            print(json.dumps({"rolled_back": [r.to_dict() for r in rolled_back]}, indent=2))
+
         return 0
-
-    if not args.json:
-        for r in rolled_back:
-            print(f"[-] Rolled back {r.version:04d}_{r.name} [{r.checksum[:12]}...]")
-    else:
-        print(json.dumps({"rolled_back": [r.to_dict() for r in rolled_back]}, indent=2))
-
-    return 0
+    finally:
+        conn.close()
 
 
 def cmd_verify(args: argparse.Namespace) -> int:
