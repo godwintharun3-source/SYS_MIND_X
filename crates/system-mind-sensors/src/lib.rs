@@ -6,6 +6,7 @@ pub mod macos_gpu;
 pub mod macos_identity;
 pub mod macos_memory;
 pub mod macos_network;
+pub mod macos_process;
 pub mod macos_storage;
 pub mod macos_usb;
 pub mod telemetry;
@@ -28,6 +29,10 @@ pub use macos_memory::{
 pub use macos_network::{
     InterfaceTypeState, LinkStatusState, MacOsInterfaceSnapshot, MacOsNetworkCollector,
     MacOsNetworkSnapshot, MockMacOsNetworkCollector,
+};
+pub use macos_process::{
+    MacOsProcessCollector, MacOsProcessItemSnapshot, MacOsProcessSnapshot,
+    MockMacOsProcessCollector, ProcessRoleSnapshot, ProcessStateSnapshot,
 };
 pub use macos_storage::{
     MacOsStorageCollector, MacOsStorageSnapshot, MacOsVolumeSnapshot, MockMacOsStorageCollector,

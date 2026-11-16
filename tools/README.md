@@ -36,6 +36,7 @@ The `tools/` workspace contains developer-facing automation, gate verification s
 | `tools/detect_network.py` | macOS network interfaces, link states, routing & DNS metadata | `python3 tools/detect_network.py` |
 | `tools/detect_gpu.py` | macOS GPU model, core count, Metal support & display inventory | `python3 tools/detect_gpu.py` |
 | `tools/detect_usb.py` | macOS USB controllers, device descriptors & peripheral inventory | `python3 tools/detect_usb.py` |
+| `tools/detect_processes.py` | macOS process table, PID, owner, resource usage & role telemetry | `python3 tools/detect_processes.py` |
 | `tools/migrate.py` | SQLite database migration & integrity auditor | `python3 tools/migrate.py status` |
 | `tools/test_runner.py` | Unified polyglot test orchestrator (Pytest, Cargo, Vitest) | `python3 tools/test_runner.py --all` |
 | `tools/lint.py` | AST zero-ambient-shell checker & multi-tier static linter | `python3 tools/lint.py` |

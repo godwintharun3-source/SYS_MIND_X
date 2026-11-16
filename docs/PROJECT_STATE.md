@@ -1,14 +1,14 @@
 # SYSTEM MIND X - Current Project State
 
-- Project status: AWAITING_REVIEW (Day 046 completed and awaiting human review)
-- Current day: 46
-- Last reviewed completed day: 45
+- Project status: AWAITING_REVIEW (Day 049 completed and awaiting human review)
+- Current day: 49
+- Last reviewed completed day: 48
 - Current milestone: macOS system agent and telemetry (Days 041–065)
 - Current implementation branch: `develop`
-- Last verified commit: `develop` head (Day 046: Collect network interface and connectivity metadata)
+- Last verified commit: `develop` head (Day 049: Build a process inventory with PID, owner and resource usage)
 - Active blockers: None currently blocking Milestone 4. Environment prerequisites for Day 300+ tracked in `docs/BLOCKERS.md`.
 - Supported host for first implementation: macOS on Apple Silicon M1 (Darwin 27.0.0, arm64, 8 cores, 8GB RAM, SIP enabled, Gatekeeper active)
-- Next action: Await human review of Day 046, then complete via `python3 tools/day_tracker.py complete --day 46 ... --reviewed` and start Day 047.
+- Next action: Await human review of Day 049, then complete via `python3 tools/day_tracker.py complete --day 49 ... --reviewed` and start Day 050.
 
 ## Verified implementation state
 - **Milestone 1: Research Framing and Product Scope (Days 001–010)**: Completed and reviewed. Formalized project charter, user personas, primary journeys, platform matrix, prior art benchmark, competitor matrix, STRIDE threat model, 6-zone trust boundaries, operation taxonomy, product non-goals, research questions, and 8 release acceptance gates with 91 verified tests.
@@ -185,7 +185,16 @@
   - Enforced zero ambient shell authority (`SC-01`): queries dispatch via tokenized argument vectors (`shell=False`) with strict 10-second timeouts.
   - Implemented graceful non-Darwin fallback (`INV-USB-06`): execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin utilities under `unavailable_telemetry`.
   - Formalized ADR-058.
-- **Test Suite**: 412 Python unit/contract/integration/e2e tests in `tests/` + 36 native Rust workspace tests + 2 Rust desktop shell tests (450 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, macOS CPU hardware detection, macOS memory telemetry, macOS storage volume metadata, macOS battery state/health, macOS network interface metadata, macOS GPU/display inventory, and macOS USB/peripheral inventory with 100% pass rate.
+- **macOS Process Table Inventory, Role Classification, and Resource Telemetry (Day 049)**: Formalized read-only process discovery, PID/PPID hierarchy, UID and username ownership, CPU and memory utilization, RSS and VSZ metrics, Darwin process execution states, and typed role classification in `src/system_mind/macos/` (`process_models.py`, `process_detector.py`, `__init__.py`), native Rust sensor collector in `crates/system-mind-sensors/src/macos_process.rs`, developer CLI (`tools/detect_processes.py`), `MacOsProcessValidator` in `src/system_mind/packaging/macos_process.py`, and design note `docs/design/DAY_049_MACOS_PROCESS_INVENTORY_RESOURCE_USAGE.md`.
+  - Enforced unprivileged query interfaces (`SC-01` / `INV-PROC-01`): all process table queries execute strictly in read-only user space without `sudo` or root privileges via Darwin `/bin/ps -axo pid,ppid,uid,user,%cpu,%mem,rss,vsz,stat,comm`.
+  - Enforced sensitive argument redaction & path integrity (`INV-PROC-02`): by capturing exact executable binary paths (`comm`) rather than raw argument command strings, the engine eliminates inline credential and token leakage.
+  - Typed process role classification (`INV-PROC-03`): categorizes processes into `SYSTEM_CORE`, `USER_APP`, `DAEMON_SERVICE`, `DEVELOPER_TOOL`, and `OTHER` with explicit `is_system_core` and `is_user_app` flags.
+  - Zero mutating process operations (`INV-PROC-04`): process signaling (`kill`, `pkill`, `renice`, `killall`) is strictly excluded.
+  - Resource telemetry aggregation: tracks instantaneous CPU %, memory %, RSS bytes, VSZ bytes, and Darwin process states (`RUNNING`, `SLEEPING`, `STOPPED`, `ZOMBIE`, `UNINTERRUPTIBLE`).
+  - Enforced zero ambient shell authority (`SC-01`): queries dispatch via tokenized argument vectors (`shell=False`) with strict 5-second timeouts.
+  - Implemented graceful non-Darwin fallback (`INV-PROC-08`): execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter` or returns a structured report listing unsupported Darwin utilities under `unavailable_telemetry`.
+  - Formalized ADR-059.
+- **Test Suite**: 423 Python unit/contract/integration/e2e tests in `tests/` + 39 native Rust workspace tests + 2 Rust desktop shell tests (464 total passing tests) verifying all invariants, platforms, journeys, threat vectors, operations, safety constraints, research questions, acceptance gates, engine specifications, NFR benchmarks, architectural layers, AI/native split, capability parity levels, digital twin models, temporal observations, application exclusion rules, system update taxonomy, file trust handler policies, typed action contracts, policy precedence rules, immutable audit ledgers, API conventions/versioning, architecture baseline freeze, monorepo workspace boundaries, Python backend packaging, Rust system-agent workspace boundaries, desktop frontend scaffold, Tauri desktop safe shell, shared schema codegen strategy, multi-language code quality configurations, polyglot test frameworks, environment secret-handling conventions, structured logging with sensitive-data redaction, SQLite database migration infrastructure, local development scripts, CI checks with dependency review, safe mock-platform adapter subsystem, clean-clone bootstrap verification, macOS identity detection, macOS CPU hardware detection, macOS memory telemetry, macOS storage volume metadata, macOS battery state/health, macOS network interface metadata, macOS GPU/display inventory, macOS USB/peripheral inventory, and macOS process table inventory & resource usage with 100% pass rate.
 
 ## Current risks & constraints
 - Competitors' architectural shortcomings (ambient shell authority, unencrypted OCR screen dumps, lack of component ownership) are avoided by structural design.

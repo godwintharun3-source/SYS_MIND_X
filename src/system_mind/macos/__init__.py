@@ -46,6 +46,13 @@ from system_mind.macos.network_models import (
     MacNetworkReport,
     MacNetworkRoute,
 )
+from system_mind.macos.process_detector import MacProcessDetector
+from system_mind.macos.process_models import (
+    MacProcessInfo,
+    MacProcessReport,
+    ProcessRole,
+    ProcessState,
+)
 from system_mind.macos.storage_detector import MacStorageDetector
 from system_mind.macos.storage_models import (
     FilesystemType,
@@ -93,6 +100,9 @@ __all__ = [
     "MacNetworkInterface",
     "MacNetworkReport",
     "MacNetworkRoute",
+    "MacProcessDetector",
+    "MacProcessInfo",
+    "MacProcessReport",
     "MacStorageDetector",
     "MacStorageReport",
     "MacSwapUsage",
@@ -105,6 +115,8 @@ __all__ = [
     "MacVolumeInfo",
     "MemoryPressureLevel",
     "PowerSource",
+    "ProcessRole",
+    "ProcessState",
     "UsbDeviceClass",
     "UsbSpeed",
     "VolumeRole",

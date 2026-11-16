@@ -1758,3 +1758,44 @@
 - Reviewed summary: Read-only macOS USB and peripheral inventory telemetry detector (src/system_mind/macos/usb_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_usb.rs), tools/detect_usb.py CLI, and MacOsUsbValidator implemented with 450 total passed tests (412 Python + 38 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (36 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (412 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T17:59:22+05:30
+
+
+## Day 049 - 2026-11-16
+
+- **Objective:** Build a process inventory with PID, owner and resource usage (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_049_MACOS_PROCESS_INVENTORY_RESOURCE_USAGE.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/process_models.py` (`ProcessState`, `ProcessRole`, `MacProcessInfo`, `MacProcessReport`).
+  - Implemented read-only process inventory and resource telemetry engine in `src/system_mind/macos/process_detector.py` (`MacProcessDetector`) using unprivileged `/bin/ps -axo pid,ppid,uid,user,%cpu,%mem,rss,vsz,stat,comm` without root/sudo elevation.
+  - Enforced sensitive argument redaction and binary path integrity (`INV-PROC-02`): captures exact binary paths (`comm`) rather than unbounded command-line arguments (`args`), preventing token and credential leakage.
+  - Enforced typed process role classification (`INV-PROC-03`): categorizes processes into `SYSTEM_CORE`, `USER_APP`, `DAEMON_SERVICE`, `DEVELOPER_TOOL`, and `OTHER` with explicit `is_system_core` and `is_user_app` flags.
+  - Enforced zero mutating process operations (`INV-PROC-04`): process signaling (`kill`, `pkill`, `renice`, `killall`) is strictly excluded.
+  - Re-exported process models and detector in `src/system_mind/macos/__init__.py`.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_process.rs` (`ProcessStateSnapshot`, `ProcessRoleSnapshot`, `MacOsProcessItemSnapshot`, `MacOsProcessSnapshot`, `MacOsProcessCollector`, `MockMacOsProcessCollector`) with 3 unit tests.
+  - Re-exported process sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_processes.py` supporting formatted process tables, `--json`, `--mock`, `--top-cpu <N>`, `--top-mem <N>`, `--user <USERNAME>`, and `--assert-processes <MIN_COUNT>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_process.py` (`MacOsProcessValidator`, `MacOsProcessAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_process_detector.py` with 11 tests covering mock profiles, Darwin `ps` parsing, process state transitions, role classification, query helpers (`get_top_cpu`, `get_top_memory`, `filter_by_user`, `find_by_pid`), non-Darwin fallback, live Darwin collection, validator audits, and CLI execution.
+  - Formalized ADR-059 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 049 milestone achievements and 464 passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_processes.py --mock`: Executed successfully in unprivileged user space (exit code 0).
+  - `python3 tools/detect_processes.py --top-cpu 5`: Executed live on host Darwin, returning 464 active processes in unprivileged user space (exit code 0).
+  - `python3 tools/detect_processes.py --mock --json`: Returned valid JSON matching `MacProcessReport` schema (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_process_detector.py`: 11 passed in 1.43s (exit code 0).
+  - `cargo test --workspace`: 39 passed in 3.33s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.04s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 712 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `python3 tools/ci_runner.py all`: All 5 CI stages passed cleanly (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 423 passed in 30.53s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-PROC-01`): Operates strictly in user space using read-only `/bin/ps -axo pid,ppid,uid,user,%cpu,%mem,rss,vsz,stat,comm`. Zero `sudo` or administrator escalation.
+  - Sensitive Argument Redaction (`INV-PROC-02`): Executable binary paths (`comm`) are ingested rather than raw command arguments, preventing CLI token leakage.
+  - Role Classification & Guardrails (`INV-PROC-03`): Distinguishes system core from user desktop applications and developer tools.
+  - Zero Mutating Process Operations (`INV-PROC-04`): No `kill`, `killall`, or `renice` commands.
+  - Zero Ambient Shell Authority (`SC-01`): Subprocess executions use tokenized argument lists (`shell=False`) with strict 5-second timeouts.
+  - Graceful Non-Darwin Fallback (`INV-PROC-08`): Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin utilities in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 050.
