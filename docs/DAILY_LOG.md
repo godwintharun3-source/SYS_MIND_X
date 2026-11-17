@@ -2371,3 +2371,42 @@
 - Reviewed summary: Consolidated unit tests for all twenty macOS hardware and OS collectors (tests/test_macos_collectors_unit.py), MacOsCollectorTestsValidator, tools/detect_collector_tests.py CLI, and ADR-071 with universal scan_proves_safe=False invariant and 649 passed tests (559 Python + 90 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (88 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (559 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
 - Review timestamp: 2026-11-17T14:33:55+05:30
+
+## Day 062 — 2026-11-17
+
+- **Objective:** Add integration tests with missing sensors and denied permissions (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_062_INTEGRATION_TESTS_MISSING_SENSORS_DENIED_PERMISSIONS.md`.
+  - Implemented integration fault test suite in `tests/test_macos_integration_missing_sensors_and_permissions.py` with 10 targeted integration tests covering all 8 core fault scenarios:
+    1. Desktop Mac lacking battery hardware (`missing_battery` / `desktop_ac_fallback`).
+    2. Air-gapped / offline network resilience (`offline_network`).
+    3. Unprivileged Endpoint Security initialization & entitlement denial (`endpoint_security_unprivileged_fallback`).
+    4. TCC Full Disk Access permission denial (`tcc_full_disk_access_denied`).
+    5. TCC Screen Recording & Accessibility permission denial (`tcc_screen_accessibility_denied`).
+    6. Unmounted / corrupted APFS storage volume (`storage_volume_unmounted`).
+    7. Empty external USB peripheral bus (`usb_empty_peripherals`).
+    8. Composite multi-fault inventory aggregation (`multifault_inventory_aggregation`).
+  - Implemented programmatic packaging validator in `src/system_mind/packaging/macos_integration_faults.py` (`MacOsIntegrationFaultsValidator`, `MacOsIntegrationFaultsAuditResult`) verifying integration test existence, CLI tool presence, all 8 fault scenario functions, AST zero-ambient-shell safety (`SC-01`), matching native Rust sensors, and structural charter invariant enforcement (`scan_proves_safe = False`).
+  - Re-exported integration faults validator in `src/system_mind/packaging/__init__.py`.
+  - Implemented developer CLI tool in `tools/detect_integration_faults.py` supporting formatted terminal audit reports and `--json` machine-readable output.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Formalized ADR-072 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 062 milestone achievements and 659 total passed tests (569 Python + 90 Rust).
+- **Commands & Real Results:**
+  - `python3 tools/detect_integration_faults.py`: Full fault scenario and safety audit passed with 0 issues (exit code 0).
+  - `python3 tools/detect_integration_faults.py --json`: Emitted valid JSON audit payload (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_integration_missing_sensors_and_permissions.py`: 10 passed in 0.30s (exit code 0).
+  - `cargo test --workspace`: 88 passed in 0.01s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Clean formatting, zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 800 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed in 62.33s (exit code 0).
+- **Security & Platform Limitations:**
+  - Graceful Partial-Data Transparency (`INV-FAULT-01`): Sensor absence or permission denials never raise unhandled exceptions or crash the agent; payloads explicitly declare `partial_data = True` and categorize failure reasons.
+  - Unwavering "Scan != Safe" Invariant (`INV-FAULT-02`): All degraded and partial-permission reports structurally enforce `scan_proves_safe = False`.
+  - Zero Ambient Shell Authority (`SC-01` / `INV-FAULT-05`): All subprocess queries enforce `shell=False` and bounded timeouts (<= 5s).
+  - Transparent Fallbacks (`INV-FAULT-03`): Unprivileged execution maps kernel security interfaces to user-space CoreServices FSEvents and Darwin `ps` without attempting privilege escalation.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 063.
