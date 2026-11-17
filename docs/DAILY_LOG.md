@@ -1944,3 +1944,41 @@
 - Reviewed summary: Read-only macOS application signature and notarization detector (src/system_mind/macos/signature_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_signature.rs), tools/detect_signatures.py CLI, and MacOsSignaturesValidator implemented with 506 total passed tests (456 Python + 50 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (48 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (456 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-17T10:12:03+05:30
+
+
+## Day 053 - 2026-11-17
+
+- **Objective:** Implement FSEvents-based filesystem change notifications (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_053_MACOS_FSEVENTS_CHANGE_NOTIFICATIONS.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/fsevents_models.py` (`FsEventFlag`, `FsEventStreamState`, `FsEventNotification`, `FsEventStreamConfig`, `FsEventSnapshotReport`).
+  - Implemented read-only macOS FSEvents telemetry engine in `src/system_mind/macos/fsevents_detector.py` (`MacFsEventsDetector`) with bitmask flag decoding across native Darwin CoreServices constants (`FLAG_ITEM_CREATED`, `FLAG_ITEM_REMOVED`, `FLAG_ITEM_MODIFIED`, `FLAG_ITEM_RENAMED`, `FLAG_ITEM_INODE_META_MOD`, `FLAG_ITEM_XATTR_MOD`, `FLAG_ITEM_CHANGE_OWNER`, `FLAG_ITEM_CLONED`, `FLAG_MUST_SCAN_SUBDIRS`, `FLAG_MOUNT`, `FLAG_UNMOUNT`, `FLAG_ITEM_IS_FILE`, `FLAG_ITEM_IS_DIR`, `FLAG_ITEM_IS_SYMLINK`).
+  - Enforced strict privacy preservation (`INV-FS-02`): personal folders (`~/Documents`, `~/Downloads`, `~/.ssh`, `~/Library/Keychains`, credentials, secrets) are excluded by default; only explicit system roots (`/Applications`, `/System/Applications`, `/Library/LaunchDaemons`, `/tmp`) or authorized paths are monitored.
+  - Enforced strictly read-only observation (`SC-01` / `INV-FS-01`): modifying or executing filesystem mutations (`rm`, `mkdir`, `touch`, `chmod`, `chown`) is strictly prohibited.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_fsevents.rs` (`FsEventFlagSnapshot`, `FsEventNotificationSnapshot`, `FsEventSnapshotReportSnapshot`, `MacOsFsEventsCollector`, `MockMacOsFsEventsCollector`) with unit tests.
+  - Re-exported FSEvents sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tools in `tools/detect_fsevents.py` and `tools/monitor_fsevents.py` supporting formatted event tables, `--json`, `--mock`, `--paths <PATHS>`, and `--filter <created|modified|removed|renamed|files|dirs>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_fsevents.py` (`MacOsFsEventsValidator`, `MacOsFsEventsAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_fsevents.py` with 7 tests covering models, bitmask decoding, privacy exclusions, mock report, CLI execution, validator clean audits, and AST safety.
+  - Formalized ADR-063 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 053 milestone achievements and 514 passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_fsevents.py --mock`: Executed successfully in unprivileged user space; displayed 5 mock filesystem events across system paths (exit code 0).
+  - `python3 tools/detect_fsevents.py --mock --json`: Returned valid JSON matching `FsEventSnapshotReport` schema (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_fsevents.py`: 7 passed in 1.62s (exit code 0).
+  - `cargo test --workspace`: 49 passed in 0.05s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 742 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 463 passed in 43.38s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-FS-01`): Operates strictly in user space using passive observation. Zero `sudo` or administrator escalation.
+  - Privacy Path Exclusion (`INV-FS-02`): Explicitly blocks personal user directories (`~/.ssh`, `Keychains`, `.aws`, `Documents`, `Downloads`) from default streams.
+  - Zero Mutating Filesystem Operations (`INV-FS-01`): No file deletions, creations, or permission mutations.
+  - Coalescence & Event Storm Protection (`INV-FS-04`): Supports latency throttling (default 0.5s) to coalesce burst mutations.
+  - Graceful Non-Darwin Fallback (`INV-FS-05`): Execution on non-Darwin platforms gracefully delegates to `MockPlatformAdapter`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 054.

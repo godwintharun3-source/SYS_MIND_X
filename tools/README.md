@@ -40,6 +40,8 @@ The `tools/` workspace contains developer-facing automation, gate verification s
 | `tools/detect_services.py` | macOS launchd services, status, ownership & login-item inventory | `python3 tools/detect_services.py` |
 | `tools/detect_apps.py` | macOS installed application bundles, versions & bundle identifiers | `python3 tools/detect_apps.py` |
 | `tools/detect_signatures.py` | macOS application signatures, CDHash & Gatekeeper notarization | `python3 tools/detect_signatures.py` |
+| `tools/detect_fsevents.py` | macOS FSEvents filesystem change notifications inspection | `python3 tools/detect_fsevents.py` |
+| `tools/monitor_fsevents.py` | macOS FSEvents-based filesystem change notification monitor | `python3 tools/monitor_fsevents.py` |
 | `tools/migrate.py` | SQLite database migration & integrity auditor | `python3 tools/migrate.py status` |
 | `tools/test_runner.py` | Unified polyglot test orchestrator (Pytest, Cargo, Vitest) | `python3 tools/test_runner.py --all` |
 | `tools/lint.py` | AST zero-ambient-shell checker & multi-tier static linter | `python3 tools/lint.py` |

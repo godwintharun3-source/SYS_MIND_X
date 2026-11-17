@@ -3,6 +3,7 @@
 pub mod macos_apps;
 pub mod macos_battery;
 pub mod macos_cpu;
+pub mod macos_fsevents;
 pub mod macos_gpu;
 pub mod macos_identity;
 pub mod macos_launchd;
@@ -23,6 +24,10 @@ pub use macos_battery::{
     PowerSourceState,
 };
 pub use macos_cpu::{MacOsCpuCollector, MacOsCpuSnapshot, MockMacOsCpuCollector};
+pub use macos_fsevents::{
+    FsEventFlagSnapshot, FsEventNotificationSnapshot, FsEventReportSnapshot,
+    MacOsFsEventsCollector, MockMacOsFsEventsCollector,
+};
 pub use macos_gpu::{
     DisplayConnectionTypeState, GpuBusTypeState, MacOsDisplaySnapshot, MacOsGpuCollector,
     MacOsGpuInfoSnapshot, MacOsGpuSnapshot, MockMacOsGpuCollector,

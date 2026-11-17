@@ -21,6 +21,14 @@ from system_mind.macos.cpu_models import (
     MacCpuTelemetryReport,
 )
 from system_mind.macos.detector import MacOSIdentityDetector
+from system_mind.macos.fsevents_detector import MacFsEventsDetector
+from system_mind.macos.fsevents_models import (
+    FsEventFlag,
+    FsEventNotification,
+    FsEventSnapshotReport,
+    FsEventStreamConfig,
+    FsEventStreamState,
+)
 from system_mind.macos.gpu_detector import MacGpuDetector
 from system_mind.macos.gpu_models import (
     DisplayConnectionType,
@@ -100,6 +108,11 @@ __all__ = [
     "CpuPerfLevelInfo",
     "DisplayConnectionType",
     "FilesystemType",
+    "FsEventFlag",
+    "FsEventNotification",
+    "FsEventSnapshotReport",
+    "FsEventStreamConfig",
+    "FsEventStreamState",
     "GpuBusType",
     "InterfaceType",
     "LinkState",
@@ -118,6 +131,7 @@ __all__ = [
     "MacCpuHardwareInfo",
     "MacCpuTelemetryReport",
     "MacDisplayInfo",
+    "MacFsEventsDetector",
     "MacGpuDetector",
     "MacGpuInfo",
     "MacGpuReport",
