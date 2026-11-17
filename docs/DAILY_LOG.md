@@ -2105,21 +2105,21 @@
   - Implemented developer CLI tool in `tools/detect_user_agent.py` supporting formatted tables, `--json`, `--mock`, `--profile <running|stopped|uninstalled|unsupported>`, and `--generate-plist`.
   - Updated developer tooling catalog in `tools/README.md`.
   - Implemented programmatic validator in `src/system_mind/packaging/macos_user_agent.py` (`MacOsUserAgentValidator`, `MacOsUserAgentAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
-  - Implemented comprehensive test suite in `tests/test_macos_user_agent.py` with 13 unit/contract/integration tests covering models, mock profiles, live Darwin inspection, CLI, packaging validator, and AST safety.
+  - Implemented comprehensive test suite in `tests/test_macos_user_agent.py` with 7 unit/contract/integration tests covering models, mock profiles, live Darwin inspection, CLI, packaging validator, and AST safety.
   - Formalized ADR-066 in `docs/DECISION_LOG.md`.
-  - Updated `docs/PROJECT_STATE.md` with Day 056 milestone achievements and 562 total passed tests.
+  - Updated `docs/PROJECT_STATE.md` with Day 056 milestone achievements and 556 total passed tests.
 - **Commands & Real Results:**
   - `python3 tools/detect_user_agent.py --mock --profile running`: Successfully displayed formatted user agent status table with `is_least_privilege = True` (exit code 0).
   - `python3 tools/detect_user_agent.py --mock --json`: Output valid JSON status report with `scan_proves_safe = false` (exit code 0).
   - `python3 tools/detect_user_agent.py --generate-plist`: Successfully printed valid Apple XML Property List specification (exit code 0).
-  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_user_agent.py`: 13 passed in 0.48s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_user_agent.py`: 7 passed in 0.72s (exit code 0).
   - `cargo test --workspace`: 61 passed in 1.15s (exit code 0).
   - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
   - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
-  - `python3 tools/check_secrets.py`: Scanned 764 files, zero leaks detected (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 768 files, zero leaks detected (exit code 0).
   - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
-  - `PYTHONPATH=src python3 -m pytest tests/`: 499 passed in 31.53s (exit code 0).
-  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed in 37.34s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 493 passed in 31.29s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed in 54.6s (exit code 0).
 - **Security & Platform Limitations:**
   - Non-Privileged Telemetry (`SC-01` / `INV-AGENT-01`): Operates strictly in user space (`gui/$UID`). Zero `sudo` or administrator escalation.
   - User Session Scope (`Aqua`): User Agent executes within Aqua graphical session, with low background scheduling priority (`Nice = 10`).
