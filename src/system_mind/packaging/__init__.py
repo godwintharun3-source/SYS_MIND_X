@@ -72,6 +72,10 @@ from system_mind.packaging.macos_network import (
     MacOsNetworkAuditResult,
     MacOsNetworkValidator,
 )
+from system_mind.packaging.macos_observations import (
+    MacOsObservationsAuditResult,
+    MacOsObservationsValidator,
+)
 from system_mind.packaging.macos_process import (
     MacOsProcessAuditResult,
     MacOsProcessValidator,
@@ -165,6 +169,8 @@ __all__ = [
     "MacOsMemoryValidator",
     "MacOsNetworkAuditResult",
     "MacOsNetworkValidator",
+    "MacOsObservationsAuditResult",
+    "MacOsObservationsValidator",
     "MacOsProcessAuditResult",
     "MacOsProcessValidator",
     "MacOsServicesAuditResult",

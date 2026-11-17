@@ -11,6 +11,7 @@ pub mod macos_identity;
 pub mod macos_launchd;
 pub mod macos_memory;
 pub mod macos_network;
+pub mod macos_observations;
 pub mod macos_process;
 pub mod macos_signature;
 pub mod macos_storage;
@@ -59,6 +60,11 @@ pub use macos_memory::{
 pub use macos_network::{
     InterfaceTypeState, LinkStatusState, MacOsInterfaceSnapshot, MacOsNetworkCollector,
     MacOsNetworkSnapshot, MockMacOsNetworkCollector,
+};
+pub use macos_observations::{
+    CompanionObservationBatchSnapshot, ConfidenceTierSnapshot, MacOsObservationCollector,
+    MockMacOsObservationCollector, ObservationConfidenceSnapshot,
+    ObservedTelemetryEnvelopeSnapshot, SourceTimestampSnapshot,
 };
 pub use macos_process::{
     MacOsProcessCollector, MacOsProcessItemSnapshot, MacOsProcessSnapshot,

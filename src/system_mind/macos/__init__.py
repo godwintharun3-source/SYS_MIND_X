@@ -87,6 +87,18 @@ from system_mind.macos.network_models import (
     MacNetworkReport,
     MacNetworkRoute,
 )
+from system_mind.macos.observation_engine import (
+    BASE_COLLECTOR_CONFIDENCE,
+    MacOsObservationEngine,
+)
+from system_mind.macos.observation_models import (
+    CompanionObservationBatch,
+    ConfidenceTier,
+    ObservationConfidence,
+    ObservedTelemetryEnvelope,
+    SourceTimestamp,
+    compute_telemetry_digest,
+)
 from system_mind.macos.process_detector import MacProcessDetector
 from system_mind.macos.process_models import (
     MacProcessInfo,
@@ -139,6 +151,7 @@ __all__ = [
     "AgentServiceState",
     "AgentServiceStatusReport",
     "ApplicationCategory",
+    "BASE_COLLECTOR_CONFIDENCE",
     "BatteryChargingState",
     "BatteryHealthCondition",
     "CollectorHealthManager",
@@ -146,6 +159,8 @@ __all__ = [
     "CollectorResult",
     "CollectorStatus",
     "CompanionHealthReport",
+    "CompanionObservationBatch",
+    "ConfidenceTier",
     "CORE_COLLECTORS",
     "CpuPerfLevelInfo",
     "DisplayConnectionType",
@@ -200,6 +215,7 @@ __all__ = [
     "MacNetworkInterface",
     "MacNetworkReport",
     "MacNetworkRoute",
+    "MacOsObservationEngine",
     "MacProcessDetector",
     "MacProcessInfo",
     "MacProcessReport",
@@ -219,6 +235,8 @@ __all__ = [
     "MacVolumeInfo",
     "MemoryPressureLevel",
     "NotarizationStatus",
+    "ObservationConfidence",
+    "ObservedTelemetryEnvelope",
     "PowerSource",
     "ProcessRole",
     "ProcessState",
@@ -227,6 +245,7 @@ __all__ = [
     "ServiceStatus",
     "SignatureStatus",
     "SigningAuthorityType",
+    "SourceTimestamp",
     "SwiftBridgeTelemetry",
     "SwiftPermissionStatus",
     "SwiftThermalState",

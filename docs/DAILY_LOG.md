@@ -2181,3 +2181,46 @@
 - Reviewed summary: Read-only macOS telemetry collector health manager, timeout orchestrator, and circuit breaker (src/system_mind/macos/collector_health_manager.py), Rust sensor collector (crates/system-mind-sensors/src/macos_collector_health.rs), tools/detect_collector_health.py CLI, and MacOsCollectorHealthValidator implemented with 570 total passed tests (501 Python + 69 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (67 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (501 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-17T12:05:43+05:30
+
+## Day 058 — 2026-11-17
+
+- **Objective:** Add source timestamps and confidence to every collected observation (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_058_SOURCE_TIMESTAMPS_AND_CONFIDENCE.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/observation_models.py` (`ConfidenceTier`, `SourceTimestamp`, `ObservationConfidence`, `ObservedTelemetryEnvelope`, `CompanionObservationBatch`, `compute_telemetry_digest`).
+  - Implemented observation enrichment engine and batch aggregator in `src/system_mind/macos/observation_engine.py` (`MacOsObservationEngine`, `BASE_COLLECTOR_CONFIDENCE`) capturing native clock source timestamps (`mach_continuous_time`, `sysctl.boottime`, `system_clock_utc`), calculating continuous confidence scores [0.0, 1.0], and deducting auditable penalty factors.
+  - Re-exported observation models and engine in `src/system_mind/macos/__init__.py`.
+  - Enforced explicit source timestamping and clock provenance (`SC-01` / `INV-OBS-01`): every observation records the exact time the reading was produced at the native clock source, separating reading time from agent processing latency.
+  - Enforced deterministic multi-tier confidence scoring (`INV-OBS-02`): observations are assigned a continuous confidence score in `[0.0, 1.0]` and categorized into 5 discrete tiers (`KERNEL_AUTHORITATIVE`, `SUBSYSTEM_VERIFIED`, `HEURISTIC_PARSED`, `DEGRADED_PARTIAL`, `ESTIMATED_MOCK`).
+  - Enforced auditable penalty deductions (`INV-OBS-03`): base confidence scores deduct explicit penalties for absent hardware (-0.20), missing permissions/entitlements (-0.35), text parsing fallbacks (-0.20), and synthetic mock profiles (-0.60).
+  - Enforced cryptographic payload integrity (`INV-OBS-04`): envelopes compute deterministic canonical SHA-256 digests over observed payloads.
+  - Enforced charter non-negotiable invariant "Scan != Safe" (`INV-OBS-05`): observation confidence reflects measurement authority and data completeness, not software safety; structurally enforces `scan_proves_safe = False`.
+  - Implemented graceful non-Darwin fallback (`INV-OBS-06`): non-Darwin hosts or unmanaged test environments cleanly degrade to deterministic simulation fixtures.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_observations.rs` (`ConfidenceTierSnapshot`, `SourceTimestampSnapshot`, `ObservationConfidenceSnapshot`, `ObservedTelemetryEnvelopeSnapshot`, `CompanionObservationBatchSnapshot`, `MacOsObservationCollector`, `MockMacOsObservationCollector`) with 6 unit tests.
+  - Re-exported observation sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_observations.py` supporting formatted tables, `--json`, `--mock`, `--profile <high_fidelity|degraded|mock_simulation|unsupported>`, and `--collector <id>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_observations.py` (`MacOsObservationsValidator`, `MacOsObservationsAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_observations.py` with 8 unit/contract/integration tests covering models, confidence scoring, clock source fidelity, payload hashing, mock profiles, CLI execution, packaging validator, and AST safety.
+  - Formalized ADR-068 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 058 milestone achievements and 584 total passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_observations.py --mock --profile high_fidelity`: Successfully displayed formatted observation batch table with mean confidence 0.904 (exit code 0).
+  - `python3 tools/detect_observations.py --mock --profile degraded`: Correctly reported battery with hardware penalty (0.750) and endpoint_security with missing entitlement penalty (0.700) (exit code 0).
+  - `python3 tools/detect_observations.py --mock --profile mock_simulation`: Correctly reported all mock fixture penalties with mean confidence 0.304 (exit code 0).
+  - `python3 tools/detect_observations.py --mock --profile degraded --collector battery`: Successfully rendered single collector envelope with penalties and SHA-256 digest (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_observations.py`: 8 passed in 1.16s (exit code 0).
+  - `cargo test --workspace`: 73 passed in 0.00s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 782 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 509 passed in 49.76s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed in 59.51s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-OBS-01`): Clock capture and confidence scoring operate strictly in user space without `sudo` or administrator escalation.
+  - Clock Source Fidelity: Distinguishes between native kernel/monotonic clocks (`mach_continuous_time`), UTC system clock, and synthetic mock clocks.
+  - Scan != Safe Charter Invariant (`INV-OBS-05`): Observation confidence measures source authority, not software safety; `scan_proves_safe = False`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 059.
