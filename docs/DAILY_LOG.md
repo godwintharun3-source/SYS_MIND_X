@@ -2133,3 +2133,45 @@
 - Reviewed summary: Read-only macOS least-privilege user agent service manager (src/system_mind/macos/agent_service_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_user_agent.rs), tools/detect_user_agent.py CLI, and MacOsUserAgentValidator implemented with 556 total passed tests (493 Python + 63 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (61 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (493 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-17T11:45:00+05:30
+
+## Day 057 — 2026-11-17
+
+- **Objective:** Implement collector health, timeout and partial-data reporting (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_057_COLLECTOR_HEALTH_AND_TIMEOUTS.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/collector_health_models.py` (`CollectorStatus`, `PartialDataReason`, `CollectorHealthRecord`, `CompanionHealthReport`, `CollectorResult`).
+  - Implemented thread-isolated timeout wrapper and circuit breaker orchestrator in `src/system_mind/macos/collector_health_manager.py` (`CollectorHealthManager`, `CORE_COLLECTORS`) managing per-collector latency budgets, consecutive failure counters, and partial data categorization.
+  - Re-exported collector health models and manager in `src/system_mind/macos/__init__.py`.
+  - Enforced strict per-collector timeout containment (`SC-01` / `INV-HEALTH-01`): every collector execution is bounded by an isolated timeout envelope, returning `TIMED_OUT` with typed fallback data.
+  - Enforced circuit breaking for thrashing collectors (`INV-HEALTH-02`): consecutive failures exceeding threshold transition the collector to `CIRCUIT_BROKEN` without executing hung tasks.
+  - Enforced explicit partial-data categorization (`INV-HEALTH-03`): missing telemetry is never silently omitted; explicitly flagged with `partial_data = True`, categorized reasons, and `unavailable_fields`.
+  - Enforced charter non-negotiable invariant "Scan != Safe" (`INV-HEALTH-04`): collector operational health records data collection fidelity, not software safety; structurally enforces `scan_proves_safe = False`.
+  - Implemented graceful non-Darwin fallback (`INV-HEALTH-05`): non-Darwin hosts or unmanaged test environments cleanly degrade to deterministic simulation fixtures.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_collector_health.rs` (`CollectorStatusSnapshot`, `PartialDataReasonSnapshot`, `CollectorHealthRecordSnapshot`, `CompanionHealthReportSnapshot`, `MacOsCollectorHealthTracker`, `MockMacOsCollectorHealthTracker`) with 6 unit tests.
+  - Re-exported collector health sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_collector_health.py` supporting formatted tables, `--json`, `--mock`, `--profile <healthy|degraded|timeout|unsupported>`, `--timeout`, and `--collector <id>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_collector_health.py` (`MacOsCollectorHealthValidator`, `MacOsCollectorHealthAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_collector_health.py` with 8 unit/contract/integration tests covering models, timeout execution, circuit breaker transitions, partial-data categorization, mock profiles, CLI execution, packaging validator, and AST safety.
+  - Formalized ADR-067 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 057 milestone achievements and 570 total passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_collector_health.py --mock --profile healthy`: Successfully displayed formatted collector health table across all 16 collectors (exit code 0).
+  - `python3 tools/detect_collector_health.py --mock --profile degraded`: Correctly reported battery and endpoint_security as DEGRADED with reasons HARDWARE_ABSENT and PERMISSION_DENIED (exit code 0).
+  - `python3 tools/detect_collector_health.py --mock --profile timeout`: Correctly reported fsevents and user_agent as TIMED_OUT (exit code 0).
+  - `python3 tools/detect_collector_health.py --mock --profile degraded --collector battery`: Successfully rendered single collector record with reasons (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_collector_health.py`: 8 passed in 2.11s (exit code 0).
+  - `cargo test --workspace`: 67 passed in 0.00s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 775 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 501 passed in 48.26s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed in 58.59s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-HEALTH-01`): Health management operates strictly in user space without `sudo` or administrator escalation.
+  - Latency Budget Enforcement: Unmediated syscall or launchctl subprocess hangs are contained by thread pool timeouts.
+  - Scan != Safe Charter Invariant (`INV-HEALTH-04`): Collector health records collection fidelity, not software safety; `scan_proves_safe = False`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 058.

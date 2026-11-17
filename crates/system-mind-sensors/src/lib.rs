@@ -2,6 +2,7 @@
 
 pub mod macos_apps;
 pub mod macos_battery;
+pub mod macos_collector_health;
 pub mod macos_cpu;
 pub mod macos_endpoint_security;
 pub mod macos_fsevents;
@@ -25,6 +26,10 @@ pub use macos_apps::{
 pub use macos_battery::{
     BatteryConditionState, MacOsBatteryCollector, MacOsBatterySnapshot, MockMacOsBatteryCollector,
     PowerSourceState,
+};
+pub use macos_collector_health::{
+    CollectorHealthRecordSnapshot, CollectorStatusSnapshot, CompanionHealthReportSnapshot,
+    MacOsCollectorHealthTracker, MockMacOsCollectorHealthTracker, PartialDataReasonSnapshot,
 };
 pub use macos_cpu::{MacOsCpuCollector, MacOsCpuSnapshot, MockMacOsCpuCollector};
 pub use macos_endpoint_security::{

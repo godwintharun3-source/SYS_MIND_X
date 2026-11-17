@@ -20,6 +20,17 @@ from system_mind.macos.battery_models import (
     MacBatteryTelemetryReport,
     PowerSource,
 )
+from system_mind.macos.collector_health_manager import (
+    CollectorHealthManager,
+    CORE_COLLECTORS,
+)
+from system_mind.macos.collector_health_models import (
+    CollectorHealthRecord,
+    CollectorResult,
+    CollectorStatus,
+    CompanionHealthReport,
+    PartialDataReason,
+)
 from system_mind.macos.cpu_detector import MacCpuHardwareDetector
 from system_mind.macos.cpu_models import (
     CpuPerfLevelInfo,
@@ -130,6 +141,12 @@ __all__ = [
     "ApplicationCategory",
     "BatteryChargingState",
     "BatteryHealthCondition",
+    "CollectorHealthManager",
+    "CollectorHealthRecord",
+    "CollectorResult",
+    "CollectorStatus",
+    "CompanionHealthReport",
+    "CORE_COLLECTORS",
     "CpuPerfLevelInfo",
     "DisplayConnectionType",
     "EsActionType",
