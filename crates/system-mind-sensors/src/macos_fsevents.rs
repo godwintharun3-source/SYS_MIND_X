@@ -64,7 +64,10 @@ impl FsEventSnapshotReportSnapshot {
     }
 
     pub fn find_by_flag(&self, flag: FsEventFlagSnapshot) -> Vec<&FsEventNotificationSnapshot> {
-        self.events.iter().filter(|e| e.flags.contains(&flag)).collect()
+        self.events
+            .iter()
+            .filter(|e| e.flags.contains(&flag))
+            .collect()
     }
 }
 
