@@ -1960,20 +1960,20 @@
   - Implemented developer CLI tools in `tools/detect_fsevents.py` and `tools/monitor_fsevents.py` supporting formatted event tables, `--json`, `--mock`, `--paths <PATHS>`, and `--filter <created|modified|removed|renamed|files|dirs>`.
   - Updated developer tooling catalog in `tools/README.md`.
   - Implemented programmatic validator in `src/system_mind/packaging/macos_fsevents.py` (`MacOsFsEventsValidator`, `MacOsFsEventsAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
-  - Implemented comprehensive test suite in `tests/test_macos_fsevents.py` with 7 tests covering models, bitmask decoding, privacy exclusions, mock report, CLI execution, validator clean audits, and AST safety.
+  - Implemented comprehensive test suite in `tests/test_macos_fsevents.py` with 9 tests covering models, bitmask decoding, privacy exclusions, mock report, CLI execution, validator clean audits, AST safety, stream config, and live Darwin collection.
   - Formalized ADR-063 in `docs/DECISION_LOG.md`.
-  - Updated `docs/PROJECT_STATE.md` with Day 053 milestone achievements and 514 passed tests.
+  - Updated `docs/PROJECT_STATE.md` with Day 053 milestone achievements and 518 passed tests.
 - **Commands & Real Results:**
   - `python3 tools/detect_fsevents.py --mock`: Executed successfully in unprivileged user space; displayed 5 mock filesystem events across system paths (exit code 0).
   - `python3 tools/detect_fsevents.py --mock --json`: Returned valid JSON matching `FsEventSnapshotReport` schema (exit code 0).
-  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_fsevents.py`: 7 passed in 1.62s (exit code 0).
-  - `cargo test --workspace`: 49 passed in 0.05s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_fsevents.py`: 9 passed in 1.66s (exit code 0).
+  - `cargo test --workspace`: 51 passed in 0.05s (exit code 0).
   - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
   - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
   - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
   - `python3 tools/check_secrets.py`: Scanned 742 files, zero leaks detected (exit code 0).
   - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
-  - `PYTHONPATH=src python3 -m pytest tests/`: 463 passed in 43.38s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 465 passed in 42.50s (exit code 0).
 - **Security & Platform Limitations:**
   - Non-Privileged Telemetry (`SC-01` / `INV-FS-01`): Operates strictly in user space using passive observation. Zero `sudo` or administrator escalation.
   - Privacy Path Exclusion (`INV-FS-02`): Explicitly blocks personal user directories (`~/.ssh`, `Keychains`, `.aws`, `Documents`, `Downloads`) from default streams.
