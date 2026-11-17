@@ -130,6 +130,7 @@ class MacServicesReport:
     total_login_items_count: int = 0
     warnings: List[str] = field(default_factory=list)
     unavailable_telemetry: List[str] = field(default_factory=list)
+    scan_proves_safe: bool = False  # Charter non-negotiable invariant: Scan != Safe
 
     def find_by_label(self, label: str) -> Optional[MacLaunchdService]:
         """Find a launchd service by its exact label string."""
@@ -167,4 +168,5 @@ class MacServicesReport:
             "login_items": [item.to_dict() for item in self.login_items],
             "warnings": list(self.warnings),
             "unavailable_telemetry": list(self.unavailable_telemetry),
+            "scan_proves_safe": self.scan_proves_safe,
         }

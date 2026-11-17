@@ -77,3 +77,4 @@ class MacMemoryTelemetryReport:
     collection_method: str = "NATIVE_DARWIN_SYSCTL_VMSTAT"
     unavailable_telemetry: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
+    scan_proves_safe: bool = False  # Charter non-negotiable invariant: Scan != Safe

@@ -2332,3 +2332,36 @@
 - Reviewed summary: Read-only macOS unified inventory API service (src/system_mind/macos/inventory_api.py), strongly typed data contracts (src/system_mind/macos/inventory_models.py), Rust sensor collector (crates/system-mind-sensors/src/macos_inventory.rs), tools/detect_inventory.py CLI, and MacOsInventoryValidator implemented with 618 total passed tests (531 Python + 87 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (85 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (531 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
 - Review timestamp: 2026-11-17T13:53:38+05:30
+
+## Day 061 — 2026-11-17
+
+- **Objective:** Add unit tests for each hardware and OS collector (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_061_COLLECTOR_UNIT_TESTS.md`.
+  - Implemented consolidated unit test suite in `tests/test_macos_collectors_unit.py` with 28 targeted unit tests covering all 20 hardware and OS collectors (Identity, CPU, Memory, Storage, Battery, Network, GPU, USB, Process, Services, Apps, Signatures, FSEvents, Endpoint Security, Swift Bridge, User Agent, Collector Health, Observations, Privacy Filter, Inventory API), fault injection, parser resilience, boundary states, AST zero-ambient-shell safety (`SC-01`), and universal enforcement of `scan_proves_safe = False`.
+  - Enforced charter non-negotiable invariant "Scan != Safe" (`INV-TEST-02`) universally by adding `scan_proves_safe: bool = False` to all primary collector report models: `MacTelemetryReport`, `MacCpuTelemetryReport`, `MacMemoryTelemetryReport`, `MacStorageReport`, `MacBatteryTelemetryReport`, `MacNetworkReport`, `MacGpuReport`, `MacUsbReport`, `MacProcessReport`, `MacServicesReport`, `MacAppInventoryReport`, and `FsEventSnapshotReport`.
+  - Implemented programmatic packaging validator in `src/system_mind/packaging/macos_collector_tests.py` (`MacOsCollectorTestsValidator`, `MacOsCollectorTestsAuditResult`) verifying all 20 collector modules exist, have zero `shell=True` / `os.system` AST violations, possess dedicated unit tests, maintain matching Rust sensors, and enforce `scan_proves_safe = False`.
+  - Re-exported collector test validator in `src/system_mind/packaging/__init__.py`.
+  - Implemented developer CLI tool in `tools/detect_collector_tests.py` supporting formatted terminal audit reports and `--json` output.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Expanded native Rust sensor unit tests in `crates/system-mind-sensors/` (`macos_identity.rs`, `macos_cpu.rs`, `macos_storage.rs`) with boundary conditions and simulation tests (88 workspace tests + 2 desktop Tauri tests = 90 total Rust tests passed).
+  - Formalized ADR-071 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 061 milestone achievements and 649 total passed tests (559 Python + 90 Rust).
+- **Commands & Real Results:**
+  - `python3 tools/detect_collector_tests.py`: Ran full audit across 20 collectors, all checks PASSED with 0 issues (exit code 0).
+  - `python3 tools/detect_collector_tests.py --json`: Output valid JSON audit payload (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_collectors_unit.py`: 28 passed in 0.51s (exit code 0).
+  - `cargo test --workspace`: 88 passed in 0.00s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 796 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 559 passed in 54.18s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed (exit code 0).
+- **Security & Platform Limitations:**
+  - Fault-Tolerant Parsing (`INV-TEST-01`): All collectors gracefully handle missing sysctl entries, truncated CLI output, or unmounted volumes without uncaught exceptions.
+  - Zero Ambient Shell Authority (`SC-01`): AST inspection verified zero `shell=True`, zero `os.system`, and bounded timeouts (<= 5s) across all 20 modules.
+  - Scan != Safe Charter Invariant (`INV-TEST-02`): All 20 primary collector models structurally enforce `scan_proves_safe = False`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 062.

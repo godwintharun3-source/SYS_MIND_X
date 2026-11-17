@@ -109,6 +109,7 @@ class MacAppSignatureReport:
     unsigned_count: int = 0
     warnings: List[str] = field(default_factory=list)
     unavailable_telemetry: List[str] = field(default_factory=list)
+    scan_proves_safe: bool = False  # Charter non-negotiable invariant: Scan != Safe
 
     def find_by_bundle_id(self, bundle_id: str) -> Optional[MacAppSignatureInfo]:
         """Find signature metadata by exact reverse-DNS bundle identifier."""
@@ -152,4 +153,5 @@ class MacAppSignatureReport:
             "signatures": [s.to_dict() for s in self.signatures],
             "warnings": list(self.warnings),
             "unavailable_telemetry": list(self.unavailable_telemetry),
+            "scan_proves_safe": self.scan_proves_safe,
         }

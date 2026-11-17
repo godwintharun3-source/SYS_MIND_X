@@ -84,3 +84,4 @@ class MacNetworkReport:
     collection_method: str = "NATIVE_DARWIN_IFCONFIG_SCUTIL_NETSTAT"
     unavailable_telemetry: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
+    scan_proves_safe: bool = False  # Charter non-negotiable invariant: Scan != Safe

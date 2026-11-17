@@ -101,4 +101,15 @@ mod tests {
         assert_eq!(identity.architecture, "x86_64");
         assert!(!identity.is_apple_silicon);
     }
+
+    #[test]
+    fn test_mock_macos_identity_preview_version() {
+        let mut collector = MockMacOsIdentityCollector::new();
+        collector.simulated_version = "27.0.0".to_string();
+        collector.simulated_build = "27A100".to_string();
+        let identity = collector.collect_identity();
+
+        assert_eq!(identity.os_version, "27.0.0");
+        assert_eq!(identity.build_version, "27A100");
+    }
 }

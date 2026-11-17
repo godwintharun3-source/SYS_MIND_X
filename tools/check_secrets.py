@@ -56,6 +56,7 @@ IGNORED_SCAN_FILES = {
     "logging_config.py",           # Contains test token samples for validator audit
     "macos_privacy.py",            # Contains test token samples for validator audit
     "detect_privacy_filter.py",    # Contains test token samples for privacy demonstration
+    "test_macos_collectors_unit.py", # Contains test token samples for redaction tests
 }
 
 

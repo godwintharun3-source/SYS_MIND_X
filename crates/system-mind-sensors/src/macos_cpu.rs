@@ -134,4 +134,19 @@ mod tests {
         assert_eq!(cpu.num_perf_levels, 1);
         assert!(!cpu.is_heterogeneous);
     }
+
+    #[test]
+    fn test_mock_macos_cpu_m3_max_simulation() {
+        let mut collector = MockMacOsCpuCollector::new();
+        collector.simulated_brand = "Apple M3 Max".to_string();
+        collector.simulated_cores = 16;
+        collector.simulated_p_cores = 12;
+        collector.simulated_e_cores = 4;
+        let cpu = collector.collect_cpu();
+        assert_eq!(cpu.cpu_brand, "Apple M3 Max");
+        assert_eq!(cpu.physical_cores, 16);
+        assert_eq!(cpu.performance_cores, 12);
+        assert_eq!(cpu.efficiency_cores, 4);
+        assert!(cpu.is_heterogeneous);
+    }
 }

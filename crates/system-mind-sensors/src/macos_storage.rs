@@ -138,4 +138,12 @@ mod tests {
         assert!(json.contains("\"ssv_sealed\":true"));
         assert!(json.contains("\"mock\":true"));
     }
+
+    #[test]
+    fn test_mock_macos_storage_capacity_sum() {
+        let collector = MockMacOsStorageCollector::new();
+        let storage = collector.collect_storage();
+        assert!(storage.total_capacity_bytes > storage.total_available_bytes);
+        assert!(!storage.volumes.is_empty());
+    }
 }

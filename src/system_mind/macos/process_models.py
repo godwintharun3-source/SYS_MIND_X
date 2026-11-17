@@ -67,6 +67,7 @@ class MacProcessReport:
     collection_method: str = "NATIVE_DARWIN_PS"
     unavailable_telemetry: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
+    scan_proves_safe: bool = False  # Charter non-negotiable invariant: Scan != Safe
 
     def get_top_cpu(self, limit: int = 10) -> List[MacProcessInfo]:
         """Return the top N processes ranked by instantaneous CPU percentage."""

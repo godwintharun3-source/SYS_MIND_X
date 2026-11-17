@@ -70,6 +70,7 @@ class MacAppInventoryReport:
     user_managed_count: int = 0
     warnings: List[str] = field(default_factory=list)
     unavailable_telemetry: List[str] = field(default_factory=list)
+    scan_proves_safe: bool = False  # Charter non-negotiable invariant: Scan != Safe
 
     def find_by_bundle_id(self, bundle_id: str) -> Optional[MacAppInfo]:
         """Find an application by its exact reverse-DNS bundle identifier."""
@@ -108,4 +109,5 @@ class MacAppInventoryReport:
             "applications": [app.to_dict() for app in self.applications],
             "warnings": list(self.warnings),
             "unavailable_telemetry": list(self.unavailable_telemetry),
+            "scan_proves_safe": self.scan_proves_safe,
         }

@@ -124,6 +124,7 @@ class FsEventSnapshotReport:
     renamed_count: int = 0
     warnings: List[str] = field(default_factory=list)
     unavailable_telemetry: List[str] = field(default_factory=list)
+    scan_proves_safe: bool = False  # Charter non-negotiable invariant: Scan != Safe
 
     def filter_by_flag(self, flag: FsEventFlag) -> List[FsEventNotification]:
         """Filter events containing a specific FsEventFlag."""
@@ -149,4 +150,5 @@ class FsEventSnapshotReport:
             "events": [e.to_dict() for e in self.events],
             "warnings": list(self.warnings),
             "unavailable_telemetry": list(self.unavailable_telemetry),
+            "scan_proves_safe": self.scan_proves_safe,
         }
