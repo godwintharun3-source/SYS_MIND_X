@@ -99,6 +99,18 @@ from system_mind.macos.observation_models import (
     SourceTimestamp,
     compute_telemetry_digest,
 )
+from system_mind.macos.privacy_filter import (
+    KEY_VAULT_PATTERNS,
+    PERSONAL_FOLDERS,
+    SECRET_PATTERNS,
+    MacPrivacyFilter,
+)
+from system_mind.macos.privacy_models import (
+    PrivacyFilterAuditRecord,
+    PrivacyRuleCategory,
+    PrivacyScrubbingLevel,
+    SanitizedTelemetryEnvelope,
+)
 from system_mind.macos.process_detector import MacProcessDetector
 from system_mind.macos.process_models import (
     MacProcessInfo,
@@ -180,6 +192,7 @@ __all__ = [
     "FsEventStreamState",
     "GpuBusType",
     "InterfaceType",
+    "KEY_VAULT_PATTERNS",
     "LaunchAgentConfig",
     "LinkState",
     "LoginItemKind",
@@ -216,6 +229,7 @@ __all__ = [
     "MacNetworkReport",
     "MacNetworkRoute",
     "MacOsObservationEngine",
+    "MacPrivacyFilter",
     "MacProcessDetector",
     "MacProcessInfo",
     "MacProcessReport",
@@ -237,9 +251,15 @@ __all__ = [
     "NotarizationStatus",
     "ObservationConfidence",
     "ObservedTelemetryEnvelope",
+    "PERSONAL_FOLDERS",
     "PowerSource",
+    "PrivacyFilterAuditRecord",
+    "PrivacyRuleCategory",
+    "PrivacyScrubbingLevel",
     "ProcessRole",
     "ProcessState",
+    "SanitizedTelemetryEnvelope",
+    "SECRET_PATTERNS",
     "ServiceDomain",
     "ServiceOwnership",
     "ServiceStatus",

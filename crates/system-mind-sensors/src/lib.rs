@@ -12,6 +12,7 @@ pub mod macos_launchd;
 pub mod macos_memory;
 pub mod macos_network;
 pub mod macos_observations;
+pub mod macos_privacy;
 pub mod macos_process;
 pub mod macos_signature;
 pub mod macos_storage;
@@ -65,6 +66,11 @@ pub use macos_observations::{
     CompanionObservationBatchSnapshot, ConfidenceTierSnapshot, MacOsObservationCollector,
     MockMacOsObservationCollector, ObservationConfidenceSnapshot,
     ObservedTelemetryEnvelopeSnapshot, SourceTimestampSnapshot,
+};
+pub use macos_privacy::{
+    MacOsPrivacyFilterCollector, MacOsPrivacySanitizer, MockMacOsPrivacySanitizer,
+    PrivacyFilterAuditRecordSnapshot, PrivacyRuleCategorySnapshot, PrivacyScrubbingLevelSnapshot,
+    SanitizedTelemetryEnvelopeSnapshot,
 };
 pub use macos_process::{
     MacOsProcessCollector, MacOsProcessItemSnapshot, MacOsProcessSnapshot,

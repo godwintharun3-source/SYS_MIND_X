@@ -52,7 +52,10 @@ IGNORED_SCAN_FILES = {
     "test_e2e_governance_session.py",
     "test_integration_pipeline.py",
     "test_structured_logging.py",   # Contains test token samples for redaction tests
+    "test_macos_privacy_filter.py", # Contains test token samples for redaction tests
     "logging_config.py",           # Contains test token samples for validator audit
+    "macos_privacy.py",            # Contains test token samples for validator audit
+    "detect_privacy_filter.py",    # Contains test token samples for privacy demonstration
 }
 
 

@@ -2230,3 +2230,49 @@
 - Reviewed summary: Read-only macOS telemetry observation source timestamp enrichment and confidence scoring engine (src/system_mind/macos/observation_engine.py), Rust sensor collector (crates/system-mind-sensors/src/macos_observations.rs), tools/detect_observations.py CLI, and MacOsObservationsValidator implemented with 584 total passed tests (509 Python + 75 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (73 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (509 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-17T12:22:36+05:30
+
+## Day 059 — 2026-11-17
+
+- **Objective:** Add privacy filters for paths, usernames and document metadata (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_059_PRIVACY_FILTERS.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/privacy_models.py` (`PrivacyScrubbingLevel`, `PrivacyRuleCategory`, `PrivacyFilterAuditRecord`, `SanitizedTelemetryEnvelope`).
+  - Implemented deterministic privacy filter engine in `src/system_mind/macos/privacy_filter.py` (`MacPrivacyFilter`, `DOC_EXT_REGEX`, `PERSONAL_FOLDERS`, `KEY_VAULT_PATTERNS`, `SECRET_PATTERNS`) performing in-memory pseudonymization of usernames (`user_XXXXXX`), masking personal directory paths (`Documents`, `Desktop`, `Downloads`, `Pictures`, `Movies`, `Music`), masking sensitive key vaults (`~/.ssh`, `~/.aws`, `~/.gnupg`, Keychains, browser profiles), scrubbing document filenames in titles and URL query parameters, and redacting high-entropy secrets and bearer tokens.
+  - Re-exported privacy models and engine in `src/system_mind/macos/__init__.py`.
+  - Enforced zero ambient shell authority (`SC-01`): all sanitization operations execute purely in-memory as deterministic string and structured dictionary transformations without spawning shell utilities or subprocesses.
+  - Enforced deterministic username anonymization (`INV-PRIV-01`): occurrences of local usernames matching console user identity or `/Users/<username>/` are transformed into deterministic salted hash pseudonyms (`user_XXXXXX`) cached in-memory, preserving temporal event correlation across observations while protecting real user identity.
+  - Enforced scoped path masking & key vault protection (`INV-PRIV-02`): paths anchored under personal directories and sensitive key vaults are strictly masked with typed replacement tokens, while standard diagnostic system paths (`/System/`, `/Library/`, `/Applications/`, `/usr/bin/`) are preserved intact.
+  - Enforced document metadata & URL query scrubbing (`INV-PRIV-03`): window titles, command arguments, and application document titles are scrubbed of personal file names (`DOC_EXT_REGEX`) and URL query parameters (`?<REDACTED_QUERY>`).
+  - Enforced secret & high-entropy token redaction (`INV-PRIV-04`): bearer tokens, GitHub tokens, AWS keys, and explicit credential assignments are scrubbed using pre-compiled regex patterns.
+  - Enforced charter non-negotiable invariant "Scan != Safe" (`INV-PRIV-05`): privacy sanitization ensures confidentiality, not software safety; structurally enforces `scan_proves_safe = False`.
+  - Enforced auditable privacy transformation metrics (`INV-PRIV-06`): every filtering pass generates an immutable `PrivacyFilterAuditRecord` logging the exact counts of sanitized usernames, masked paths, scrubbed metadata items, and redacted secrets.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_privacy.rs` (`PrivacyScrubbingLevelSnapshot`, `PrivacyRuleCategorySnapshot`, `PrivacyFilterAuditRecordSnapshot`, `SanitizedTelemetryEnvelopeSnapshot`, `MacOsPrivacySanitizer`, `MacOsPrivacyFilterCollector`, `MockMacOsPrivacySanitizer`) with 7 unit tests.
+  - Re-exported privacy sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_privacy_filter.py` supporting formatted tables, `--json`, `--mock`, `--level <strict|balanced|minimal>`, `--username <name>`, and `--input <path|string>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Updated repository secret scanner ignore catalog in `tools/check_secrets.py`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_privacy.py` (`MacOsPrivacyValidator`, `MacOsPrivacyAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_privacy_filter.py` with 13 unit/contract/integration tests covering models, pseudonymization, path masking, vault protection, system path preservation, metadata scrubbing, secret redaction, recursive payloads, CLI execution, packaging validator, and AST safety.
+  - Formalized ADR-069 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 059 milestone achievements and 604 total passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_privacy_filter.py --mock`: Successfully scrubbed mock telemetry payload with 11 total redactions (2 usernames, 5 masked paths, 2 scrubbed metadata, 2 redacted secrets) and preserved system path `/System/Library/CoreServices/SystemVersion.plist` (exit code 0).
+  - `python3 tools/detect_privacy_filter.py --mock --json`: Output valid JSON envelope with `scan_proves_safe: false` and `total_redactions: 11` (exit code 0).
+  - `python3 tools/detect_privacy_filter.py --input "/Users/frank/.ssh/id_rsa and Bearer secret_token_12345678" --username frank --json`: Correctly sanitized vault path and bearer token (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_privacy_filter.py`: 13 passed in 1.23s (exit code 0).
+  - `cargo test --workspace`: 80 passed in 0.00s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 786 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 522 passed in 52.73s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed in 62.48s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged In-Memory Execution (`SC-01`): Privacy scrubbing operates purely in memory as string and dictionary transformers; zero ambient shell commands or subprocesses are executed.
+  - Deterministic Anonymization (`INV-PRIV-01`): Salted hash prefix allows temporal correlation of actions within a session without exposing real usernames.
+  - Scoped Personal Path Masking (`INV-PRIV-02`): Personal document and media folders and credential vaults are masked while critical diagnostic system paths (`/System/`, `/Library/`, `/Applications/`, `/usr/bin/`) remain intact.
+  - Scan != Safe Charter Invariant (`INV-PRIV-05`): Privacy sanitization guarantees confidentiality, not software safety; `scan_proves_safe = False`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 060.
+
