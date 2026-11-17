@@ -8,6 +8,7 @@ pub mod macos_endpoint_security;
 pub mod macos_fsevents;
 pub mod macos_gpu;
 pub mod macos_identity;
+pub mod macos_inventory;
 pub mod macos_launchd;
 pub mod macos_memory;
 pub mod macos_network;
@@ -49,6 +50,10 @@ pub use macos_gpu::{
 };
 pub use macos_identity::{
     MacOsIdentityCollector, MacOsIdentitySnapshot, MockMacOsIdentityCollector,
+};
+pub use macos_inventory::{
+    InventorySectionSnapshot, MacOsInventoryProvider, MacOsInventoryResponseSnapshot,
+    MacOsInventoryService, MacOsInventorySummarySnapshot, MockMacOsInventoryService,
 };
 pub use macos_launchd::{
     LoginItemKindSnapshot, MacOsLaunchdItemSnapshot, MacOsLoginItemSnapshot,

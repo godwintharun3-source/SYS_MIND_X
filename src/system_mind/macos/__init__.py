@@ -64,6 +64,13 @@ from system_mind.macos.gpu_models import (
     MacGpuInfo,
     MacGpuReport,
 )
+from system_mind.macos.inventory_api import MacOsInventoryApi
+from system_mind.macos.inventory_models import (
+    InventorySection,
+    MacOsInventoryRequest,
+    MacOsInventoryResponse,
+    MacOsInventorySummary,
+)
 from system_mind.macos.memory_detector import MacMemoryDetector
 from system_mind.macos.memory_models import (
     MacMemoryBreakdown,
@@ -192,6 +199,7 @@ __all__ = [
     "FsEventStreamState",
     "GpuBusType",
     "InterfaceType",
+    "InventorySection",
     "KEY_VAULT_PATTERNS",
     "LaunchAgentConfig",
     "LinkState",
@@ -220,6 +228,10 @@ __all__ = [
     "MacLoginItem",
     "MacOSIdentityDetector",
     "MacOSVersionInfo",
+    "MacOsInventoryApi",
+    "MacOsInventoryRequest",
+    "MacOsInventoryResponse",
+    "MacOsInventorySummary",
     "MacIpAddress",
     "MacMemoryBreakdown",
     "MacMemoryDetector",

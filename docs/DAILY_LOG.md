@@ -2282,3 +2282,47 @@
 - Reviewed summary: Read-only macOS telemetry privacy filter engine, path masking, username pseudonymization, and metadata sanitization (src/system_mind/macos/privacy_filter.py), Rust sensor collector (crates/system-mind-sensors/src/macos_privacy.rs), tools/detect_privacy_filter.py CLI, and MacOsPrivacyValidator implemented with 604 total passed tests (522 Python + 82 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (80 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (522 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
 - Review timestamp: 2026-11-17T13:13:18+05:30
+
+## Day 060 — 2026-11-17
+
+- **Objective:** Create a read-only macOS inventory API (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_060_READ_ONLY_INVENTORY_API.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/inventory_models.py` (`InventorySection`, `MacOsInventoryRequest`, `MacOsInventorySummary`, `MacOsInventoryResponse`).
+  - Implemented unified read-only inventory API service in `src/system_mind/macos/inventory_api.py` (`MacOsInventoryApi`, `_serialize`) aggregating 8 core subsystems (`IDENTITY`, `HARDWARE`, `STORAGE`, `NETWORK`, `APPLICATIONS`, `SECURITY`, `PROCESSES`, `SERVICES`), computing executive summaries, enforcing end-to-end privacy filtering via `MacPrivacyFilter`, attaching source timestamps/confidence via `MacOsObservationEngine`, and tracking health/partial data via `CollectorHealthManager`.
+  - Re-exported inventory models and API service in `src/system_mind/macos/__init__.py`.
+  - Enforced strictly read-only query semantics (`SC-01`): all inventory queries are non-mutating (`is_mutating = False`); mutating requests are rejected by policy with `E2001_CHARTER_INVARIANT_BREACH`.
+  - Enforced subsystem sectional granularity (`INV-INV-01`): callers can query high-level executive summaries (`get_summary()`), isolated subsystems (`get_section()`), or the entire unified snapshot (`get_inventory()`) across 8 core sections.
+  - Enforced seamless privacy sanitization integration (`INV-INV-02`): all emitted inventory sections pass through the deterministic `MacPrivacyFilter` to pseudonymize usernames, mask personal folders and key vaults, redact document titles, and scrub secrets according to the caller's requested `PrivacyScrubbingLevel`.
+  - Enforced source provenance and confidence scoring integration (`INV-INV-03`): every inventory response incorporates the `CompanionObservationBatch` capturing source clock timestamps, per-subsystem latency, continuous confidence scores in `[0.0, 1.0]`, and explicit penalty deductions.
+  - Enforced partial data transparency and circuit breaking (`INV-INV-04`): integration with `CollectorHealthManager` ensures timed-out or permission-denied sensors do not block the inventory; responses flag `partial_data = True` and categorize failure reasons gracefully.
+  - Enforced charter non-negotiable invariant "Scan != Safe" (`INV-INV-05`): exhaustive inventory data reflects measurement completeness, not software safety; all responses structurally enforce `scan_proves_safe = False`.
+  - Enforced standard wire API protocol compliance (`INV-INV-06`): handles RFC 7807 problem details and SemVer 2.0.0 wire requests over `urn:systemmind:macos:inventory:get` and `urn:systemmind:macos:inventory:summary`.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_inventory.rs` (`InventorySectionSnapshot`, `MacOsInventorySummarySnapshot`, `MacOsInventoryResponseSnapshot`, `MacOsInventoryProvider`, `MacOsInventoryService`, `MockMacOsInventoryService`) with 5 unit tests.
+  - Re-exported inventory sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_inventory.py` supporting formatted executive summary tables, full inventory reports, `--json`, `--mock`, `--profile <high_fidelity|degraded|mock_simulation|unsupported>`, `--section <section>`, and `--level <strict|balanced|minimal>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_inventory.py` (`MacOsInventoryValidator`, `MacOsInventoryAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_inventory_api.py` with 9 unit/contract/integration tests covering models, summary calculation, full inventory aggregation, section filtering, wire API request handling, rejection of mutating requests, CLI execution, packaging validator, and AST safety.
+  - Formalized ADR-070 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 060 milestone achievements and 618 total passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_inventory.py --mock --summary`: Displayed formatted executive summary with OS version, CPU, memory, storage, process count, app count, and mean confidence 0.904 (exit code 0).
+  - `python3 tools/detect_inventory.py --mock`: Successfully aggregated all 8 sections with 14 privacy redactions and `scan_proves_safe: false` (exit code 0).
+  - `python3 tools/detect_inventory.py --mock --json`: Output valid JSON response envelope (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_inventory_api.py`: 9 passed in 1.51s (exit code 0).
+  - `cargo test --workspace`: 85 passed in 0.00s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 793 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 531 passed in 55.26s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed in 70.47s (exit code 0).
+- **Security & Platform Limitations:**
+  - Strictly Read-Only Query Semantics (`SC-01`): All inventory queries are non-mutating; mutating requests are rejected by policy with `E2001_CHARTER_INVARIANT_BREACH`.
+  - Privacy Sanitization: Emitted inventory sections pass through `MacPrivacyFilter` to pseudonymize usernames, mask personal folders and vaults, and redact sensitive document filenames.
+  - Scan != Safe Charter Invariant (`INV-INV-05`): Inventory collection reflects measurement authority and data completeness, not software safety; `scan_proves_safe = False`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 061.
+

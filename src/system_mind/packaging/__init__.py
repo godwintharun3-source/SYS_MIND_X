@@ -64,6 +64,10 @@ from system_mind.packaging.macos_gpu import (
     MacOsGpuAuditResult,
     MacOsGpuValidator,
 )
+from system_mind.packaging.macos_inventory import (
+    MacOsInventoryAuditResult,
+    MacOsInventoryValidator,
+)
 from system_mind.packaging.macos_memory import (
     MacOsMemoryAuditResult,
     MacOsMemoryValidator,
@@ -169,6 +173,8 @@ __all__ = [
     "MacOsFsEventsValidator",
     "MacOsGpuAuditResult",
     "MacOsGpuValidator",
+    "MacOsInventoryAuditResult",
+    "MacOsInventoryValidator",
     "MacOsMemoryAuditResult",
     "MacOsMemoryValidator",
     "MacOsNetworkAuditResult",

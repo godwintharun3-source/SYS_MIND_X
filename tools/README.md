@@ -48,6 +48,7 @@ The `tools/` workspace contains developer-facing automation, gate verification s
 | `tools/detect_collector_health.py` | macOS telemetry collector health, timeout & partial-data reporter | `python3 tools/detect_collector_health.py` |
 | `tools/detect_observations.py` | macOS telemetry observation source timestamp & confidence inspector | `python3 tools/detect_observations.py` |
 | `tools/detect_privacy_filter.py` | macOS telemetry privacy filter, path masking & metadata sanitization | `python3 tools/detect_privacy_filter.py` |
+| `tools/detect_inventory.py` | Read-only macOS unified system inventory, capacity & health aggregator | `python3 tools/detect_inventory.py` |
 | `tools/migrate.py` | SQLite database migration & integrity auditor | `python3 tools/migrate.py status` |
 | `tools/test_runner.py` | Unified polyglot test orchestrator (Pytest, Cargo, Vitest) | `python3 tools/test_runner.py --all` |
 | `tools/lint.py` | AST zero-ambient-shell checker & multi-tier static linter | `python3 tools/lint.py` |
