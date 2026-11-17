@@ -48,6 +48,10 @@ from system_mind.packaging.macos_cpu import (
     MacOsCpuAuditResult,
     MacOsCpuValidator,
 )
+from system_mind.packaging.macos_endpoint_security import (
+    MacOsEndpointSecurityAuditResult,
+    MacOsEndpointSecurityValidator,
+)
 from system_mind.packaging.macos_fsevents import (
     MacOsFsEventsAuditResult,
     MacOsFsEventsValidator,
@@ -137,6 +141,8 @@ __all__ = [
     "MacOsBatteryValidator",
     "MacOsCpuAuditResult",
     "MacOsCpuValidator",
+    "MacOsEndpointSecurityAuditResult",
+    "MacOsEndpointSecurityValidator",
     "MacOsFsEventsAuditResult",
     "MacOsFsEventsValidator",
     "MacOsGpuAuditResult",

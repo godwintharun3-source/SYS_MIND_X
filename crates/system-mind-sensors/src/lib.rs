@@ -3,6 +3,7 @@
 pub mod macos_apps;
 pub mod macos_battery;
 pub mod macos_cpu;
+pub mod macos_endpoint_security;
 pub mod macos_fsevents;
 pub mod macos_gpu;
 pub mod macos_identity;
@@ -24,6 +25,11 @@ pub use macos_battery::{
     PowerSourceState,
 };
 pub use macos_cpu::{MacOsCpuCollector, MacOsCpuSnapshot, MockMacOsCpuCollector};
+pub use macos_endpoint_security::{
+    EsActionTypeSnapshot, EsClientResultCodeSnapshot, EsEntitlementCheckSnapshot,
+    EsEventSampleSnapshot, EsEventTypeSnapshot, EsFeasibilityReportSnapshot, EsStatusSnapshot,
+    MacOsEndpointSecurityCollector, MockMacOsEndpointSecurityCollector,
+};
 pub use macos_fsevents::{
     FsEventFlagSnapshot, FsEventNotificationSnapshot, FsEventReportSnapshot,
     MacOsFsEventsCollector, MockMacOsFsEventsCollector,

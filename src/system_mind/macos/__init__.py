@@ -21,6 +21,16 @@ from system_mind.macos.cpu_models import (
     MacCpuTelemetryReport,
 )
 from system_mind.macos.detector import MacOSIdentityDetector
+from system_mind.macos.endpoint_security_detector import MacEndpointSecurityDetector
+from system_mind.macos.endpoint_security_models import (
+    EsActionType,
+    EsClientResultCode,
+    EsEntitlementCheck,
+    EsEventSample,
+    EsEventType,
+    EsFeasibilityReport,
+    EsStatus,
+)
 from system_mind.macos.fsevents_detector import MacFsEventsDetector
 from system_mind.macos.fsevents_models import (
     FsEventFlag,
@@ -107,6 +117,13 @@ __all__ = [
     "BatteryHealthCondition",
     "CpuPerfLevelInfo",
     "DisplayConnectionType",
+    "EsActionType",
+    "EsClientResultCode",
+    "EsEntitlementCheck",
+    "EsEventSample",
+    "EsEventType",
+    "EsFeasibilityReport",
+    "EsStatus",
     "FilesystemType",
     "FsEventFlag",
     "FsEventNotification",
@@ -131,6 +148,7 @@ __all__ = [
     "MacCpuHardwareInfo",
     "MacCpuTelemetryReport",
     "MacDisplayInfo",
+    "MacEndpointSecurityDetector",
     "MacFsEventsDetector",
     "MacGpuDetector",
     "MacGpuInfo",
