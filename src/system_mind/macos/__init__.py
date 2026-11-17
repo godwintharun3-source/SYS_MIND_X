@@ -1,5 +1,11 @@
 """macOS system agent and read-only telemetry collection module for SYSTEM MIND X."""
 
+from system_mind.macos.agent_service_detector import MacUserAgentServiceManager
+from system_mind.macos.agent_service_models import (
+    AgentServiceState,
+    AgentServiceStatusReport,
+    LaunchAgentConfig,
+)
 from system_mind.macos.app_detector import MacAppDetector
 from system_mind.macos.app_models import (
     ApplicationCategory,
@@ -119,6 +125,8 @@ from system_mind.macos.usb_models import (
 )
 
 __all__ = [
+    "AgentServiceState",
+    "AgentServiceStatusReport",
     "ApplicationCategory",
     "BatteryChargingState",
     "BatteryHealthCondition",
@@ -140,6 +148,7 @@ __all__ = [
     "FsEventStreamState",
     "GpuBusType",
     "InterfaceType",
+    "LaunchAgentConfig",
     "LinkState",
     "LoginItemKind",
     "MacAppDetector",
@@ -188,6 +197,7 @@ __all__ = [
     "MacUsbDetector",
     "MacUsbDevice",
     "MacUsbReport",
+    "MacUserAgentServiceManager",
     "MacVmPageStats",
     "MacVolumeInfo",
     "MemoryPressureLevel",

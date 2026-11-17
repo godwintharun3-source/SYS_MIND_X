@@ -2086,3 +2086,44 @@
 - Reviewed summary: Read-only macOS Swift companion bridge telemetry engine (src/system_mind/macos/swift_bridge.py), native Swift package (apps/macos-companion/), Rust sensor collector (crates/system-mind-sensors/src/macos_swift_bridge.rs), tools/detect_swift_bridge.py CLI, and MacOsSwiftBridgeValidator implemented with 545 total passed tests (486 Python + 59 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (57 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (486 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-17T11:27:14+05:30
+
+## Day 056 — 2026-11-17
+
+- **Objective:** Create a least-privilege macOS user agent service (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_056_MACOS_USER_AGENT_SERVICE.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/agent_service_models.py` (`AgentServiceState`, `LaunchAgentConfig`, `AgentServiceStatusReport`).
+  - Implemented read-only macOS user agent service manager and launchd inspector in `src/system_mind/macos/agent_service_detector.py` (`MacUserAgentServiceManager`) with unprivileged `gui/$UID` domain queries, tokenized arguments (`shell=False`), and deterministic mock profiles (`running`, `stopped`, `uninstalled`, `unsupported`).
+  - Re-exported user agent service models and manager in `src/system_mind/macos/__init__.py`.
+  - Enforced least-privilege user domain execution (`SC-01` / `INV-AGENT-01`): service configuration strictly specifies domain `gui/$UID` (User Agent), non-root UID, and forbids LaunchDaemons or `sudo`.
+  - Enforced strictly read-only observation (`INV-AGENT-02`): queries launchctl safely without mutating host registration or process state.
+  - Enforced declarative launchd specifications (`INV-AGENT-03`): property list configuration targets `LimitLoadToSessionType = ["Aqua"]`, `Nice = 10`, and user-sandboxed logs.
+  - Enforced charter non-negotiable invariant "Scan != Safe" (`INV-AGENT-04`): agent status records operational state, not software safety; structurally enforces `scan_proves_safe = False`.
+  - Implemented graceful non-Darwin fallback (`INV-AGENT-05`): non-Darwin hosts or unmanaged test environments cleanly degrade to deterministic simulation fixtures.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_user_agent.rs` (`AgentServiceStateSnapshot`, `LaunchAgentConfigSnapshot`, `AgentServiceStatusReportSnapshot`, `MacOsUserAgentCollector`, `MockMacOsUserAgentCollector`) with 4 unit tests.
+  - Re-exported user agent sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_user_agent.py` supporting formatted tables, `--json`, `--mock`, `--profile <running|stopped|uninstalled|unsupported>`, and `--generate-plist`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_user_agent.py` (`MacOsUserAgentValidator`, `MacOsUserAgentAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_user_agent.py` with 13 unit/contract/integration tests covering models, mock profiles, live Darwin inspection, CLI, packaging validator, and AST safety.
+  - Formalized ADR-066 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 056 milestone achievements and 562 total passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_user_agent.py --mock --profile running`: Successfully displayed formatted user agent status table with `is_least_privilege = True` (exit code 0).
+  - `python3 tools/detect_user_agent.py --mock --json`: Output valid JSON status report with `scan_proves_safe = false` (exit code 0).
+  - `python3 tools/detect_user_agent.py --generate-plist`: Successfully printed valid Apple XML Property List specification (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_user_agent.py`: 13 passed in 0.48s (exit code 0).
+  - `cargo test --workspace`: 61 passed in 1.15s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 764 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 499 passed in 31.53s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed in 37.34s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-AGENT-01`): Operates strictly in user space (`gui/$UID`). Zero `sudo` or administrator escalation.
+  - User Session Scope (`Aqua`): User Agent executes within Aqua graphical session, with low background scheduling priority (`Nice = 10`).
+  - Scan != Safe Charter Invariant (`INV-AGENT-04`): Service status does not prove software safety; `scan_proves_safe = False`.
+  - Zero Mutating Actions (`INV-AGENT-02`): Inspects status without altering launchctl load/unload state.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 057.

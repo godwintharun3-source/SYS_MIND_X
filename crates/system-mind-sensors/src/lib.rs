@@ -15,6 +15,7 @@ pub mod macos_signature;
 pub mod macos_storage;
 pub mod macos_swift_bridge;
 pub mod macos_usb;
+pub mod macos_user_agent;
 pub mod telemetry;
 
 pub use macos_apps::{
@@ -73,6 +74,10 @@ pub use macos_swift_bridge::{
 pub use macos_usb::{
     MacOsUsbCollector, MacOsUsbControllerSnapshot, MacOsUsbDeviceSnapshot, MacOsUsbSnapshot,
     MockMacOsUsbCollector, UsbDeviceClassState, UsbSpeedState,
+};
+pub use macos_user_agent::{
+    AgentServiceStateSnapshot, AgentServiceStatusReportSnapshot, LaunchAgentConfigSnapshot,
+    MacOsUserAgentCollector, MockMacOsUserAgentCollector,
 };
 pub use telemetry::{MockSensorAdapter, SensorAdapter, SensorSnapshot};
 
