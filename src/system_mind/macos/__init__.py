@@ -69,6 +69,14 @@ from system_mind.macos.services_models import (
     ServiceOwnership,
     ServiceStatus,
 )
+from system_mind.macos.signature_detector import MacAppSignatureDetector
+from system_mind.macos.signature_models import (
+    MacAppSignatureInfo,
+    MacAppSignatureReport,
+    NotarizationStatus,
+    SignatureStatus,
+    SigningAuthorityType,
+)
 from system_mind.macos.storage_detector import MacStorageDetector
 from system_mind.macos.storage_models import (
     FilesystemType,
@@ -99,6 +107,9 @@ __all__ = [
     "MacAppDetector",
     "MacAppInfo",
     "MacAppInventoryReport",
+    "MacAppSignatureDetector",
+    "MacAppSignatureInfo",
+    "MacAppSignatureReport",
     "MacArchitecture",
     "MacBatteryDetector",
     "MacBatteryHealthInfo",
@@ -139,12 +150,15 @@ __all__ = [
     "MacVmPageStats",
     "MacVolumeInfo",
     "MemoryPressureLevel",
+    "NotarizationStatus",
     "PowerSource",
     "ProcessRole",
     "ProcessState",
     "ServiceDomain",
     "ServiceOwnership",
     "ServiceStatus",
+    "SignatureStatus",
+    "SigningAuthorityType",
     "UsbDeviceClass",
     "UsbSpeed",
     "VolumeRole",

@@ -9,6 +9,7 @@ pub mod macos_launchd;
 pub mod macos_memory;
 pub mod macos_network;
 pub mod macos_process;
+pub mod macos_signature;
 pub mod macos_storage;
 pub mod macos_usb;
 pub mod telemetry;
@@ -44,6 +45,11 @@ pub use macos_network::{
 pub use macos_process::{
     MacOsProcessCollector, MacOsProcessItemSnapshot, MacOsProcessSnapshot,
     MockMacOsProcessCollector, ProcessRoleSnapshot, ProcessStateSnapshot,
+};
+pub use macos_signature::{
+    MacOsAppSignatureItemSnapshot, MacOsAppSignatureReportSnapshot, MacOsSignatureCollector,
+    MockMacOsSignatureCollector, NotarizationStatusSnapshot, SignatureStatusSnapshot,
+    SigningAuthorityTypeSnapshot,
 };
 pub use macos_storage::{
     MacOsStorageCollector, MacOsStorageSnapshot, MacOsVolumeSnapshot, MockMacOsStorageCollector,

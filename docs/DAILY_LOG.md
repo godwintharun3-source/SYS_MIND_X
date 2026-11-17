@@ -1897,3 +1897,44 @@
 - Reviewed summary: Read-only macOS installed application inventory detector (src/system_mind/macos/app_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_apps.rs), tools/detect_apps.py CLI, and MacOsAppValidator implemented with 492 total passed tests (445 Python + 47 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (45 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (445 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-16T18:50:15+05:30
+
+
+## Day 052 - 2026-11-17
+
+- **Objective:** Inspect application signatures and notarization metadata where available (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_052_MACOS_APP_SIGNATURES_AND_NOTARIZATION.md`.
+  - Implemented strongly typed data models in `src/system_mind/macos/signature_models.py` (`SignatureStatus`, `NotarizationStatus`, `SigningAuthorityType`, `MacAppSignatureInfo`, `MacAppSignatureReport`).
+  - Implemented read-only application code signature and Gatekeeper notarization detection engine in `src/system_mind/macos/signature_detector.py` (`MacAppSignatureDetector`) querying unprivileged `/usr/bin/codesign -dv --verbose=4 <path>`, `/usr/bin/codesign -v --strict <path>`, and `/usr/sbin/spctl --assess --type execute --verbose <path>`.
+  - Enforced Charter Non-Negotiable Invariant `Scan != Safe` (`INV-SIG-03`): all models and reports explicitly assert `scan_proves_safe=False`, prohibiting any agent or caller from assuming a cryptographically signed binary is intrinsically safe or uncompromised.
+  - Enforced zero mutating signature operations (`INV-SIG-02`): modifying, resigning, stripping signatures, or disabling Gatekeeper (`spctl --master-disable`) is strictly prohibited.
+  - Enforced zero ambient shell authority (`SC-01` / `INV-SIG-01`): all tool invocations use tokenized argument vectors (`shell=False`) with strict timeouts (<= 5s).
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_signature.rs` (`SignatureStatusSnapshot`, `NotarizationStatusSnapshot`, `SigningAuthorityTypeSnapshot`, `MacOsAppSignatureItemSnapshot`, `MacOsAppSignatureReportSnapshot`, `MacOsSignatureCollector`, `MockMacOsSignatureCollector`) with 3 unit tests.
+  - Re-exported signature sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_signatures.py` supporting formatted signature tables, `--json`, `--mock`, `--path <BUNDLE_PATH>`, and `--filter <signed|unsigned|notarized|apple|developer|adhoc>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_signatures.py` (`MacOsSignaturesValidator`, `MacOsSignaturesAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_signatures.py` with 11 tests covering mock profiles, `codesign` stderr parsing, `spctl` assessment parsing, authority classification, non-existent bundles, validator clean audit, CLI execution, live Darwin system app verification, and `scan_proves_safe == False` invariant enforcement.
+  - Formalized ADR-062 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 052 milestone achievements and 506 passed tests.
+- **Commands & Real Results:**
+  - `python3 tools/detect_signatures.py --mock`: Executed successfully in unprivileged user space; displayed 6 mock application signatures across authorities (exit code 0).
+  - `python3 tools/detect_signatures.py --path /System/Applications/Calculator.app`: Executed live on Darwin host; verified `SIGNED_VALID`, `APPLE_SYSTEM`, `scan_proves_safe=False` in unprivileged user space with zero `sudo` (exit code 0).
+  - `python3 tools/detect_signatures.py --mock --json`: Returned valid JSON matching `MacAppSignatureReport` schema (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_signatures.py`: 11 passed in 2.65s (exit code 0).
+  - `cargo test --workspace`: 48 passed in 0.05s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 734 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 456 passed in ~34s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-SIG-01`): Operates strictly in user space using read-only Darwin `/usr/bin/codesign` and `/usr/sbin/spctl`. Zero `sudo` or administrator escalation.
+  - Zero Mutating Signature Operations (`INV-SIG-02`): No signing, resigning, removing signatures, or altering Gatekeeper settings.
+  - Scan != Safe Charter Invariant (`INV-SIG-03`): Code signing proves origin authenticity and cryptographic integrity, not absolute behavioral safety.
+  - Cryptographic CDHash & Team ID Attribution (`INV-SIG-04`): Extracts 10-char alphanumeric Team IDs and SHA-256 CodeDirectory hashes for immutable provenance.
+  - Zero Ambient Shell Authority (`SC-01`): Subprocess executions use tokenized argument lists (`shell=False`) with strict timeouts (<= 5s).
+  - Graceful Non-Darwin Fallback (`INV-SIG-06`): Non-Darwin hosts gracefully surface mock profiles or record unsupported Darwin utilities in `unavailable_telemetry`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 053.
