@@ -2365,3 +2365,9 @@
   - Scan != Safe Charter Invariant (`INV-TEST-02`): All 20 primary collector models structurally enforce `scan_proves_safe = False`.
   - Developer host macOS remains completely protected; zero mutating host actions.
 - **Status:** Awaiting human review before advancing tracker to Day 062.
+
+## Day 061 - Human reviewed complete
+
+- Reviewed summary: Consolidated unit tests for all twenty macOS hardware and OS collectors (tests/test_macos_collectors_unit.py), MacOsCollectorTestsValidator, tools/detect_collector_tests.py CLI, and ADR-071 with universal scan_proves_safe=False invariant and 649 passed tests (559 Python + 90 Rust)
+- Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (88 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (559 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
+- Review timestamp: 2026-11-17T14:33:55+05:30
