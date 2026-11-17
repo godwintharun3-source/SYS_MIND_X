@@ -2416,3 +2416,58 @@
 - Reviewed summary: Add integration tests with missing sensors and denied permissions with 659 passed tests (569 Python + 90 Rust) and verified GitHub Actions CI
 - Test evidence: python3 tools/ci_runner.py all && cargo test --workspace && PYTHONPATH=src python3 -m pytest tests/
 - Review timestamp: 2026-11-17T14:59:30+05:30
+
+## Day 063 — 2026-11-17
+
+- **Objective:** Test collector stability under sustained event volume (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_063_COLLECTOR_STABILITY_SUSTAINED_VOLUME.md`.
+  - Implemented telemetry collector stability models in `src/system_mind/macos/collector_stability_models.py`:
+    - `EventDropPolicy`: `DROP_OLDEST`, `DROP_NEWEST`, `COALESCE_KEY`.
+    - `StabilityPressureLevel`: `NOMINAL`, `ELEVATED`, `HIGH_PRESSURE`, `SATURATED`.
+    - `CollectorOperationalStatus`: `HEALTHY`, `DEGRADED`, `SATURATED`, `CIRCUIT_BROKEN`.
+    - `TelemetryEvent`: typed event envelope with `deduplication_key` and non-negotiable `scan_proves_safe = False`.
+    - `BufferCapacityMetrics`: quantitative depth, high-water mark, drop ratio, throughput EPS, and overflow metrics with `scan_proves_safe = False`.
+    - `CollectorStabilityReport`: comprehensive audit report capturing memory RSS, throughput, drain latency, drop statistics, and `scan_proves_safe = False`.
+  - Implemented telemetry collector stability engine in `src/system_mind/macos/collector_stability.py`:
+    - `BoundedEventBuffer`: thread-safe ring buffer and event coalescer enforcing hard upper capacity bounds (default 5,000), fine-grained lock synchronization, deterministic drop policies (`DROP_OLDEST`, `DROP_NEWEST`), and key-level event coalescing (up to 99% volume reduction).
+    - `CollectorStabilityManager`: multi-buffer coordinator, memory RSS tracking via `resource.getrusage`, burst FSEvents simulation (10,000+ events), process storm simulation (2,000+ events), and adaptive backpressure calculation.
+  - Re-exported stability components in `src/system_mind/macos/__init__.py`.
+  - Implemented native Rust stability sensor in `crates/system-mind-sensors/src/macos_stability.rs` and re-exported in `crates/system-mind-sensors/src/lib.rs` (`MockMacOsCollectorStabilitySensor`, `CollectorStabilityReportSnapshot`, `BufferCapacityMetricsSnapshot`, `TelemetryEventSnapshot`, `EventDropPolicySnapshot`, `StabilityPressureLevelSnapshot`, `CollectorOperationalStatusSnapshot`) with 4 passing unit tests.
+  - Implemented stability and sustained volume test suite in `tests/test_macos_collector_stability_sustained_volume.py` with 12 targeted tests covering:
+    1. Bounded buffer initialization and parameter validation.
+    2. 10,000-event sustained FSEvents burst with capacity bounds and exact overflow accounting (`INV-STAB-01`, `INV-STAB-02`).
+    3. `DROP_NEWEST` backpressure shedding policy.
+    4. Key-level event coalescing efficiency on hot target files (`INV-STAB-03`).
+    5. Process storm simulation with latency containment (< 50ms).
+    6. FSEvents burst simulation report with overflow warnings.
+    7. FIFO ordering preservation and drain latency containment (< 50ms per 1,000 events).
+    8. Multi-threaded concurrency with 4 producers and 1 consumer without deadlocks or race conditions (`multithreaded_concurrency`).
+    9. Memory footprint stability across repeated burst/drain cycles (zero unbounded growth).
+    10. Adaptive pressure level transitions (`NOMINAL` -> `ELEVATED` -> `HIGH_PRESSURE` -> `SATURATED`).
+    11. Universal "Scan != Safe" invariant across all stability models (`INV-STAB-05`).
+    12. AST safety verification enforcing zero `shell=True` and zero `os.system` (`SC-01` / `INV-STAB-06`).
+  - Implemented programmatic packaging validator in `src/system_mind/packaging/macos_collector_stability.py` (`MacOsCollectorStabilityValidator`, `MacOsCollectorStabilityAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented developer CLI tool in `tools/detect_collector_stability.py` supporting formatted terminal audit reports and `--json` machine-readable output.
+  - Cataloged `tools/detect_collector_stability.py` in `tools/README.md`.
+  - Formalized ADR-073 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 063 milestone achievements and 675 total passed tests (581 Python + 94 Rust).
+- **Commands & Real Results:**
+  - `python3 tools/detect_collector_stability.py`: Full stability scenario and safety audit passed with 0 issues (exit code 0).
+  - `python3 tools/detect_collector_stability.py --json`: Emitted valid JSON audit payload (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_collector_stability_sustained_volume.py`: 12 passed in 0.50s (exit code 0).
+  - `cargo test --workspace`: 92 passed in 0.01s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Clean formatting, zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 807 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: 581 passed in 64.39s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed (exit code 0).
+- **Security & Platform Limitations:**
+  - Bounded Memory Footprint (`INV-STAB-01`): All event buffers enforce strict upper capacity limits; memory growth is bounded and independent of incoming event volume.
+  - Deterministic Drop Telemetry (`INV-STAB-02`): Eviction policies discard excess events while maintaining precise audit counters.
+  - Unwavering "Scan != Safe" Invariant (`INV-STAB-05`): High collector throughput, queue saturation, and drop reports structurally enforce `scan_proves_safe = False`.
+  - Zero Ambient Shell Authority (`SC-01` / `INV-STAB-06`): Pure in-memory Python and Rust; zero `shell=True` or `os.system`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 064.

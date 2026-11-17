@@ -16,6 +16,7 @@ pub mod macos_observations;
 pub mod macos_privacy;
 pub mod macos_process;
 pub mod macos_signature;
+pub mod macos_stability;
 pub mod macos_storage;
 pub mod macos_swift_bridge;
 pub mod macos_usb;
@@ -85,6 +86,11 @@ pub use macos_signature::{
     MacOsAppSignatureItemSnapshot, MacOsAppSignatureReportSnapshot, MacOsSignatureCollector,
     MockMacOsSignatureCollector, NotarizationStatusSnapshot, SignatureStatusSnapshot,
     SigningAuthorityTypeSnapshot,
+};
+pub use macos_stability::{
+    BufferCapacityMetricsSnapshot, CollectorOperationalStatusSnapshot,
+    CollectorStabilityReportSnapshot, EventDropPolicySnapshot, MacOsCollectorStabilitySensor,
+    MockMacOsCollectorStabilitySensor, StabilityPressureLevelSnapshot, TelemetryEventSnapshot,
 };
 pub use macos_storage::{
     MacOsStorageCollector, MacOsStorageSnapshot, MacOsVolumeSnapshot, MockMacOsStorageCollector,

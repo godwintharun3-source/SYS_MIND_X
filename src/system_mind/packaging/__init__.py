@@ -48,6 +48,10 @@ from system_mind.packaging.macos_collector_health import (
     MacOsCollectorHealthAuditResult,
     MacOsCollectorHealthValidator,
 )
+from system_mind.packaging.macos_collector_stability import (
+    MacOsCollectorStabilityAuditResult,
+    MacOsCollectorStabilityValidator,
+)
 from system_mind.packaging.macos_collector_tests import (
     MacOsCollectorTestsAuditResult,
     MacOsCollectorTestsValidator,
@@ -173,6 +177,8 @@ __all__ = [
     "MacOsBatteryValidator",
     "MacOsCollectorHealthAuditResult",
     "MacOsCollectorHealthValidator",
+    "MacOsCollectorStabilityAuditResult",
+    "MacOsCollectorStabilityValidator",
     "MacOsCollectorTestsAuditResult",
     "MacOsCollectorTestsValidator",
     "MacOsCpuAuditResult",

@@ -31,6 +31,18 @@ from system_mind.macos.collector_health_models import (
     CompanionHealthReport,
     PartialDataReason,
 )
+from system_mind.macos.collector_stability import (
+    BoundedEventBuffer,
+    CollectorStabilityManager,
+)
+from system_mind.macos.collector_stability_models import (
+    BufferCapacityMetrics,
+    CollectorOperationalStatus,
+    CollectorStabilityReport,
+    EventDropPolicy,
+    StabilityPressureLevel,
+    TelemetryEvent,
+)
 from system_mind.macos.cpu_detector import MacCpuHardwareDetector
 from system_mind.macos.cpu_models import (
     CpuPerfLevelInfo,
@@ -173,9 +185,14 @@ __all__ = [
     "BASE_COLLECTOR_CONFIDENCE",
     "BatteryChargingState",
     "BatteryHealthCondition",
+    "BoundedEventBuffer",
+    "BufferCapacityMetrics",
     "CollectorHealthManager",
     "CollectorHealthRecord",
+    "CollectorOperationalStatus",
     "CollectorResult",
+    "CollectorStabilityManager",
+    "CollectorStabilityReport",
     "CollectorStatus",
     "CompanionHealthReport",
     "CompanionObservationBatch",
@@ -190,6 +207,7 @@ __all__ = [
     "EsEventType",
     "EsFeasibilityReport",
     "EsStatus",
+    "EventDropPolicy",
     "FilesystemType",
     "FrontmostAppInfo",
     "FsEventFlag",
@@ -278,9 +296,11 @@ __all__ = [
     "SignatureStatus",
     "SigningAuthorityType",
     "SourceTimestamp",
+    "StabilityPressureLevel",
     "SwiftBridgeTelemetry",
     "SwiftPermissionStatus",
     "SwiftThermalState",
+    "TelemetryEvent",
     "UsbDeviceClass",
     "UsbSpeed",
     "VolumeRole",
