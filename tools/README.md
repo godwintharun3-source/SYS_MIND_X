@@ -52,6 +52,7 @@ The `tools/` workspace contains developer-facing automation, gate verification s
 | `tools/detect_collector_tests.py` | macOS telemetry collector unit tests & safety invariants auditor | `python3 tools/detect_collector_tests.py` |
 | `tools/detect_integration_faults.py` | macOS integration fault tests & permission denials auditor | `python3 tools/detect_integration_faults.py` |
 | `tools/detect_collector_stability.py` | macOS collector stability, bounded queue & sustained volume auditor | `python3 tools/detect_collector_stability.py` |
+| `tools/detect_permissions.py` | macOS permission prompts, documentation & required entitlements auditor | `python3 tools/detect_permissions.py` |
 | `tools/migrate.py` | SQLite database migration & integrity auditor | `python3 tools/migrate.py status` |
 | `tools/test_runner.py` | Unified polyglot test orchestrator (Pytest, Cargo, Vitest) | `python3 tools/test_runner.py --all` |
 | `tools/lint.py` | AST zero-ambient-shell checker & multi-tier static linter | `python3 tools/lint.py` |

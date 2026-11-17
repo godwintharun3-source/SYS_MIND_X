@@ -92,6 +92,10 @@ from system_mind.packaging.macos_observations import (
     MacOsObservationsAuditResult,
     MacOsObservationsValidator,
 )
+from system_mind.packaging.macos_permissions import (
+    MacOsPermissionsAuditResult,
+    MacOsPermissionsValidator,
+)
 from system_mind.packaging.macos_privacy import (
     MacOsPrivacyAuditResult,
     MacOsPrivacyValidator,
@@ -199,6 +203,8 @@ __all__ = [
     "MacOsNetworkValidator",
     "MacOsObservationsAuditResult",
     "MacOsObservationsValidator",
+    "MacOsPermissionsAuditResult",
+    "MacOsPermissionsValidator",
     "MacOsPrivacyAuditResult",
     "MacOsPrivacyValidator",
     "MacOsProcessAuditResult",

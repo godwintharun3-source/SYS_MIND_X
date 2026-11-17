@@ -2477,3 +2477,53 @@
 - Reviewed summary: Telemetry collector stability under sustained event volume with bounded ring buffers, event coalescing, adaptive backpressure, 675 passed tests (581 Python + 94 Rust), and ADR-073
 - Test evidence: python3 tools/ci_runner.py all (passed in 74.14s) && cargo test --workspace (92 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (581 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
 - Review timestamp: 2026-11-17T15:19:11+05:30
+
+## Day 064 — 2026-11-17
+
+- **Objective:** Document macOS permission prompts and required entitlements (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_064_MACOS_PERMISSIONS_AND_ENTITLEMENTS.md`.
+  - Authored canonical production-grade security documentation `docs/MACOS_PERMISSIONS_AND_ENTITLEMENTS.md` detailing:
+    - Least-privilege philosophy and unprivileged user-domain execution (`SC-01` / `INV-PERM-01`).
+    - macOS security framework hierarchy: SIP, TCC, Apple Entitlements, and Hardened Runtime.
+    - Entitlements catalog: mandatory network client, user-selected files, and prohibited dynamic JIT/library validation exceptions.
+    - TCC permissions and user prompt catalog covering Full Disk Access (`kTCCServiceSystemPolicyAllFiles`), Screen Recording (`kTCCServiceScreenCapture`), Accessibility (`kTCCServiceAccessibility`), Files and Folders, Input Monitoring (`kTCCServiceListenEvent`), and Endpoint Security (`com.apple.developer.endpoint-security.client`).
+    - Comprehensive permission degradation matrix with fallback paths.
+    - Enterprise MDM deployment: Privacy Preferences Policy Control (PPPC) profile configuration payload.
+    - Operational safety invariants ("Scan != Safe", Zero Ambient Shell `SC-01`).
+  - Implemented strongly typed permission models in `src/system_mind/macos/permission_models.py`:
+    - `MacPermissionType`: `FULL_DISK_ACCESS`, `SCREEN_RECORDING`, `ACCESSIBILITY`, `DOCUMENTS_FOLDER`, `DOWNLOADS_FOLDER`, `DESKTOP_FOLDER`, `INPUT_MONITORING`, `APP_SANDBOX`, `ENDPOINT_SECURITY`.
+    - `EntitlementTier`: `STANDARD_USER`, `HARDENED_RUNTIME`, `APPLE_RESTRICTED`, `PROHIBITED_NON_GOAL`.
+    - `PromptTriggerMode`: `IMPLICIT_OS_PROMPT`, `GUIDED_SYSTEM_SETTINGS`, `PASSIVE_PROBE`, `NEVER_PROMPTED`.
+    - `PermissionState`: `GRANTED`, `DENIED`, `NOT_DETERMINED`, `RESTRICTED`, `EXCLUDED_BY_POLICY`, `PROHIBITED_NON_GOAL`.
+    - `MacEntitlementSpec`, `MacPermissionPromptInfo`, `MacPermissionManifestReport` enforcing `scan_proves_safe = False`.
+  - Implemented read-only permission inspection engine in `src/system_mind/macos/permission_inspector.py`:
+    - `MacOsPermissionInspector`: passive non-intrusive probe methods (e.g. `probe_full_disk_access`), canonical catalogs, mock and live manifest generation, and non-goals enforcement.
+  - Re-exported permission components in `src/system_mind/macos/__init__.py`.
+  - Implemented native Rust permissions sensor in `crates/system-mind-sensors/src/macos_permissions.rs` and re-exported in `crates/system-mind-sensors/src/lib.rs` (`MockMacOsPermissionsCollector`, `MacPermissionManifestReportSnapshot`, `MacPermissionPromptInfoSnapshot`, `MacEntitlementSpecSnapshot`, `MacPermissionTypeSnapshot`, `EntitlementTierSnapshot`, `PermissionStateSnapshot`, `PromptTriggerModeSnapshot`) with passing unit tests.
+  - Implemented permission test suite in `tests/test_macos_permissions_and_entitlements.py` with 12 targeted unit, integration, and safety tests.
+  - Implemented programmatic packaging validator in `src/system_mind/packaging/macos_permissions.py` (`MacOsPermissionsValidator`, `MacOsPermissionsAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented developer CLI tool in `tools/detect_permissions.py` supporting formatted terminal audit reports and `--json` machine-readable output.
+  - Cataloged `tools/detect_permissions.py` in `tools/README.md`.
+  - Formalized ADR-074 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 064 milestone achievements and 689 total passed tests (593 Python + 96 Rust).
+- **Commands & Real Results:**
+  - `python3 tools/detect_permissions.py`: Full permissions scenario and safety audit passed with 0 issues (exit code 0).
+  - `python3 tools/detect_permissions.py --json`: Emitted valid JSON audit payload (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_permissions_and_entitlements.py`: 12 passed in 0.23s (exit code 0).
+  - `cargo test --workspace`: 94 passed in 0.01s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Clean formatting, zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 815 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: 593 passed in 56.13s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed (exit code 0).
+- **Security & Platform Limitations:**
+  - Least-Privilege User Domain (`SC-01` / `INV-PERM-01`): Executed strictly in unprivileged user space; zero root escalation or sudo access.
+  - Passive Non-Intrusive Telemetry (`INV-PERM-02`): Queries never trigger repetitive prompt loops; denied permissions route to `unavailable_telemetry`.
+  - Strict Surveillance Prohibition (`INV-PERM-03` / `NG-02`): Input monitoring (`kTCCServiceListenEvent`) and ambient screen scraping are permanently banned non-goals.
+  - Unwavering "Scan != Safe" Invariant (`INV-PERM-05`): Permission manifests and entitlement specifications structurally enforce `scan_proves_safe = False`.
+  - Zero Ambient Shell Authority (`SC-01` / `INV-PERM-06`): Pure in-memory Python and Rust; zero `shell=True` or `os.system`.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 065.
