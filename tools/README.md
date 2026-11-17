@@ -43,6 +43,7 @@ The `tools/` workspace contains developer-facing automation, gate verification s
 | `tools/detect_fsevents.py` | macOS FSEvents filesystem change notifications inspection | `python3 tools/detect_fsevents.py` |
 | `tools/monitor_fsevents.py` | macOS FSEvents-based filesystem change notification monitor | `python3 tools/monitor_fsevents.py` |
 | `tools/detect_endpoint_security.py` | macOS Endpoint Security feasibility, entitlement limits & fallbacks | `python3 tools/detect_endpoint_security.py` |
+| `tools/detect_swift_bridge.py` | macOS native Swift companion bridge telemetry & user session audit | `python3 tools/detect_swift_bridge.py` |
 | `tools/migrate.py` | SQLite database migration & integrity auditor | `python3 tools/migrate.py status` |
 | `tools/test_runner.py` | Unified polyglot test orchestrator (Pytest, Cargo, Vitest) | `python3 tools/test_runner.py --all` |
 | `tools/lint.py` | AST zero-ambient-shell checker & multi-tier static linter | `python3 tools/lint.py` |

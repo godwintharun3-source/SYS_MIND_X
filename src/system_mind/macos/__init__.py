@@ -102,6 +102,13 @@ from system_mind.macos.storage_models import (
     MacVolumeInfo,
     VolumeRole,
 )
+from system_mind.macos.swift_bridge import MacSwiftBridge
+from system_mind.macos.swift_models import (
+    FrontmostAppInfo,
+    SwiftBridgeTelemetry,
+    SwiftPermissionStatus,
+    SwiftThermalState,
+)
 from system_mind.macos.usb_detector import MacUsbDetector
 from system_mind.macos.usb_models import (
     MacUsbController,
@@ -125,6 +132,7 @@ __all__ = [
     "EsFeasibilityReport",
     "EsStatus",
     "FilesystemType",
+    "FrontmostAppInfo",
     "FsEventFlag",
     "FsEventNotification",
     "FsEventSnapshotReport",
@@ -174,6 +182,7 @@ __all__ = [
     "MacStorageDetector",
     "MacStorageReport",
     "MacSwapUsage",
+    "MacSwiftBridge",
     "MacTelemetryReport",
     "MacUsbController",
     "MacUsbDetector",
@@ -191,6 +200,9 @@ __all__ = [
     "ServiceStatus",
     "SignatureStatus",
     "SigningAuthorityType",
+    "SwiftBridgeTelemetry",
+    "SwiftPermissionStatus",
+    "SwiftThermalState",
     "UsbDeviceClass",
     "UsbSpeed",
     "VolumeRole",

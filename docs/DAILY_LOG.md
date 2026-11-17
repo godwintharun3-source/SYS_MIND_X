@@ -2036,3 +2036,47 @@
 - Reviewed summary: Read-only macOS Endpoint Security integration feasibility and entitlement auditor (src/system_mind/macos/endpoint_security_detector.py), Rust sensor collector (crates/system-mind-sensors/src/macos_endpoint_security.rs), tools/detect_endpoint_security.py CLI, and MacOsEndpointSecurityValidator implemented with 531 total passed tests (475 Python + 56 Rust)
 - Test evidence: python3 tools/ci_runner.py all (passed) && cargo test --workspace (54 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (475 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py (passed)
 - Review timestamp: 2026-11-17T10:45:58+05:30
+
+## Day 055 — 2026-11-17
+
+- **Objective:** Build the Swift-to-Rust or Swift-to-Python bridge boundary (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_055_SWIFT_BRIDGE_BOUNDARY.md`.
+  - Implemented native Swift companion agent package in `apps/macos-companion/` with `Package.swift`, `Sources/SystemMindCompanion/BridgeModels.swift`, `Sources/SystemMindCompanion/TelemetryCollector.swift`, and `Sources/SystemMindCompanion/main.swift` supporting `ProcessInfo.thermalState`, `NSWorkspace.frontmostApplication`, system uptime, user session info, and TCC permissions preflight.
+  - Compiled native Swift binary `apps/macos-companion/bin/SystemMindCompanion` verifying sub-10ms response time and JSON-RPC compliance.
+  - Implemented strongly typed data models in `src/system_mind/macos/swift_models.py` (`SwiftThermalState`, `FrontmostAppInfo`, `SwiftPermissionStatus`, `SwiftBridgeTelemetry`).
+  - Implemented read-only macOS Swift companion bridge driver in `src/system_mind/macos/swift_bridge.py` (`MacSwiftBridge`) managing binary lifecycle, tokenized subprocess dispatch (`shell=False`, 3.0s timeout), and deterministic mock profiles.
+  - Re-exported Swift bridge models and driver in `src/system_mind/macos/__init__.py`.
+  - Enforced least-privilege user companion execution (`SC-01` / `INV-SWIFT-01`): companion agent operates in unprivileged user space (`USER_AGENT` / login session) without `sudo` or root escalation.
+  - Enforced strict typed wire contract (`INV-SWIFT-02`): cross-boundary communication adheres to strongly typed line-delimited JSON / JSON-RPC 2.0 schemas.
+  - Enforced strictly read-only observation (`INV-SWIFT-03`): queries are strictly observational; mutating actions are prohibited.
+  - Enforced charter non-negotiable invariant "Scan != Safe" (`INV-SWIFT-04`): desktop and thermal signals capture runtime context, not software safety; structurally enforces `scan_proves_safe = false`.
+  - Implemented graceful fallback & mock degradation (`INV-SWIFT-05`): non-Darwin hosts or missing binaries cleanly degrade to deterministic mock fixtures.
+  - Implemented native Rust sensor collector in `crates/system-mind-sensors/src/macos_swift_bridge.rs` (`SwiftThermalStateSnapshot`, `FrontmostAppSnapshot`, `SwiftPermissionStatusSnapshot`, `SwiftBridgeTelemetrySnapshot`, `MacOsSwiftBridgeCollector`, `MockMacOsSwiftBridgeCollector`) with 3 unit tests.
+  - Re-exported Swift bridge sensor structures in `crates/system-mind-sensors/src/lib.rs`.
+  - Implemented developer CLI tool in `tools/detect_swift_bridge.py` supporting formatted tables, `--json`, `--mock`, and `--profile <nominal|throttled|unsupported>`.
+  - Updated developer tooling catalog in `tools/README.md`.
+  - Implemented programmatic validator in `src/system_mind/packaging/macos_swift_bridge.py` (`MacOsSwiftBridgeValidator`, `MacOsSwiftBridgeAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented comprehensive test suite in `tests/test_macos_swift_bridge.py` with 11 unit/contract/integration tests covering models, mock profiles, live Darwin inspection, missing binary fallback, CLI, Swift package sources, packaging validator, and AST safety.
+  - Formalized ADR-065 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 055 milestone achievements and 545 passed tests.
+- **Commands & Real Results:**
+  - `apps/macos-companion/bin/SystemMindCompanion --oneshot`: Successfully executed native Swift binary on Darwin; reported nominal thermal state, frontmost Google Chrome, and scan_proves_safe = false (exit code 0).
+  - `python3 tools/detect_swift_bridge.py`: Executed live bridge across Swift-to-Python boundary; returned formatted table with active context (exit code 0).
+  - `python3 tools/detect_swift_bridge.py --mock --profile throttled`: Displayed simulated throttled desktop report with Final Cut Pro focus (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_swift_bridge.py`: 11 passed in 1.39s (exit code 0).
+  - `cargo test --workspace`: 57 passed in 1.12s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `cargo fmt --all -- --check`: Passed clean with zero diffs (exit code 0).
+  - `cargo clippy --workspace --all-targets -- -D warnings`: Passed clean with zero warnings (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 761 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest tests/`: 486 passed in 41.65s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed in 49.46s (exit code 0).
+- **Security & Platform Limitations:**
+  - Non-Privileged Telemetry (`SC-01` / `INV-SWIFT-01`): Operates strictly in user space using passive observation. Zero `sudo` or administrator escalation.
+  - User Session Scope (`USER_AGENT`): GUI focus inspection requires standard user desktop session.
+  - Scan != Safe Charter Invariant (`INV-SWIFT-04`): Runtime signals do not prove software safety; `scan_proves_safe = false`.
+  - Zero Mutating Actions (`INV-SWIFT-03`): The Swift bridge provides strictly read-only inspection.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before advancing tracker to Day 056.

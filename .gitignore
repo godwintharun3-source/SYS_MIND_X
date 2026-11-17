@@ -70,3 +70,8 @@ venv.bak/
 # Rust
 target/
 **/*.rs.bk
+
+# Swift
+.build/
+apps/macos-companion/bin/
+apps/macos-companion/.build/

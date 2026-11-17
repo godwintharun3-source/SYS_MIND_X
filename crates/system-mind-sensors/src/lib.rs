@@ -13,6 +13,7 @@ pub mod macos_network;
 pub mod macos_process;
 pub mod macos_signature;
 pub mod macos_storage;
+pub mod macos_swift_bridge;
 pub mod macos_usb;
 pub mod telemetry;
 
@@ -64,6 +65,10 @@ pub use macos_signature::{
 };
 pub use macos_storage::{
     MacOsStorageCollector, MacOsStorageSnapshot, MacOsVolumeSnapshot, MockMacOsStorageCollector,
+};
+pub use macos_swift_bridge::{
+    FrontmostAppSnapshot, MacOsSwiftBridgeCollector, MockMacOsSwiftBridgeCollector,
+    SwiftBridgeTelemetrySnapshot, SwiftPermissionStatusSnapshot, SwiftThermalStateSnapshot,
 };
 pub use macos_usb::{
     MacOsUsbCollector, MacOsUsbControllerSnapshot, MacOsUsbDeviceSnapshot, MacOsUsbSnapshot,

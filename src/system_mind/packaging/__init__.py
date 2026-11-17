@@ -84,6 +84,10 @@ from system_mind.packaging.macos_storage import (
     MacOsStorageAuditResult,
     MacOsStorageValidator,
 )
+from system_mind.packaging.macos_swift_bridge import (
+    MacOsSwiftBridgeAuditResult,
+    MacOsSwiftBridgeValidator,
+)
 from system_mind.packaging.macos_telemetry import (
     MacOsTelemetryAuditResult,
     MacOsTelemetryValidator,
@@ -159,6 +163,8 @@ __all__ = [
     "MacOsSignaturesValidator",
     "MacOsStorageAuditResult",
     "MacOsStorageValidator",
+    "MacOsSwiftBridgeAuditResult",
+    "MacOsSwiftBridgeValidator",
     "MacOsTelemetryAuditResult",
     "MacOsTelemetryValidator",
     "MacOsUsbAuditResult",
