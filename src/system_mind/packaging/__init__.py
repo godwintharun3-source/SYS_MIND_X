@@ -12,6 +12,10 @@ from system_mind.packaging.code_quality import (
     CodeQualityAuditResult,
     CodeQualityValidator,
 )
+from system_mind.packaging.database_entities import (
+    DatabaseEntitiesAuditResult,
+    DatabaseEntitiesValidator,
+)
 from system_mind.packaging.database_migration import (
     DatabaseMigrationAuditResult,
     DatabaseMigrationValidator,
@@ -32,6 +36,10 @@ from system_mind.packaging.frontend_scaffold import (
     FrontendScaffoldAuditResult,
     FrontendScaffoldValidator,
 )
+from system_mind.packaging.graph_persistence import (
+    GraphPersistenceAuditResult,
+    GraphPersistenceValidator,
+)
 from system_mind.packaging.logging_config import (
     LoggingConfigAuditResult,
     LoggingConfigValidator,
@@ -51,6 +59,10 @@ from system_mind.packaging.macos_collector_health import (
 from system_mind.packaging.macos_collector_stability import (
     MacOsCollectorStabilityAuditResult,
     MacOsCollectorStabilityValidator,
+)
+from system_mind.packaging.macos_companion_release import (
+    MacOsCompanionReleaseAuditResult,
+    MacOsCompanionReleaseValidator,
 )
 from system_mind.packaging.macos_collector_tests import (
     MacOsCollectorTestsAuditResult,
@@ -145,6 +157,14 @@ from system_mind.packaging.rust_workspace import (
     RustWorkspaceAuditResult,
     RustWorkspaceValidator,
 )
+from system_mind.packaging.system_events import (
+    SystemEventsAuditResult,
+    SystemEventsValidator,
+)
+from system_mind.packaging.system_observations import (
+    SystemObservationsAuditResult,
+    SystemObservationsValidator,
+)
 from system_mind.packaging.tauri_shell import (
     TauriShellAuditResult,
     TauriShellValidator,
@@ -152,6 +172,10 @@ from system_mind.packaging.tauri_shell import (
 from system_mind.packaging.test_framework import (
     TestFrameworkAuditResult,
     TestFrameworkValidator,
+)
+from system_mind.packaging.twin_identity import (
+    TwinIdentityAuditResult,
+    TwinIdentityValidator,
 )
 from system_mind.packaging.validator import PackageConfigValidator
 
@@ -163,6 +187,8 @@ __all__ = [
     "CodeQualityAuditResult",
     "CodeQualityValidator",
     "CrateBoundarySpec",
+    "DatabaseEntitiesAuditResult",
+    "DatabaseEntitiesValidator",
     "DatabaseMigrationAuditResult",
     "DatabaseMigrationValidator",
     "DependencyReviewResult",
@@ -173,6 +199,8 @@ __all__ = [
     "EnvironmentConfigValidator",
     "FrontendScaffoldAuditResult",
     "FrontendScaffoldValidator",
+    "GraphPersistenceAuditResult",
+    "GraphPersistenceValidator",
     "LoggingConfigAuditResult",
     "LoggingConfigValidator",
     "MacOsAppAuditResult",
@@ -185,6 +213,8 @@ __all__ = [
     "MacOsCollectorStabilityValidator",
     "MacOsCollectorTestsAuditResult",
     "MacOsCollectorTestsValidator",
+    "MacOsCompanionReleaseAuditResult",
+    "MacOsCompanionReleaseValidator",
     "MacOsCpuAuditResult",
     "MacOsCpuValidator",
     "MacOsEndpointSecurityAuditResult",
@@ -230,8 +260,14 @@ __all__ = [
     "PackageConfigValidator",
     "RustWorkspaceAuditResult",
     "RustWorkspaceValidator",
+    "SystemEventsAuditResult",
+    "SystemEventsValidator",
+    "SystemObservationsAuditResult",
+    "SystemObservationsValidator",
     "TauriShellAuditResult",
     "TauriShellValidator",
     "TestFrameworkAuditResult",
     "TestFrameworkValidator",
+    "TwinIdentityAuditResult",
+    "TwinIdentityValidator",
 ]

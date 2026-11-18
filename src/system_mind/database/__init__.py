@@ -5,6 +5,13 @@ from system_mind.database.connection import (
     DatabaseConnectionManager,
     get_connection,
 )
+from system_mind.database.entity_models import (
+    ApplicationEntityRecord,
+    HardwareCategory,
+    HardwareEntityRecord,
+    OsKernelEntityRecord,
+)
+from system_mind.database.entity_repo import EntityRepository
 from system_mind.database.migrations import (
     MIGRATIONS_DIR,
     load_migrations_from_directory,
@@ -19,20 +26,27 @@ from system_mind.database.models import (
     MigrationPlan,
     MigrationStatus,
 )
+from system_mind.database.telemetry_repo import TelemetryRepository
 
 __all__ = [
+    "ApplicationEntityRecord",
+    "AppliedMigrationRecord",
     "DatabaseConfig",
     "DatabaseConnectionManager",
-    "get_connection",
-    "MIGRATIONS_DIR",
-    "load_migrations_from_directory",
-    "parse_sql_migration_file",
-    "DatabaseMigrator",
-    "split_sql_statements",
-    "AppliedMigrationRecord",
     "DatabaseIntegrityReport",
+    "DatabaseMigrator",
+    "EntityRepository",
+    "HardwareCategory",
+    "HardwareEntityRecord",
+    "MIGRATIONS_DIR",
     "MigrationDefinition",
     "MigrationDirection",
     "MigrationPlan",
     "MigrationStatus",
+    "OsKernelEntityRecord",
+    "TelemetryRepository",
+    "get_connection",
+    "load_migrations_from_directory",
+    "parse_sql_migration_file",
+    "split_sql_statements",
 ]

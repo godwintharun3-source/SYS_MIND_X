@@ -257,21 +257,21 @@ def test_migrator_rollback_last_and_rollback_to() -> None:
     try:
         # Apply all migrations
         migrator.apply_all(conn=conn)
-        assert len(migrator.get_applied_migrations(conn)) >= 2
+        applied = migrator.get_applied_migrations(conn)
+        assert len(applied) >= 2
+        latest_ver = max(m.version for m in applied)
 
-        # Rollback last migration (version 2)
+        # Rollback last migration
         rolled_back = migrator.rollback_last(conn=conn)
         assert rolled_back is not None
-        assert rolled_back.version == 2
+        assert rolled_back.version == latest_ver
 
         applied_after_1 = migrator.get_applied_migrations(conn)
-        assert len(applied_after_1) == 1
-        assert applied_after_1[0].version == 1
+        assert len(applied_after_1) == len(applied) - 1
 
         # Rollback down to 0
         rolled_back_all = migrator.rollback_to(0, conn=conn)
-        assert len(rolled_back_all) == 1
-        assert rolled_back_all[0].version == 1
+        assert len(rolled_back_all) == len(applied_after_1)
 
         applied_after_all = migrator.get_applied_migrations(conn)
         assert len(applied_after_all) == 0
@@ -435,4 +435,4 @@ def test_migrate_cli_end_to_end(tmp_path: Path) -> None:
     )
     rollback_data = json.loads(res.stdout)
     assert len(rollback_data["rolled_back"]) == 1
-    assert rollback_data["rolled_back"][0]["version"] == 2
+    assert rollback_data["rolled_back"][0]["version"] == len(apply_data["applied"])

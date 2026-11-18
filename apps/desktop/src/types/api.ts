@@ -9,6 +9,14 @@
 
 export type ApiStatus = "success" | "error" | "pending" | "accepted";
 
+export type BackendConnectionState =
+  | "LIVE"
+  | "MOCK"
+  | "SIMULATED"
+  | "DEGRADED"
+  | "OFFLINE"
+  | "UNSUPPORTED";
+
 export type ErrorCode =
   // E1000..E1999: System & Runtime Failures
   | "E1000" // Internal Error

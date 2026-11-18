@@ -43,6 +43,14 @@ from system_mind.macos.collector_stability_models import (
     StabilityPressureLevel,
     TelemetryEvent,
 )
+from system_mind.macos.companion_models import (
+    CompanionCycleTelemetry,
+    CompanionExecutionMode,
+    CompanionOperationalStatus,
+    CompanionRunConfig,
+    MacOsCompanionReleaseReport,
+)
+from system_mind.macos.companion_runner import MacOsCompanionRunner
 from system_mind.macos.cpu_detector import MacCpuHardwareDetector
 from system_mind.macos.cpu_models import (
     CpuPerfLevelInfo,
@@ -204,8 +212,12 @@ __all__ = [
     "CollectorStabilityManager",
     "CollectorStabilityReport",
     "CollectorStatus",
+    "CompanionCycleTelemetry",
+    "CompanionExecutionMode",
     "CompanionHealthReport",
     "CompanionObservationBatch",
+    "CompanionOperationalStatus",
+    "CompanionRunConfig",
     "ConfidenceTier",
     "CORE_COLLECTORS",
     "CpuPerfLevelInfo",
@@ -258,6 +270,8 @@ __all__ = [
     "MacLoginItem",
     "MacOSIdentityDetector",
     "MacOSVersionInfo",
+    "MacOsCompanionReleaseReport",
+    "MacOsCompanionRunner",
     "MacOsInventoryApi",
     "MacOsInventoryRequest",
     "MacOsInventoryResponse",

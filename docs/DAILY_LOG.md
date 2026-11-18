@@ -2527,3 +2527,333 @@
   - Zero Ambient Shell Authority (`SC-01` / `INV-PERM-06`): Pure in-memory Python and Rust; zero `shell=True` or `os.system`.
   - Developer host macOS remains completely protected; zero mutating host actions.
 - **Status:** Awaiting human review before advancing tracker to Day 065.
+
+## Corrective Engineering Task: CORRECTIVE-REVIEW-062 — 2026-11-17
+
+- **Objective:** Address seven critical engineering findings identified in Day 062 review and related subsystems without altering git commit history or advancing to Day 065. Normal roadmap temporarily PAUSED.
+- **Changes:**
+  - **Issue 1 (Mock Provenance & Confidence):** Enforced `is_mock=True` and `clock_source="mock_clock"` across all synthetic observation profiles in `src/system_mind/macos/observation_engine.py` and `crates/system-mind-sensors/src/macos_observations.rs`. Prohibited mock envelopes from claiming `KERNEL_AUTHORITATIVE` or `SUBSYSTEM_VERIFIED`.
+  - **Issue 2 (Rust macOS Live Inventory):** Replaced hardcoded static values in `crates/system-mind-sensors/src/macos_inventory.rs` with genuine Darwin kernel `sysctl` (`kern.osproductversion`, `kern.osversion`, `machdep.cpu.brand_string`, `hw.physicalcpu`, `hw.logicalcpu`, `hw.memsize`) and `statfs` queries.
+  - **Issue 3 (Collector Non-Blocking Timeouts):** Replaced blocking `with ThreadPoolExecutor` with non-blocking `executor.shutdown(wait=False, cancel_futures=True)` and implemented `total_aggregation_deadline_seconds` in `src/system_mind/macos/collector_health_manager.py`.
+  - **Issue 4 (Integration & Fault-Injection Tests):** Added 4 fault scenarios (`collector_timeout_fault`, `collector_crash_fault`, `unsupported_sensor_fault`, `simultaneous_multi_fault_safe_state`) in `tests/test_macos_integration_missing_sensors_and_permissions.py` and updated `src/system_mind/packaging/macos_integration_faults.py`.
+  - **Issue 5 (Frontend Transparency):** Removed fake success fallbacks on daemon disconnect, returned RFC 7807 `E7001_NETWORK_FAILURE`, added live/offline connection badge and retry button, and rejected mutating approvals when disconnected (`apps/desktop/src/services/client.ts`, `apps/desktop/src/App.tsx`).
+  - **Issue 6 (Real Backend HTTP API & SQLite Persistence):** Created `SystemMindApiServer` in `src/system_mind/api/server.py` and `TelemetryRepository` in `src/system_mind/database/telemetry_repo.py`, persisting temporal observations and cryptographically chained audit events in SQLite.
+  - **Issue 7 (Frontend Test Runner & CI):** Migrated `apps/desktop/package.json` and `apps/desktop/src/__tests__/client.test.ts` to Node 22 native `--test`, verifying error propagation without masking.
+  - Authored comprehensive report `docs/CORRECTIVE_REVIEW_062.md`.
+  - Formalized ADR-075 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` and `docs/BLOCKERS.md`.
+- **Commands & Real Results:**
+  - `python3 tools/lint.py --all`: Clean AST safety, Python syntax, TypeScript, and Rust checks (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 818 files, zero leaks detected (exit code 0).
+  - `cargo test --workspace`: 94 passed in 2.22s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.01s (exit code 0).
+  - `python3 tools/test_runner.py --frontend`: 5 passed in 0.57s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: 601 passed in 56.4s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Complete multi-stage CI pipeline passed (exit code 0).
+- **Security & Safety Invariants:**
+  - Zero Ambient Shell Authority (`SC-01`): AST and static analysis verify zero `shell=True` or unmediated child process execution.
+  - User-Managed Component Immunity (`SC-02`): Enforced across updates, classifier, and broker.
+  - Unwavering "Scan != Safe" Invariant (`SC-03`): Structurally enforced on all models and envelopes.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Corrective review complete; awaiting user review and approval before resuming Day 064 review and Day 065 start.
+
+
+## Day 064 - Human reviewed complete
+
+- Reviewed summary: Document macOS permission prompts and required entitlements with canonical security specification, non-goal exclusions, 689 passed tests (593 Python + 96 Rust), and ADR-074
+- Test evidence: python3 tools/ci_runner.py all (passed in 68.78s) && cargo test --workspace (94 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (593 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
+- Review timestamp: 2026-11-18T09:32:32+05:30
+
+## Day 065 — 2026-11-18
+
+- **Objective:** Release the first read-only macOS system-agent milestone (Milestone 4: macOS system agent and telemetry, Days 041–065).
+- **Changes:**
+  - Authored comprehensive architectural design note `docs/design/DAY_065_MACOS_COMPANION_AGENT_RELEASE_MILESTONE.md`.
+  - Authored formal milestone release record `docs/records/MACOS_COMPANION_AGENT_MILESTONE_4_REPORT.md` certifying the completion and architectural freeze of Milestone 4 across all 25 development days.
+  - Implemented typed companion runner configuration and telemetry models in `src/system_mind/macos/companion_models.py`:
+    - `CompanionExecutionMode`: `SINGLE_SNAPSHOT`, `CONTINUOUS_OBSERVER`, `HEALTH_DIAGNOSTIC`.
+    - `CompanionOperationalStatus`: `HEALTHY_NOMINAL`, `DEGRADED_PARTIAL`, `CIRCUIT_BROKEN`, `OFFLINE_CONTAINED`.
+    - `CompanionRunConfig`: configuration for execution mode, sampling intervals, cycle counts, mock profiles, and privacy levels.
+    - `CompanionCycleTelemetry`: strongly typed cycle telemetry capturing operational health, inventory summary, observation provenance, stability backpressure metrics, permissions manifest, and privacy audit, structurally enforcing `scan_proves_safe = False`.
+    - `MacOsCompanionReleaseReport`: formal milestone release envelope recording host platform, Apple Silicon native status, execution domain (`gui/$UID`), active collector count (20 collectors), completed cycles, and verified charter invariants.
+  - Implemented authoritative companion agent orchestrator in `src/system_mind/macos/companion_runner.py`:
+    - `MacOsCompanionRunner`: seamlessly integrates `MacOsInventoryApi`, `CollectorHealthManager`, `MacOsObservationEngine`, `MacCollectorStabilityManager`, `MacPrivacyFilter`, and `MacOsPermissionInspector`.
+    - Implemented `run_snapshot()` for single-shot system assessments and `run_daemon()` for bounded observational sampling loops.
+  - Re-exported companion components in `src/system_mind/macos/__init__.py`.
+  - Implemented packaging validator in `src/system_mind/packaging/macos_companion_release.py` (`MacOsCompanionReleaseValidator`, `MacOsCompanionReleaseAuditResult`) and re-exported in `src/system_mind/packaging/__init__.py`.
+  - Implemented developer CLI tool in `tools/run_macos_companion.py` supporting formatted terminal assessment reports, `--daemon`, `--audit-milestone`, and `--json` machine-readable output.
+  - Cataloged `tools/run_macos_companion.py` in `tools/README.md`.
+  - Implemented comprehensive test suite in `tests/test_macos_companion_agent_release.py` with 8 targeted unit, integration, and safety tests.
+  - Formalized ADR-076 in `docs/DECISION_LOG.md`.
+  - Updated `docs/PROJECT_STATE.md` with Day 065 milestone freeze and 716 total passed tests (615 Python + 96 Rust + 5 TypeScript).
+- **Commands & Real Results:**
+  - `python3 tools/run_macos_companion.py --audit-milestone`: Full Milestone 4 packaging and safety audit passed with 0 issues (exit code 0).
+  - `python3 tools/run_macos_companion.py --snapshot --mock`: Emitted formatted snapshot assessment under mock Apple Silicon profile (exit code 0).
+  - `python3 tools/run_macos_companion.py --snapshot`: Emitted real live telemetry snapshot on host Darwin 27.3.0 M1 Mac in unprivileged user space (exit code 0).
+  - `python3 tools/run_macos_companion.py --daemon --cycles 2 --interval 0.1 --mock`: Ran continuous observational loop across 2 cycles and stopped cleanly (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_macos_companion_agent_release.py`: 8 passed in 1.54s (exit code 0).
+  - `cargo test --workspace`: 94 passed in 2.22s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.01s (exit code 0).
+  - `python3 tools/test_runner.py --frontend`: 5 passed in 0.57s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 819 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All syntax, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+- **Security & Platform Limitations:**
+  - Least-Privilege User Domain (`SC-01` / `INV-COMP-01`): Executed strictly in unprivileged user space (`gui/$UID` or user shell); zero root escalation or sudo access.
+  - Zero Ambient Shell Authority (`SC-01` / `INV-COMP-02`): Tokenized argument arrays with `shell=False` across all collector queries.
+  - Universal "Scan != Safe" Invariant (`SC-03` / `INV-COMP-03`): Cycle records, observation envelopes, and milestone reports structurally enforce `scan_proves_safe = False`.
+  - Privacy Perimeter Protection (`SC-04` / `INV-COMP-04`): Deterministic path masking, username pseudonymization, and secret scrubbing active across all telemetry.
+  - Bounded Execution Deadlines (`INV-COMP-05`): Hung collectors can never hang the orchestrator; non-blocking cancellation and global aggregation deadlines enforced.
+  - Developer host macOS remains completely protected; zero mutating host actions.
+- **Status:** Awaiting human review before concluding Milestone 4 and advancing tracker to Day 066 (Milestone 5).
+
+
+## Day 065 - Human reviewed complete
+
+- Reviewed summary: Release first read-only macOS system-agent milestone with companion runner, packaging validator, CLI, formal release report, and ADR-076 freezing Milestone 4 with 716 passed tests
+- Test evidence: python3 tools/ci_runner.py all (passed in 72.05s) && cargo test --workspace (94 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && python3 tools/test_runner.py --frontend (5 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (615 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
+- Review timestamp: 2026-11-18T09:51:11+05:30
+
+## Day 066 — 2026-11-18 (Awaiting Human Review)
+
+- **Objective:** Implement stable device and entity identifiers. Build a persistent, temporal, provenance-aware computer digital twin from collected events.
+- **Phase:** Milestone 5: Temporal digital twin and event history (Days 066–090)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_066_STABLE_DEVICE_AND_ENTITY_IDENTIFIERS.md`: Comprehensive architectural design note establishing canonical URN namespace specifications, deterministic device ID resolution, and anti-PID recycling temporal qualification.
+  - `src/system_mind/twin/identity.py`: Strongly typed Python implementation of `EntityDomain`, `EntityUrn`, `DeviceIdentifierManager`, `StableEntityIdGenerator`, `validate_entity_urn`, and `NAMESPACE_SYSTEM_MIND`.
+  - `src/system_mind/twin/__init__.py`: Re-exported identity components in the `system_mind.twin` package.
+  - `crates/system-mind-common/src/identity.rs`: Synchronized native Rust implementation of `EntityDomain`, `EntityUrn`, domain generators, and syntax validators.
+  - `crates/system-mind-common/src/lib.rs`: Declared and re-exported `identity` module in `system-mind-common`.
+  - `src/system_mind/packaging/twin_identity.py`: Packaging validator (`TwinIdentityValidator`, `TwinIdentityAuditResult`) verifying file completeness, AST safety (SC-01), and charter invariants (SC-03).
+  - `src/system_mind/packaging/__init__.py`: Re-exported `TwinIdentityValidator` and `TwinIdentityAuditResult`.
+  - `tools/detect_stable_identity.py`: Developer CLI tool for resolving stable device IDs, emitting canonical URNs across 11 domains, and executing packaging audits.
+  - `tools/README.md`: Documented `tools/detect_stable_identity.py` in the developer tooling catalog.
+  - `tests/test_twin_identity.py`: Comprehensive test suite with 8 tests verifying device ID determinism, disk caching, URN parsing, PID recycling avoidance, privacy hashing, all domain generators, packaging validator, and AST safety.
+  - `docs/DECISION_LOG.md`: Added ADR-077 (*Stable Device and Entity Identifier URN Architecture*).
+  - `docs/PROJECT_STATE.md`: Updated project state and verified limitations for Day 066.
+  - `docs/DAILY_LOG.md`: Recorded Day 066 execution log, tests, commands, and security limitations.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with `current_day: 66`.
+- **Commands Executed & Real Results:**
+  - `python3 tools/detect_stable_identity.py --audit`: Packaging, AST safety, and charter invariants PASSED (exit code 0).
+  - `python3 tools/detect_stable_identity.py --mock --json`: Emitted valid URN dictionary for all 11 domains with `scan_proves_safe = false` (exit code 0).
+  - `python3 tools/detect_stable_identity.py`: Emitted live Darwin host resolution and canonical URNs (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_twin_identity.py`: 8 passed in 0.31s (exit code 0).
+  - `cargo test --workspace`: 100 passed in 2.93s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/test_runner.py --frontend`: 5 passed in 0.40s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 832 files, zero leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All Python, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: 623 passed in 59.78s (exit code 0).
+  - `python3 tools/ci_runner.py all`: Full 5-stage CI pipeline passed in 67.47s (exit code 0).
+- **Security & Platform Limitations:**
+  - Least-Privilege User Domain (`SC-01` / `INV-ID-06`): All identity derivations execute in unprivileged user space; zero root escalation or sudo access.
+  - Zero Ambient Shell Authority (`SC-01`): All queries execute via pure in-memory derivation or tokenized arguments with `shell=False`.
+  - Universal "Scan != Safe" Invariant (`SC-03` / `INV-ID-05`): `EntityUrn` models in Python and Rust structurally enforce `scan_proves_safe = False`.
+  - Privacy Perimeter Protection (`SC-04` / `INV-ID-04`): Raw hardware serials, personal user paths, and usernames are never embedded unhashed into URN strings.
+  - Anti-PID Recycling (`INV-ID-03`): Process entities are temporally qualified (`<device_id>:<start_epoch_ms>:<pid>:<bin_digest>`), avoiding PID recycling collisions.
+- **Status:** Awaiting human review before advancing tracker to Day 067.
+
+## Day 067 — 2026-11-18 (Awaiting Human Review)
+
+- **Objective:** Create database models for hardware, OS and application entities. Build a persistent, temporal, provenance-aware computer digital twin from collected events.
+- **Phase:** Milestone 5: Temporal digital twin and event history (Days 066–090)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_067_DATABASE_MODELS_HARDWARE_OS_APPLICATION.md`: Comprehensive architectural design note formalizing relational schemas, primary keys, indices, and ownership isolation.
+  - `src/system_mind/database/migrations/0003_hardware_os_application_entities.sql`: Migration creating `hardware_entities`, `os_kernel_entities`, and `application_entities` tables with check constraints and rollback clauses.
+  - `src/system_mind/database/entity_models.py`: Strongly typed dataclasses `HardwareEntityRecord`, `OsKernelEntityRecord`, and `ApplicationEntityRecord` with validation, dict and SQLite row serialization.
+  - `src/system_mind/database/entity_repo.py`: Transactional CRUD repository `EntityRepository` with indexed filtering and aggregation.
+  - `src/system_mind/database/__init__.py`: Re-exported entity models and `EntityRepository`.
+  - `src/system_mind/packaging/database_entities.py`: Programmatic packaging and safety invariant validator `DatabaseEntitiesValidator`.
+  - `src/system_mind/packaging/__init__.py`: Re-exported `DatabaseEntitiesValidator` and `DatabaseEntitiesAuditResult`.
+  - `tools/detect_database_entities.py`: Developer CLI tool for database entity inspection, seeding, and packaging audits.
+  - `tools/README.md`: Documented `tools/detect_database_entities.py`.
+  - `tests/test_database_entity_models.py`: 10 comprehensive unit, integration, and safety invariant tests.
+  - `tests/test_clean_bootstrap.py`: Updated migration count expectation for isolated database lifecycle.
+  - `tests/test_database_migrations.py`: Updated migration count and rollback assertions for migration 0003.
+  - `docs/DECISION_LOG.md`: Added ADR-078 (*Relational Database Models for Hardware, OS Kernel, and Application Digital Twin Entities*).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state and verified limitations.
+  - `docs/DAILY_LOG.md`: Recorded Day 067 execution log, tests, and security limitations.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with `current_day: 67`.
+- **Commands Executed & Real Results:**
+  - `python3 tools/detect_database_entities.py --audit`: All packaging, AST safety, and charter invariants PASSED (exit code 0).
+  - `python3 tools/detect_database_entities.py`: Successfully migrated in-memory DB, seeded mock hardware/OS/app entities, and printed structured summary (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_database_entity_models.py`: 10 passed in 0.34s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_database_migrations.py`: 12 passed in 0.97s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_clean_bootstrap.py`: 9 passed in 1.74s (exit code 0).
+  - `cargo test --workspace`: 100 passed in 0.01s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/test_runner.py --frontend`: 5 passed in 0.55s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 839 files, 0 leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All Python, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `python3 tools/ci_runner.py all`: Full 5-stage CI pipeline passed in 72.35s (exit code 0).
+- **Security & Platform Limitations:**
+  - Least-Privilege User Domain (`SC-01`): Pure in-memory and local SQLite database execution without root privileges.
+  - Zero Ambient Shell Authority (`SC-01`): Parameterized SQL statements via `sqlite3` with zero ambient shell processes.
+  - Universal "Scan != Safe" Invariant (`SC-03` / `INV-DB-04`): SQLite check constraints `CHECK (scan_proves_safe = 0)` and Python dataclass constraints enforce `scan_proves_safe = False`.
+  - Privacy Perimeter Protection (`SC-04` / `INV-DB-02`): Hardware serial numbers are hashed (`serial_hash`); personal file paths are scrubbed.
+  - Component Ownership Isolation (`INV-DB-03`): Strict categorization into `SYSTEM_MANAGED`, `VENDOR_MANAGED`, and `USER_MANAGED` preventing accidental modification of user apps.
+- **Status:** Awaiting human review before advancing tracker to Day 068.
+
+
+
+## Day 066 - Human reviewed complete
+
+- Reviewed summary: Implement stable device and entity identifiers with canonical URN architecture across 11 domains, anti-PID recycling temporal qualification, privacy path hashing, 730 passed tests (623 Python + 102 Rust + 5 TypeScript), and ADR-077
+- Test evidence: python3 tools/ci_runner.py all (passed in 67.47s) && cargo test --workspace (100 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && python3 tools/test_runner.py --frontend (5 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (623 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
+- Review timestamp: 2026-11-18T10:18:00+05:30
+
+## Day 067 - Human reviewed complete
+
+- Reviewed summary: Create database models for hardware, OS and application entities with migration 0003, EntityRepository, 740 passed tests (633 Python + 102 Rust + 5 TypeScript), and ADR-078
+- Test evidence: python3 tools/ci_runner.py all (passed in 72.35s) && cargo test --workspace (100 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && python3 tools/test_runner.py --frontend (5 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (633 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
+- Review timestamp: 2026-11-18T10:43:26+05:30
+
+## Day 068 — 2026-11-18 (Awaiting Human Review)
+
+- **Objective:** Create graph-node and graph-edge persistence models. Build a persistent, temporal, provenance-aware computer digital twin from collected events.
+- **Phase:** Milestone 5: Temporal digital twin and event history (Days 066–090)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_068_GRAPH_NODE_AND_EDGE_PERSISTENCE.md`: Comprehensive architectural design note formalizing relational graph models, foreign key cascading, bounded edge confidence, and graph reconstruction algorithms.
+  - `src/system_mind/database/migrations/0004_graph_nodes_and_edges.sql`: Migration creating `graph_nodes` and `graph_edges` tables with cascading foreign keys, confidence check constraints, and indexed staleness.
+  - `src/system_mind/twin/persistence.py`: Strongly typed dataclasses `GraphNodeRecord`, `GraphEdgeRecord` and CRUD/graph manager `GraphPersistenceManager` supporting lossless `persist_graph` and `load_graph`.
+  - `src/system_mind/twin/__init__.py`: Re-exported persistence records and manager.
+  - `src/system_mind/packaging/graph_persistence.py`: Programmatic packaging and safety invariant validator `GraphPersistenceValidator`.
+  - `src/system_mind/packaging/__init__.py`: Re-exported `GraphPersistenceValidator` and `GraphPersistenceAuditResult`.
+  - `tools/detect_graph_persistence.py`: Developer CLI tool for digital twin graph persistence inspection, seeding, hierarchy queries, and packaging audits.
+  - `tools/README.md`: Documented `tools/detect_graph_persistence.py`.
+  - `tests/test_graph_persistence.py`: 9 comprehensive unit, integration, and safety invariant tests for graph persistence.
+  - `tests/test_database_entity_models.py`: Updated migration rollback test to safely reverse migration 0003 and later migrations.
+  - `docs/DECISION_LOG.md`: Added ADR-079 (*Relational Graph-Node and Directed-Edge Persistence Models for the Temporal Digital Twin*).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state and verified limitations.
+  - `docs/DAILY_LOG.md`: Recorded Day 068 execution log, tests, and security limitations.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with `current_day: 68`.
+- **Commands Executed & Real Results:**
+  - `python3 tools/detect_graph_persistence.py --audit`: All packaging, AST safety, and charter invariants PASSED (exit code 0).
+  - `python3 tools/detect_graph_persistence.py`: Successfully migrated in-memory DB, seeded graph nodes/edges, ran ancestor hierarchy query, and verified output (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_graph_persistence.py`: 9 passed in 0.35s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_database_entity_models.py`: 10 passed in 0.46s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: 642 passed in 60.18s (exit code 0).
+  - `cargo test --workspace`: 100 passed in 2.74s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/test_runner.py --frontend`: 5 passed in 0.39s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 845 files, 0 leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All Python, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `python3 tools/ci_runner.py all`: Full 5-stage CI pipeline passed in 67.62s (exit code 0).
+- **Security & Platform Limitations:**
+  - Least-Privilege User Domain (`SC-01`): Pure in-memory and local SQLite database execution without root privileges.
+  - Zero Ambient Shell Authority (`SC-01`): Parameterized SQL statements via `sqlite3` with zero ambient shell processes.
+  - Foreign Key Referential Integrity & Cascades (`INV-GRAPH-01`): Foreign keys enabled (`PRAGMA foreign_keys = ON;`) with cascading deletes preventing dangling edges.
+  - Bounded Edge Confidence (`INV-GRAPH-02`): Enforced `0.0 <= confidence <= 1.0` in SQL schema check constraint and dataclass validation.
+  - Staleness Tracking (`INV-GRAPH-03`): Indexed binary `is_stale` flag for soft deprecation and efficient graph traversals without data loss.
+  - Universal "Scan != Safe" Invariant (`SC-03` / `INV-GRAPH-04`): SQLite check constraints `CHECK (scan_proves_safe = 0)` and Python dataclass constraints enforce `scan_proves_safe = False`.
+  - Lossless Property-Graph Reconstruction (`INV-GRAPH-05`): Bidirectional mapping between `DigitalTwinGraph` and relational tables with atomic transactions.
+- **Status:** Awaiting human review before advancing tracker to Day 069.
+
+## Day 068 - Human reviewed complete
+
+- Reviewed summary: Create graph-node and graph-edge persistence models with migration 0004, GraphPersistenceManager, 749 passed tests (642 Python + 102 Rust + 5 TypeScript), and ADR-079
+- Test evidence: python3 tools/ci_runner.py all (passed in 67.62s) && cargo test --workspace (100 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && python3 tools/test_runner.py --frontend (5 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (642 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
+- Review timestamp: 2026-11-18T11:12:43+05:30
+
+## Day 069 — 2026-11-18 (Awaiting Human Review)
+
+- **Objective:** Implement timestamped system observation records. Build a persistent, temporal, provenance-aware computer digital twin from collected events.
+- **Phase:** Milestone 5: Temporal digital twin and event history (Days 066–090)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_069_TIMESTAMPED_SYSTEM_OBSERVATION_RECORDS.md`: Comprehensive architectural design note formalizing dual-clock time anchoring, canonical URN binding, bounded confidence tiering, cryptographic payload digests, and state reconstruction algorithms.
+  - `src/system_mind/database/migrations/0005_system_observation_records.sql`: Migration creating `system_observation_records` table with composite indexes on entity and sequence, temporal epoch indexes, confidence check constraints, and reversible `-- DOWN` drops.
+  - `src/system_mind/twin/observation_records.py`: Strongly typed dataclass `SystemObservationRecord` and repository manager `ObservationRecordManager` supporting CRUD, monotonic sequence enforcement, multi-parameter query filtering, and historical point-in-time state reconstruction.
+  - `src/system_mind/twin/__init__.py`: Re-exported `SystemObservationRecord`, `ObservationRecordManager`, and `compute_observation_payload_digest`.
+  - `src/system_mind/packaging/system_observations.py`: Programmatic packaging and safety invariant validator `SystemObservationsValidator`.
+  - `src/system_mind/packaging/__init__.py`: Re-exported `SystemObservationsValidator` and `SystemObservationsAuditResult`.
+  - `tools/detect_system_observations.py`: Developer CLI tool for observation records inspection, seeding, chronological querying, state reconstruction, and packaging audits.
+  - `tools/README.md`: Documented `tools/detect_system_observations.py`.
+  - `tests/test_system_observation_records.py`: 9 comprehensive unit, integration, and safety invariant tests for observation persistence.
+  - `tests/test_graph_persistence.py`: Updated migration rollback test to rollback to version 3.
+  - `docs/DECISION_LOG.md`: Added ADR-080 (*Timestamped System Observation Records for the Temporal Digital Twin*).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state and verified limitations.
+  - `docs/DAILY_LOG.md`: Recorded Day 069 execution log, tests, and security limitations.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with `current_day: 69`.
+- **Commands Executed & Real Results:**
+  - `python3 tools/detect_system_observations.py --audit`: All packaging, AST safety, schema constraint, and charter invariants PASSED (exit code 0).
+  - `python3 tools/detect_system_observations.py`: Successfully migrated in-memory DB, seeded observations across host, CPU, process, and application entities, and demonstrated point-in-time state reconstruction (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_system_observation_records.py`: 9 passed in 0.40s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_database_migrations.py`: 12 passed in 1.59s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_graph_persistence.py`: 9 passed in 0.45s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_clean_bootstrap.py`: 9 passed in 2.06s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/`: 651 passed in 61.90s (exit code 0).
+  - `cargo test --workspace`: 100 passed in 3.36s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/test_runner.py --frontend`: 5 passed in 0.39s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 853 files, 0 leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All Python, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `python3 tools/ci_runner.py all`: Full 5-stage CI pipeline passed in 71.27s (exit code 0).
+- **Security & Platform Limitations:**
+  - Least-Privilege User Domain (`SC-01`): Pure in-memory and local SQLite database execution without root privileges.
+  - Zero Ambient Shell Authority (`SC-01`): Parameterized SQL statements via `sqlite3` with zero ambient shell processes.
+  - Dual Time Anchoring (`INV-OBS-02`): Eliminates clock-skew ambiguity with wall-clock UTC ISO and millisecond epoch integers.
+  - Bounded Confidence & Provenance Tiering (`INV-OBS-03`): Bounded score `[0.0, 1.0]` and strict prevention of synthetic mock claiming kernel authority.
+  - Universal "Scan != Safe" Invariant (`SC-03` / `INV-OBS-04`): SQLite check constraints `CHECK (scan_proves_safe = 0)` and Python dataclass constraints enforce `scan_proves_safe = False`.
+  - Cryptographic Payload Integrity (`INV-OBS-05`): Sealed canonical JSON payloads with deterministic SHA-256 digests.
+  - Monotonic Sequence Progression (`INV-OBS-06`): Rejection of duplicate or out-of-order sequence numbers per entity.
+- **Status:** Awaiting human review before advancing tracker to Day 070.
+
+## Day 069 - Human reviewed complete
+
+- Reviewed summary: Implement timestamped system observation records with migration 0005, ObservationRecordManager, 758 passed tests (651 Python + 102 Rust + 5 TypeScript), and ADR-080
+- Test evidence: python3 tools/ci_runner.py all (passed in 71.27s) && cargo test --workspace (100 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && python3 tools/test_runner.py --frontend (5 passed) && PYTHONPATH=src python3 -m pytest -v tests/ (651 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
+- Review timestamp: 2026-11-18T11:31:02+05:30
+
+## Day 070 — 2026-11-18 (Awaiting Human Review)
+
+- **Objective:** Implement append-only system event storage. Build a persistent, temporal, provenance-aware computer digital twin from collected events.
+- **Phase:** Milestone 5: Temporal digital twin and event history (Days 066–090)
+- **Branch:** `develop`
+- **Changed / Created Files:**
+  - `docs/design/DAY_070_APPEND_ONLY_SYSTEM_EVENT_STORAGE.md`: Comprehensive architectural design note formalizing engine-level immutability triggers, cryptographic hash chaining (`prev_event_hash` to `event_hash`), component ownership isolation, distributed correlation tracking, and tamper detection algorithms.
+  - `src/system_mind/database/migrations/0006_system_events_storage.sql`: Migration creating `system_events` table with monotonic sequence constraints, entity URN indexing, temporal indexes, correlation indexes, and SQLite abort triggers (`trg_system_events_prevent_update`, `trg_system_events_prevent_delete`).
+  - `src/system_mind/database/migrator.py`: Updated `split_sql_statements` to respect multi-statement trigger bodies via `sqlite3.complete_statement()` before splitting on semicolons.
+  - `src/system_mind/twin/event_store.py`: Strongly typed dataclass `SystemEventRecord`, enum `SystemEventType`, payload and block hashing functions, and repository manager `SystemEventStore` supporting append-only logging, query filtering, and cryptographic chain verification.
+  - `src/system_mind/twin/__init__.py`: Re-exported `SystemEventType`, `SystemEventRecord`, `SystemEventStore`, and cryptographic block hash utilities.
+  - `src/system_mind/packaging/system_events.py`: Programmatic packaging and safety invariant validator `SystemEventsValidator`.
+  - `src/system_mind/packaging/__init__.py`: Re-exported `SystemEventsValidator` and `SystemEventsAuditResult`.
+  - `src/system_mind/packaging/macos_services.py`: Extended subprocess timeout to 15s to guarantee stability under full polyglot test load.
+  - `tools/detect_system_events.py`: Developer CLI tool for event storage inspection, seeding, sequence querying, hash chain verification, and packaging audits.
+  - `tools/README.md`: Documented `tools/detect_system_events.py`.
+  - `tests/test_system_event_storage.py`: 8 comprehensive unit, integration, and safety invariant tests for append-only event persistence and hash chain validation.
+  - `docs/DECISION_LOG.md`: Added ADR-081 (*Append-Only System Event Storage with Cryptographic Hash Chaining*).
+  - `docs/PROJECT_STATE.md`: Synchronized current day state and verified limitations.
+  - `docs/DAILY_LOG.md`: Recorded Day 070 execution log, tests, and security limitations.
+  - `docs/BLOCKERS.md`: Updated blocker log for Day 070.
+  - `.project-state/current_day.json`: Set status to `awaiting_review` with `current_day: 70`.
+- **Commands Executed & Real Results:**
+  - `python3 tools/detect_system_events.py --audit`: All packaging, AST safety, trigger immutability, and charter invariants PASSED (exit code 0).
+  - `python3 tools/detect_system_events.py`: Successfully migrated in-memory DB, seeded 6 cryptographically chained events across hardware, processes, files, and applications, verified hash chain integrity, and proved UPDATE/DELETE trigger rejection (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_system_event_storage.py`: 8 passed in 0.38s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_database_migrations.py`: 12 passed in 1.59s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -v tests/test_system_observation_records.py`: 9 passed in 0.40s (exit code 0).
+  - `PYTHONPATH=src python3 -m pytest -q tests/`: 659 passed in 76.74s (exit code 0).
+  - `cargo test --workspace`: 100 passed in 0.31s (exit code 0).
+  - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`: 2 passed in 0.00s (exit code 0).
+  - `python3 tools/test_runner.py --frontend`: 5 passed in 1.79s (exit code 0).
+  - `python3 tools/check_secrets.py`: Scanned 861 files, 0 leaks detected (exit code 0).
+  - `python3 tools/lint.py --all`: All Python, AST safety, TypeScript, and Rust static analysis checks passed (exit code 0).
+  - `python3 tools/ci_runner.py all`: Full 5-stage CI pipeline passed in 128.49s (exit code 0).
+- **Security & Platform Limitations:**
+  - Least-Privilege User Domain (`SC-01`): Pure in-memory and local SQLite database execution without root privileges.
+  - Zero Ambient Shell Authority (`SC-01`): Parameterized SQL statements via `sqlite3` with zero ambient shell processes.
+  - Engine-Level Immutability (`INV-EVT-01`): SQLite database triggers `trg_system_events_prevent_update` and `trg_system_events_prevent_delete` abort any mutation or deletion attempt at the engine level.
+  - Cryptographic Hash Chaining (`INV-EVT-02`): Each event links to predecessor's digest (`prev_event_hash`) and computes immutable `event_hash = SHA256(...)`, making history truncation, mutation, or reordering mathematically detectable.
+  - Component Ownership Isolation (`INV-EVT-03`): Every event records explicit `component_ownership` (`SYSTEM_MANAGED`, `VENDOR_MANAGED`, `USER_MANAGED`), protecting user applications from unauthorized maintenance.
+  - Universal "Scan != Safe" Invariant (`SC-03` / `INV-EVT-04`): SQLite check constraints `CHECK (scan_proves_safe = 0)` and Python dataclasses enforce `scan_proves_safe = False`.
+  - Distributed Causality & Correlation (`INV-EVT-06`): Explicit tracking of `correlation_id` and `causation_id` across subsystems.
+- **Status:** Awaiting human review before advancing tracker to Day 071.
+
+## Day 070 - Human reviewed complete
+
+- Reviewed summary: Implement append-only system event storage with SQLite immutability triggers, cryptographic SHA-256 hash chaining, component ownership isolation, 766 passed tests (659 Python + 102 Rust + 5 TypeScript), and ADR-081
+- Test evidence: python3 tools/ci_runner.py all (passed in 128.49s) && cargo test --workspace (100 passed) && cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml (2 passed) && python3 tools/test_runner.py --frontend (5 passed) && PYTHONPATH=src python3 -m pytest -q tests/ (659 passed) && python3 tools/check_secrets.py (passed) && python3 tools/lint.py --all (passed)
+- Review timestamp: 2026-11-18T11:59:06+05:30

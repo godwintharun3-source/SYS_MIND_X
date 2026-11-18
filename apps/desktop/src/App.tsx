@@ -5,6 +5,7 @@ import {
   AuditRecordSummary,
   GovernanceActionRequest,
   FileTrustState,
+  BackendConnectionState,
 } from "./types/api";
 import { apiClient } from "./services/client";
 
@@ -15,8 +16,10 @@ export const App: React.FC = () => {
   const [auditRecords, setAuditRecords] = useState<AuditRecordSummary[]>([]);
   const [inspectPath, setInspectPath] = useState<string>("/tmp/incoming_payload.bin");
   const [trustResult, setTrustResult] = useState<{ path: string; state: FileTrustState; reason: string } | null>(null);
+  const [backendStatus, setBackendStatus] = useState<BackendConnectionState>("OFFLINE");
+  const [lastCheckTime, setLastCheckTime] = useState<string>(new Date().toLocaleTimeString());
 
-  // Sample pending governance action
+  // Pending governance action
   const [pendingAction, setPendingAction] = useState<GovernanceActionRequest>({
     action_id: "act_029_quarantine_eval",
     action_type: "SANDBOX_VERIFY_EXECUTION",
@@ -29,28 +32,54 @@ export const App: React.FC = () => {
   });
 
   const [approvalFeedback, setApprovalFeedback] = useState<string | null>(null);
+  const [isErrorFeedback, setIsErrorFeedback] = useState<boolean>(false);
+
+  const refreshData = async () => {
+    setLastCheckTime(new Date().toLocaleTimeString());
+
+    const sensorRes = await apiClient.getSensorMetrics();
+    if (sensorRes.status === "success" && sensorRes.data) {
+      setMetrics(sensorRes.data);
+      setBackendStatus(sensorRes.data.mock_mode ? "MOCK" : "LIVE");
+    } else {
+      setMetrics(null);
+      setBackendStatus("OFFLINE");
+    }
+
+    const twinRes = await apiClient.getDigitalTwinState();
+    if (twinRes.status === "success" && twinRes.data) {
+      setTwin(twinRes.data);
+    } else {
+      setTwin(null);
+    }
+
+    const auditRes = await apiClient.getAuditLedger();
+    if (auditRes.status === "success" && auditRes.data) {
+      setAuditRecords(auditRes.data);
+    } else {
+      setAuditRecords([]);
+    }
+  };
 
   useEffect(() => {
-    // Initial data hydration
-    apiClient.getSensorMetrics().then((res) => {
-      if (res.data) setMetrics(res.data);
-    });
-    apiClient.getDigitalTwinState().then((res) => {
-      if (res.data) setTwin(res.data);
-    });
-    apiClient.getAuditLedger().then((res) => {
-      if (res.data) setAuditRecords(res.data);
-    });
+    refreshData();
   }, []);
 
   const handleRefresh = async () => {
-    const res = await apiClient.getSensorMetrics();
-    if (res.data) setMetrics(res.data);
+    await refreshData();
   };
 
   const handleInspectPath = async () => {
     const res = await apiClient.inspectFileTrust(inspectPath);
-    if (res.data) setTrustResult(res.data);
+    if (res.status === "success" && res.data) {
+      setTrustResult(res.data);
+    } else {
+      setTrustResult({
+        path: inspectPath,
+        state: "UNTRUSTED_UNKNOWN",
+        reason: res.error?.message || "File trust inspection failed: backend daemon is offline.",
+      });
+    }
   };
 
   const handleGovernanceVote = async (approved: boolean) => {
@@ -59,13 +88,20 @@ export const App: React.FC = () => {
       approved,
       approved ? "Operator approved micro-VM verification" : "Operator rejected execution"
     );
-    if (res.data) {
+
+    if (res.status === "success" && res.data) {
       setPendingAction((prev) => ({
         ...prev,
         status: approved ? "APPROVED" : "REJECTED",
       }));
+      setIsErrorFeedback(false);
       setApprovalFeedback(
-        `Action ${res.data.action_id} ${res.data.verdict} recorded at ${res.data.recorded_at}`
+        `Action ${res.data.action_id} ${res.data.verdict} recorded at ${res.data.recorded_at} (Seq #${res.data.sequence_id || 'chain'})`
+      );
+    } else {
+      setIsErrorFeedback(true);
+      setApprovalFeedback(
+        `[OPERATION DENIED] ${res.error?.message || "Consequential operation rejected: control plane daemon is OFFLINE."}`
       );
     }
   };
@@ -80,8 +116,18 @@ export const App: React.FC = () => {
         </div>
         <div className="header-status">
           <div className="status-pill">
-            <span className={`status-dot ${metrics?.broker_connected ? "green" : "amber"}`} />
-            <span>{metrics?.mock_mode ? "Mock Sensor Telemetry" : "Broker Daemon Connected"}</span>
+            <span
+              className={`status-dot ${
+                backendStatus === "LIVE"
+                  ? "green"
+                  : backendStatus === "MOCK" || backendStatus === "SIMULATED"
+                  ? "amber"
+                  : "red"
+              }`}
+            />
+            <span>
+              Backend: <strong>{backendStatus}</strong> ({lastCheckTime})
+            </span>
           </div>
           <div className="status-pill">
             <span>Identity: <strong>LOCAL_CONSOLE_USER</strong></span>
@@ -90,7 +136,7 @@ export const App: React.FC = () => {
             <span>Shell: <strong>Tauri v2 (Safe Window)</strong></span>
           </div>
           <div className="status-pill">
-            <span>Epoch: <strong>{twin?.temporal_epoch ?? 30}</strong></span>
+            <span>Epoch: <strong>{twin?.temporal_epoch ?? "OFFLINE"}</strong></span>
           </div>
         </div>
       </header>
@@ -125,6 +171,30 @@ export const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="main-content">
+        {/* Connection Failure Warning Banner */}
+        {backendStatus === "OFFLINE" && (
+          <div style={{
+            padding: "12px 16px",
+            backgroundColor: "rgba(248, 81, 73, 0.15)",
+            border: "1px solid var(--accent-red)",
+            borderRadius: "6px",
+            marginBottom: "16px",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            color: "#f85149"
+          }}>
+            <span style={{ fontSize: "1.2rem" }}>🔌</span>
+            <div>
+              <strong>Control Plane Daemon Offline:</strong> The backend service at <code>http://127.0.0.1:8765</code> is unreachable.
+              Consequential governance actions cannot be approved, and telemetry measurements reflect zero live computer information.
+            </div>
+            <button className="btn btn-secondary" onClick={handleRefresh} style={{ marginLeft: "auto" }}>
+              Retry Connection
+            </button>
+          </div>
+        )}
+
         {/* Universal Safety Invariant Banner */}
         <div className="invariant-banner">
           <span>⚠️</span>
@@ -143,8 +213,12 @@ export const App: React.FC = () => {
                   <span className="card-title">CPU Utilization</span>
                   <button className="btn btn-secondary" onClick={handleRefresh}>Refresh</button>
                 </div>
-                <div className="metric-value">{metrics ? `${metrics.cpu_usage_pct.toFixed(1)}%` : "Loading..."}</div>
-                <div className="metric-sub">Active processes: {metrics?.active_processes ?? "--"}</div>
+                <div className="metric-value">
+                  {metrics ? `${metrics.cpu_usage_pct.toFixed(1)}%` : backendStatus === "OFFLINE" ? "OFFLINE" : "Loading..."}
+                </div>
+                <div className="metric-sub">
+                  Active processes: {metrics?.active_processes ?? (backendStatus === "OFFLINE" ? "Unavailable" : "--")}
+                </div>
               </div>
 
               <div className="card">
@@ -152,17 +226,27 @@ export const App: React.FC = () => {
                   <span className="card-title">Memory Allocation</span>
                 </div>
                 <div className="metric-value">
-                  {metrics ? `${(metrics.memory_used_mb / 1024).toFixed(1)} GB` : "Loading..."}
+                  {metrics
+                    ? `${(metrics.memory_used_mb / 1024).toFixed(1)} GB`
+                    : backendStatus === "OFFLINE"
+                    ? "OFFLINE"
+                    : "Loading..."}
                 </div>
-                <div className="metric-sub">Total pool: {metrics ? `${(metrics.memory_total_mb / 1024).toFixed(0)} GB` : "--"}</div>
+                <div className="metric-sub">
+                  Total pool: {metrics ? `${(metrics.memory_total_mb / 1024).toFixed(0)} GB` : backendStatus === "OFFLINE" ? "Unavailable" : "--"}
+                </div>
               </div>
 
               <div className="card">
                 <div className="card-header">
                   <span className="card-title">Digital Twin Graph</span>
                 </div>
-                <div className="metric-value">{twin?.node_count ?? "--"} Nodes</div>
-                <div className="metric-sub">{twin?.edge_count ?? "--"} Topology Edges | {twin?.is_consistent ? "Consistent" : "Drift Detected"}</div>
+                <div className="metric-value">
+                  {twin ? `${twin.node_count} Nodes` : backendStatus === "OFFLINE" ? "OFFLINE" : "-- Nodes"}
+                </div>
+                <div className="metric-sub">
+                  {twin ? `${twin.edge_count} Topology Edges | ${twin.is_consistent ? "Consistent" : "Drift"}` : "Persistence unavailable"}
+                </div>
               </div>
 
               <div className="card">
@@ -226,7 +310,14 @@ export const App: React.FC = () => {
             </div>
 
             {approvalFeedback && (
-              <div style={{ padding: "8px 12px", backgroundColor: "rgba(63, 185, 80, 0.1)", border: "1px solid var(--accent-green)", borderRadius: "4px", marginBottom: "16px", color: "var(--accent-green)" }}>
+              <div style={{
+                padding: "8px 12px",
+                backgroundColor: isErrorFeedback ? "rgba(248, 81, 73, 0.15)" : "rgba(63, 185, 80, 0.1)",
+                border: `1px solid ${isErrorFeedback ? "var(--accent-red)" : "var(--accent-green)"}`,
+                borderRadius: "4px",
+                marginBottom: "16px",
+                color: isErrorFeedback ? "var(--accent-red)" : "var(--accent-green)",
+              }}>
                 {approvalFeedback}
               </div>
             )}
@@ -307,36 +398,42 @@ export const App: React.FC = () => {
             <div className="card-header">
               <span className="card-title">Cryptographic Tamper-Evident Audit Ledger</span>
             </div>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Seq</th>
-                  <th>Timestamp</th>
-                  <th>Actor</th>
-                  <th>Action</th>
-                  <th>Status</th>
-                  <th>SHA-256 Digest</th>
-                </tr>
-              </thead>
-              <tbody>
-                {auditRecords.map((rec) => (
-                  <tr key={rec.sequence_id}>
-                    <td className="mono-text">#{rec.sequence_id}</td>
-                    <td>{new Date(rec.timestamp).toLocaleTimeString()}</td>
-                    <td><span className="badge badge-sandboxed">{rec.actor}</span></td>
-                    <td>{rec.action_name}</td>
-                    <td>
-                      <span className={`badge ${rec.status === "AUTHORIZED" || rec.status === "EXECUTED" ? "badge-verified" : "badge-quarantine"}`}>
-                        {rec.status}
-                      </span>
-                    </td>
-                    <td className="mono-text" title={`Previous: ${rec.previous_hash}`}>
-                      {rec.sha256_hash.substring(0, 16)}...
-                    </td>
+            {auditRecords.length === 0 ? (
+              <p style={{ color: "var(--text-secondary)" }}>
+                {backendStatus === "OFFLINE" ? "Audit ledger unavailable while backend is OFFLINE." : "No audit records recorded yet."}
+              </p>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Seq</th>
+                    <th>Timestamp</th>
+                    <th>Actor</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                    <th>SHA-256 Digest</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {auditRecords.map((rec) => (
+                    <tr key={rec.sequence_id}>
+                      <td className="mono-text">#{rec.sequence_id}</td>
+                      <td>{new Date(rec.timestamp).toLocaleTimeString()}</td>
+                      <td><span className="badge badge-sandboxed">{rec.actor}</span></td>
+                      <td>{rec.action_name}</td>
+                      <td>
+                        <span className={`badge ${rec.status === "AUTHORIZED" || rec.status === "EXECUTED" ? "badge-verified" : "badge-quarantine"}`}>
+                          {rec.status}
+                        </span>
+                      </td>
+                      <td className="mono-text" title={`Previous: ${rec.previous_hash}`}>
+                        {rec.sha256_hash.substring(0, 16)}...
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
       </main>

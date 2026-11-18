@@ -131,8 +131,10 @@ class MacOsObservationEngine:
         # Clamp score between 0.05 and 1.00 and round to 3 decimal places
         final_score = round(max(0.05, min(1.00, score)), 3)
 
-        # Assign tier
+        # Assign tier - Mock results and unsupported data must NEVER be KERNEL_AUTHORITATIVE
         if is_mock or final_score < 0.40:
+            tier = ConfidenceTier.ESTIMATED_MOCK
+        elif "platform_unsupported" in penalty_factors or any("unsupported" in str(u).lower() for u in unavailable_fields):
             tier = ConfidenceTier.ESTIMATED_MOCK
         elif final_score < 0.60:
             tier = ConfidenceTier.DEGRADED_PARTIAL
@@ -171,6 +173,22 @@ class MacOsObservationEngine:
         elif isinstance(payload, dict) and "unavailable_telemetry" in payload:
             unavailable_fields = [str(item) for item in payload["unavailable_telemetry"]]
 
+        # Distinguish actual, mock, degraded, and unsupported observations
+        if is_mock:
+            if any("unsupported" in f.lower() for f in unavailable_fields) or "platform_unsupported" in confidence.penalty_factors:
+                obs_status = "UNSUPPORTED"
+            elif unavailable_fields or any(p in confidence.penalty_factors for p in ["hardware_absent_desktop", "missing_permission_or_entitlement"]):
+                obs_status = "DEGRADED"
+            else:
+                obs_status = "MOCK"
+        else:
+            if any("unsupported" in f.lower() for f in unavailable_fields) or "platform_unsupported" in confidence.penalty_factors:
+                obs_status = "UNSUPPORTED"
+            elif unavailable_fields or any(p in confidence.penalty_factors for p in ["hardware_absent_desktop", "missing_permission_or_entitlement"]):
+                obs_status = "DEGRADED"
+            else:
+                obs_status = "ACTUAL"
+
         obs_id = f"obs-{collector_id}-{uuid.uuid4().hex[:12]}"
 
         return ObservedTelemetryEnvelope(
@@ -185,6 +203,7 @@ class MacOsObservationEngine:
             unavailable_telemetry=unavailable_fields,
             scan_proves_safe=False,  # Enforce non-negotiable charter invariant
             is_mock=is_mock,
+            observation_status=obs_status,
         )
 
     def collect_batch(
@@ -203,40 +222,40 @@ class MacOsObservationEngine:
             return self._generate_mock_batch(batch_id=batch_id, profile="unsupported", timestamp=now_iso)
 
         # Lazy imports of native detectors
-        from system_mind.macos.app_detector import MacOsAppDetector
-        from system_mind.macos.battery_detector import MacOsBatteryDetector
-        from system_mind.macos.cpu_detector import MacOsCpuDetector
-        from system_mind.macos.detector import MacOsIdentityDetector
-        from system_mind.macos.endpoint_security_detector import MacOsEndpointSecurityDetector
-        from system_mind.macos.fsevents_detector import MacOsFsEventsDetector
-        from system_mind.macos.gpu_detector import MacOsGpuDetector
-        from system_mind.macos.memory_detector import MacOsMemoryDetector
-        from system_mind.macos.network_detector import MacOsNetworkDetector
-        from system_mind.macos.process_detector import MacOsProcessDetector
-        from system_mind.macos.services_detector import MacOsServicesDetector
-        from system_mind.macos.signature_detector import MacOsSignatureDetector
-        from system_mind.macos.storage_detector import MacOsStorageDetector
+        from system_mind.macos.app_detector import MacAppDetector
+        from system_mind.macos.battery_detector import MacBatteryDetector
+        from system_mind.macos.cpu_detector import MacCpuHardwareDetector
+        from system_mind.macos.detector import MacOSIdentityDetector
+        from system_mind.macos.endpoint_security_detector import MacEndpointSecurityDetector
+        from system_mind.macos.fsevents_detector import MacFsEventsDetector
+        from system_mind.macos.gpu_detector import MacGpuDetector
+        from system_mind.macos.memory_detector import MacMemoryDetector
+        from system_mind.macos.network_detector import MacNetworkDetector
+        from system_mind.macos.process_detector import MacProcessDetector
+        from system_mind.macos.services_detector import MacServicesDetector
+        from system_mind.macos.signature_detector import MacAppSignatureDetector
+        from system_mind.macos.storage_detector import MacStorageDetector
         from system_mind.macos.swift_bridge import MacSwiftBridge
         from system_mind.macos.agent_service_detector import MacUserAgentServiceManager
-        from system_mind.macos.usb_detector import MacOsUsbDetector
+        from system_mind.macos.usb_detector import MacUsbDetector
 
         collectors_map = {
-            "identity": lambda: MacOsIdentityDetector().detect(),
-            "cpu": lambda: MacOsCpuDetector().detect(),
-            "memory": lambda: MacOsMemoryDetector().detect(),
-            "storage": lambda: MacOsStorageDetector().detect(),
-            "battery": lambda: MacOsBatteryDetector().detect(),
-            "network": lambda: MacOsNetworkDetector().detect(),
-            "gpu": lambda: MacOsGpuDetector().detect(),
-            "usb": lambda: MacOsUsbDetector().detect(),
-            "processes": lambda: MacOsProcessDetector().detect(),
-            "services": lambda: MacOsServicesDetector().detect(),
-            "apps": lambda: MacOsAppDetector().detect(),
-            "signatures": lambda: MacOsSignatureDetector().detect(),
-            "fsevents": lambda: MacOsFsEventsDetector().detect(),
-            "endpoint_security": lambda: MacOsEndpointSecurityDetector().detect(),
+            "identity": lambda: MacOSIdentityDetector.detect(),
+            "cpu": lambda: MacCpuHardwareDetector.detect(),
+            "memory": lambda: MacMemoryDetector.detect(),
+            "storage": lambda: MacStorageDetector.detect(),
+            "battery": lambda: MacBatteryDetector().detect(),
+            "network": lambda: MacNetworkDetector().detect(),
+            "gpu": lambda: MacGpuDetector().detect(),
+            "usb": lambda: MacUsbDetector().detect(),
+            "processes": lambda: MacProcessDetector().detect(),
+            "services": lambda: MacServicesDetector().detect(),
+            "apps": lambda: MacAppDetector().detect(),
+            "signatures": lambda: MacAppSignatureDetector().detect(),
+            "fsevents": lambda: MacFsEventsDetector().detect(),
+            "endpoint_security": lambda: MacEndpointSecurityDetector().detect(),
             "swift_bridge": lambda: MacSwiftBridge().collect(),
-            "user_agent": lambda: MacUserAgentServiceManager().get_status(),
+            "user_agent": lambda: MacUserAgentServiceManager().inspect_service(),
         }
 
         observations: Dict[str, ObservedTelemetryEnvelope[Any]] = {}
@@ -296,12 +315,12 @@ class MacOsObservationEngine:
                     payload = {"entitled": False, "unavailable_telemetry": ["endpoint_security_unentitled_companion"]}
                 else:
                     payload = {"collector": cid, "status": "NOMINAL", "sample": 100}
-                # Simulate live-like execution with partial degradations
-                env = self.enrich_observation(cid, payload, latency_ms=12.0, is_mock=False)
+                # Simulate mock execution with partial degradations (strictly is_mock=True)
+                env = self.enrich_observation(cid, payload, latency_ms=12.0, is_mock=True)
             else:
-                # default "high_fidelity" profile
+                # default "high_fidelity" synthetic mock profile (strictly is_mock=True)
                 payload = {"collector": cid, "status": "NOMINAL", "sample": 100}
-                env = self.enrich_observation(cid, payload, latency_ms=10.0, is_mock=False)
+                env = self.enrich_observation(cid, payload, latency_ms=10.0, is_mock=True)
 
             observations[cid] = env
 
@@ -317,5 +336,5 @@ class MacOsObservationEngine:
             mean_confidence=mean_conf,
             lowest_confidence_collector=lowest_cid,
             scan_proves_safe=False,
-            is_mock=(profile in ("mock_simulation", "unsupported")),
+            is_mock=True,
         )

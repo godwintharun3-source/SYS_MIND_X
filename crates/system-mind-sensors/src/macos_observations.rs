@@ -143,7 +143,7 @@ impl MacOsObservationCollector for MockMacOsObservationCollector {
                                 utc_iso: timestamp.clone(),
                                 epoch_ms: 1794916800000,
                                 monotonic_ns: Some(42000000),
-                                clock_source: "mach_continuous_time".to_string(),
+                                clock_source: "mock_clock".to_string(),
                             },
                             observed_at_utc: timestamp.clone(),
                             latency_ms: 12.0,
@@ -157,7 +157,7 @@ impl MacOsObservationCollector for MockMacOsObservationCollector {
                                 "a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef"
                                     .to_string(),
                             scan_proves_safe: false,
-                            is_mock: false,
+                            is_mock: true,
                         },
                     );
                 }
@@ -170,7 +170,7 @@ impl MacOsObservationCollector for MockMacOsObservationCollector {
                     mean_confidence: mean,
                     lowest_confidence_collector: "endpoint_security".to_string(),
                     scan_proves_safe: false,
-                    is_mock: false,
+                    is_mock: true,
                 })
             }
             "mock_simulation" => {
@@ -254,7 +254,7 @@ impl MacOsObservationCollector for MockMacOsObservationCollector {
                 })
             }
             _ => {
-                // high_fidelity
+                // high_fidelity mock simulation (strictly is_mock=true)
                 for &cid in &MOCK_OBSERVATION_COLLECTORS {
                     map.insert(
                         cid.to_string(),
@@ -265,24 +265,24 @@ impl MacOsObservationCollector for MockMacOsObservationCollector {
                                 utc_iso: timestamp.clone(),
                                 epoch_ms: 1794916800000,
                                 monotonic_ns: Some(55000000),
-                                clock_source: "mach_continuous_time".to_string(),
+                                clock_source: "mock_clock".to_string(),
                             },
                             observed_at_utc: timestamp.clone(),
                             latency_ms: 10.0,
                             confidence: ObservationConfidenceSnapshot {
-                                score: 0.95,
-                                tier: ConfidenceTierSnapshot::KernelAuthoritative,
+                                score: 0.35,
+                                tier: ConfidenceTierSnapshot::EstimatedMock,
                                 rationale: format!(
-                                    "Authoritative kernel/subsystem read for {}",
+                                    "Simulated high-fidelity mock fixture for {}",
                                     cid
                                 ),
-                                penalty_factors: Vec::new(),
+                                penalty_factors: vec!["synthetic_mock_fixture".to_string()],
                             },
                             payload_sha256:
                                 "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
                                     .to_string(),
                             scan_proves_safe: false,
-                            is_mock: false,
+                            is_mock: true,
                         },
                     );
                 }
@@ -291,10 +291,10 @@ impl MacOsObservationCollector for MockMacOsObservationCollector {
                     timestamp_utc: timestamp,
                     total_observations: 16,
                     observations: map,
-                    mean_confidence: 0.95,
+                    mean_confidence: 0.35,
                     lowest_confidence_collector: "identity".to_string(),
                     scan_proves_safe: false,
-                    is_mock: false,
+                    is_mock: true,
                 })
             }
         }
@@ -313,21 +313,18 @@ mod tests {
             .expect("collect observation batch");
 
         assert_eq!(batch.total_observations, 16);
-        assert!(batch.mean_confidence >= 0.90);
         assert!(!batch.scan_proves_safe); // INV-OBS-05
-        assert!(!batch.is_mock);
+        assert!(batch.is_mock);
 
         let cpu_env = batch.observations.get("cpu").expect("cpu observation");
         assert_eq!(cpu_env.collector_id, "cpu");
-        assert_eq!(
-            cpu_env.source_timestamp.clock_source,
-            "mach_continuous_time"
-        );
+        assert_eq!(cpu_env.source_timestamp.clock_source, "mock_clock");
         assert_eq!(
             cpu_env.confidence.tier,
-            ConfidenceTierSnapshot::KernelAuthoritative
+            ConfidenceTierSnapshot::EstimatedMock
         );
         assert!(!cpu_env.scan_proves_safe);
+        assert!(cpu_env.is_mock);
     }
 
     #[test]
@@ -336,6 +333,7 @@ mod tests {
         let batch = collector.collect_batch().expect("degraded batch");
 
         assert_eq!(batch.total_observations, 16);
+        assert!(batch.is_mock);
         assert_eq!(batch.lowest_confidence_collector, "endpoint_security");
 
         let es_env = batch.observations.get("endpoint_security").unwrap();
@@ -344,6 +342,7 @@ mod tests {
             es_env.confidence.tier,
             ConfidenceTierSnapshot::DegradedPartial
         );
+        assert!(es_env.is_mock);
         assert!(es_env
             .confidence
             .penalty_factors
@@ -390,6 +389,7 @@ mod tests {
 
         assert!(summary.contains("\"total_observations\":16"));
         assert!(summary.contains("\"scan_proves_safe\":false"));
-        assert!(summary.contains("\"mean_confidence\":0.950"));
+        assert!(summary.contains("\"mean_confidence\":0.350"));
+        assert!(summary.contains("\"mock\":true"));
     }
 }

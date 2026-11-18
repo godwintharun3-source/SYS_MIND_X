@@ -5,18 +5,18 @@
  * 1. Zero raw shell or OS process execution.
  * 2. All calls routed through typed ApiRequest / ApiResponse wire envelopes.
  * 3. Mutating operations strictly require a unique idempotency key.
- * 4. Graceful mock fallback when control plane daemon is offline.
+ * 4. Explicit OFFLINE error reporting when control plane daemon is unreachable.
+ * 5. Zero fake success responses: approvals and state changes require backend confirmation.
  */
 
-import {
+import type {
   ApiRequest,
   ApiResponse,
   SystemSensorMetrics,
   DigitalTwinSummary,
   AuditRecordSummary,
-  GovernanceActionRequest,
   FileTrustState,
-} from "../types/api";
+} from "../types/api.ts";
 
 export class SystemMindApiClient {
   private baseUrl: string;
@@ -53,11 +53,10 @@ export class SystemMindApiClient {
   /**
    * Helper to generate a client-side UUIDv4 idempotency key.
    */
-  private generateUuid(): string {
+  public generateUuid(): string {
     if (typeof crypto !== "undefined" && crypto.randomUUID) {
       return crypto.randomUUID();
     }
-    // Deterministic fallback for environments without crypto.randomUUID
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
       const r = (Math.random() * 16) | 0;
       const v = c === "x" ? r : (r & 0x3) | 0x8;
@@ -85,7 +84,26 @@ export class SystemMindApiClient {
   }
 
   /**
-   * Fetch live sensor metrics from the Rust broker or mock telemetry adapter.
+   * Constructs an RFC 7807 structured error envelope when backend is unreachable.
+   */
+  private createOfflineErrorEnvelope<T>(message: string): ApiResponse<T> {
+    const nowIso = new Date().toISOString();
+    return {
+      version: "1.0.0",
+      request_id: this.generateUuid(),
+      timestamp: nowIso,
+      status: "error",
+      error: {
+        code: "E7001",
+        message,
+        timestamp: nowIso,
+      },
+      execution_duration_ms: 0,
+    };
+  }
+
+  /**
+   * Fetch live sensor metrics from the control plane daemon.
    */
   async getSensorMetrics(): Promise<ApiResponse<SystemSensorMetrics>> {
     try {
@@ -96,31 +114,16 @@ export class SystemMindApiClient {
       if (response.ok) {
         return (await response.json()) as ApiResponse<SystemSensorMetrics>;
       }
+      return this.createOfflineErrorEnvelope(`Daemon returned HTTP ${response.status}`);
     } catch {
-      // Offline fallback: Return safe mock telemetry
+      return this.createOfflineErrorEnvelope(
+        `Control plane daemon unreachable at ${this.baseUrl}. Backend connection is OFFLINE.`
+      );
     }
-
-    return {
-      version: "1.0.0",
-      request_id: this.generateUuid(),
-      timestamp: new Date().toISOString(),
-      status: "success",
-      data: {
-        cpu_usage_pct: 12.4,
-        memory_used_mb: 2048,
-        memory_total_mb: 16384,
-        active_processes: 142,
-        quarantined_files_count: 2,
-        broker_connected: true,
-        mock_mode: true,
-        last_sampled: new Date().toISOString(),
-      },
-      execution_duration_ms: 1,
-    };
   }
 
   /**
-   * Fetch Digital Twin state summary.
+   * Fetch Digital Twin state summary from the control plane daemon.
    */
   async getDigitalTwinState(): Promise<ApiResponse<DigitalTwinSummary>> {
     try {
@@ -131,24 +134,12 @@ export class SystemMindApiClient {
       if (response.ok) {
         return (await response.json()) as ApiResponse<DigitalTwinSummary>;
       }
+      return this.createOfflineErrorEnvelope(`Daemon returned HTTP ${response.status}`);
     } catch {
-      // Offline fallback
+      return this.createOfflineErrorEnvelope(
+        `Control plane daemon unreachable at ${this.baseUrl}. Backend connection is OFFLINE.`
+      );
     }
-
-    return {
-      version: "1.0.0",
-      request_id: this.generateUuid(),
-      timestamp: new Date().toISOString(),
-      status: "success",
-      data: {
-        node_count: 384,
-        edge_count: 812,
-        temporal_epoch: 29,
-        is_consistent: true,
-        unresolved_drift: false,
-      },
-      execution_duration_ms: 1,
-    };
   }
 
   /**
@@ -156,30 +147,34 @@ export class SystemMindApiClient {
    * SC-03: Re-emphasizes Scan != Safe.
    */
   async inspectFileTrust(filePath: string): Promise<ApiResponse<{ path: string; state: FileTrustState; reason: string }>> {
-    return {
-      version: "1.0.0",
-      request_id: this.generateUuid(),
-      timestamp: new Date().toISOString(),
-      status: "success",
-      data: {
-        path: filePath,
-        state: "QUARANTINED",
-        reason: "Untrusted external payload; quarantine enforced until provenance and micro-VM verification complete.",
-      },
-      execution_duration_ms: 2,
-    };
+    try {
+      const response = await fetch(`${this.baseUrl}/filetrust/inspect`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: filePath }),
+      });
+      if (response.ok) {
+        return (await response.json()) as ApiResponse<{ path: string; state: FileTrustState; reason: string }>;
+      }
+      return this.createOfflineErrorEnvelope(`Daemon returned HTTP ${response.status}`);
+    } catch {
+      return this.createOfflineErrorEnvelope(
+        `Control plane daemon unreachable at ${this.baseUrl}. File trust inspector is OFFLINE.`
+      );
+    }
   }
 
   /**
    * Mutating operation: Submit an operator governance approval verdict.
    * Strictly enforces idempotency_key requirement.
+   * Never returns success when backend is offline.
    */
   async submitGovernanceApproval(
     actionId: string,
     approved: boolean,
     justification: string,
     idempotencyKey?: string
-  ): Promise<ApiResponse<{ action_id: string; verdict: string; recorded_at: string }>> {
+  ): Promise<ApiResponse<{ action_id: string; verdict: string; recorded_at: string; sequence_id?: number }>> {
     const key = idempotencyKey || this.generateUuid();
 
     const requestPayload = {
@@ -198,60 +193,42 @@ export class SystemMindApiClient {
       const response = await fetch(`${this.baseUrl}/governance/approvals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(envelope),
+        body: JSON.stringify({
+          ...envelope,
+          idempotency_key: key,
+        }),
       });
       if (response.ok) {
-        return (await response.json()) as ApiResponse<{ action_id: string; verdict: string; recorded_at: string }>;
+        return (await response.json()) as ApiResponse<{ action_id: string; verdict: string; recorded_at: string; sequence_id?: number }>;
       }
+      return this.createOfflineErrorEnvelope(
+        `Governance submission rejected by daemon with HTTP ${response.status}`
+      );
     } catch {
-      // Fallback
+      return this.createOfflineErrorEnvelope(
+        "Governance submission failed: backend daemon is OFFLINE. Operations cannot be approved without backend confirmation."
+      );
     }
-
-    return {
-      version: "1.0.0",
-      request_id: envelope.request_id,
-      timestamp: new Date().toISOString(),
-      status: "success",
-      data: {
-        action_id: actionId,
-        verdict: approved ? "APPROVED" : "REJECTED",
-        recorded_at: new Date().toISOString(),
-      },
-      execution_duration_ms: 4,
-    };
   }
 
   /**
-   * Retrieve tamper-evident audit ledger entries.
+   * Retrieve tamper-evident audit ledger entries from the daemon.
    */
   async getAuditLedger(): Promise<ApiResponse<AuditRecordSummary[]>> {
-    return {
-      version: "1.0.0",
-      request_id: this.generateUuid(),
-      timestamp: new Date().toISOString(),
-      status: "success",
-      data: [
-        {
-          sequence_id: 104,
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          actor: "system:broker",
-          action_name: "sensor.quarantine_untrusted_file",
-          status: "EXECUTED",
-          sha256_hash: "a4f8c9d2e1b30567f890123456789abcdef0123456789abcdef0123456789abc",
-          previous_hash: "f3e2d1c0b9a80765e432109876543210fedcba9876543210fedcba9876543210",
-        },
-        {
-          sequence_id: 105,
-          timestamp: new Date(Date.now() - 1800000).toISOString(),
-          actor: "operator:console",
-          action_name: "governance.evaluate_component_boundary",
-          status: "AUTHORIZED",
-          sha256_hash: "b5e9d3c1a2f41678e90123456789abcdef0123456789abcdef0123456789abd",
-          previous_hash: "a4f8c9d2e1b30567f890123456789abcdef0123456789abcdef0123456789abc",
-        },
-      ],
-      execution_duration_ms: 2,
-    };
+    try {
+      const response = await fetch(`${this.baseUrl}/audit/ledger`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (response.ok) {
+        return (await response.json()) as ApiResponse<AuditRecordSummary[]>;
+      }
+      return this.createOfflineErrorEnvelope(`Daemon returned HTTP ${response.status}`);
+    } catch {
+      return this.createOfflineErrorEnvelope(
+        `Control plane daemon unreachable at ${this.baseUrl}. Audit ledger is OFFLINE.`
+      );
+    }
   }
 }
 

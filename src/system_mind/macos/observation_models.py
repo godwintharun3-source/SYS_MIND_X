@@ -87,6 +87,7 @@ class ObservedTelemetryEnvelope(Generic[T]):
     unavailable_telemetry: List[str] = field(default_factory=list)
     scan_proves_safe: bool = False  # Mandatory non-negotiable charter invariant
     is_mock: bool = False
+    observation_status: str = "ACTUAL"  # ACTUAL, MOCK, DEGRADED, UNSUPPORTED
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert observation envelope to JSON-serializable dictionary."""
@@ -103,6 +104,7 @@ class ObservedTelemetryEnvelope(Generic[T]):
             "unavailable_telemetry": list(self.unavailable_telemetry),
             "scan_proves_safe": self.scan_proves_safe,
             "is_mock": self.is_mock,
+            "observation_status": self.observation_status,
         }
 
     def to_json(self) -> str:

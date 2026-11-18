@@ -2,12 +2,19 @@
 
 pub mod crypto;
 pub mod error;
+pub mod identity;
 pub mod logging;
 pub mod secret;
 pub mod types;
 
 pub use crypto::compute_payload_fingerprint;
 pub use error::{BrokerError, ErrorCode, ErrorCodeCategory};
+pub use identity::{
+    generate_app_urn, generate_cpu_urn, generate_file_urn, generate_host_urn, generate_kernel_urn,
+    generate_memory_urn, generate_network_interface_urn, generate_package_urn,
+    generate_process_urn, generate_service_urn, generate_storage_volume_urn, validate_entity_urn,
+    EntityDomain, EntityUrn,
+};
 pub use logging::StructuredLogRecord;
 pub use secret::SecretValue;
 pub use types::{

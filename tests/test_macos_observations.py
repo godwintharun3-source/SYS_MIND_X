@@ -179,15 +179,18 @@ def test_mock_batch_profiles() -> None:
     # High fidelity
     high = engine.collect_batch(use_mock=True, profile="high_fidelity")
     assert high.total_observations == len(CORE_COLLECTORS)
-    assert high.mean_confidence >= 0.90
     assert high.scan_proves_safe is False
-    assert high.is_mock is False
+    assert high.is_mock is True
+    assert all(env.is_mock for env in high.observations.values())
+    assert all(env.confidence.tier != ConfidenceTier.KERNEL_AUTHORITATIVE for env in high.observations.values())
 
     # Degraded
     degraded = engine.collect_batch(use_mock=True, profile="degraded")
     assert degraded.total_observations == len(CORE_COLLECTORS)
-    assert degraded.observations["battery"].confidence.tier == ConfidenceTier.HEURISTIC_PARSED
-    assert degraded.observations["endpoint_security"].confidence.tier == ConfidenceTier.HEURISTIC_PARSED
+    assert degraded.is_mock is True
+    assert all(env.is_mock for env in degraded.observations.values())
+    assert degraded.observations["battery"].confidence.tier != ConfidenceTier.KERNEL_AUTHORITATIVE
+    assert degraded.observations["endpoint_security"].confidence.tier != ConfidenceTier.KERNEL_AUTHORITATIVE
 
     # Mock simulation
     sim = engine.collect_batch(use_mock=True, profile="mock_simulation")
@@ -199,6 +202,7 @@ def test_mock_batch_profiles() -> None:
     unsupported = engine.collect_batch(use_mock=True, profile="unsupported")
     assert unsupported.is_mock is True
     assert unsupported.mean_confidence <= 0.20
+    assert unsupported.observations["cpu"].observation_status == "UNSUPPORTED"
 
 
 def test_cli_execution_and_flags() -> None:
@@ -209,7 +213,7 @@ def test_cli_execution_and_flags() -> None:
     assert proc.returncode == 0
     data = json.loads(proc.stdout)
     assert data["total_observations"] == 16
-    assert data["mean_confidence"] >= 0.90
+    assert data["is_mock"] is True
     assert data["scan_proves_safe"] is False
 
     # Test --mock --collector cpu
@@ -217,7 +221,7 @@ def test_cli_execution_and_flags() -> None:
     proc = subprocess.run(cmd_single, capture_output=True, text=True, check=False)
     assert proc.returncode == 0
     assert "Collector ID:          cpu" in proc.stdout
-    assert "KERNEL_AUTHORITATIVE" in proc.stdout
+    assert "ESTIMATED_MOCK" in proc.stdout
     assert "Scan Proves Safe:      False" in proc.stdout
 
     # Test invalid collector
@@ -231,7 +235,7 @@ def test_cli_execution_and_flags() -> None:
     proc = subprocess.run(cmd_table, capture_output=True, text=True, check=False)
     assert proc.returncode == 0
     assert "Observation Provenance & Confidence Report" in proc.stdout
-    assert "mach_continuous_time" in proc.stdout
+    assert "mock_clock" in proc.stdout
 
 
 def test_packaging_validator() -> None:

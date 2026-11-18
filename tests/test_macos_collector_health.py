@@ -142,6 +142,44 @@ def test_collector_timeout_execution() -> None:
     assert res_slow.health.consecutive_failures == 1
 
 
+def test_collector_timeout_non_blocking_containment() -> None:
+    """Verify that a hanging collector never blocks ThreadPoolExecutor shutdown or parent caller."""
+    manager = CollectorHealthManager(default_timeout_seconds=0.05)
+
+    def hanging_fn() -> str:
+        time.sleep(2.0)
+        return "finished"
+
+    start_t = time.perf_counter()
+    res = manager.execute_collector("hanging_collector", hanging_fn, timeout_seconds=0.05)
+    elapsed_s = time.perf_counter() - start_t
+
+    # Must return immediately after timeout without waiting 2.0s
+    assert elapsed_s < 0.35, f"Timeout execution blocked for {elapsed_s:.3f}s"
+    assert res.health.status == CollectorStatus.TIMED_OUT
+    assert res.health.partial_data is True
+    assert PartialDataReason.TIMEOUT in res.health.partial_reasons
+
+
+def test_total_aggregation_deadline_bounding() -> None:
+    """Verify that total_aggregation_deadline bounds multi-collector execution and preserves partial results."""
+    manager = CollectorHealthManager(default_timeout_seconds=0.1)
+
+    start_t = time.perf_counter()
+    # Execute with tight total deadline
+    report = manager.collect_all_telemetry(
+        use_mock=False,
+        total_aggregation_deadline_seconds=0.01,
+    )
+    elapsed_s = time.perf_counter() - start_t
+
+    assert elapsed_s < 1.0, f"Total aggregation exceeded deadline: {elapsed_s:.3f}s"
+    assert report.scan_proves_safe is False
+    assert report.total_collectors == len(CORE_COLLECTORS)
+    assert report.timed_out_count > 0
+    assert report.partial_data_present is True
+
+
 def test_circuit_breaker_transition_and_reset() -> None:
     """Verify circuit breaker trips after consecutive failures and resets cleanly."""
     manager = CollectorHealthManager(default_timeout_seconds=0.05, max_consecutive_failures=2)

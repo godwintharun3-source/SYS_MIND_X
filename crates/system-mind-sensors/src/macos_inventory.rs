@@ -107,6 +107,156 @@ pub trait MacOsInventoryProvider {
     fn is_mock(&self) -> bool;
 }
 
+#[cfg(target_os = "macos")]
+mod darwin_native {
+    use std::ffi::{CStr, CString};
+    use std::os::raw::{c_char, c_int, c_void};
+
+    extern "C" {
+        fn sysctlbyname(
+            name: *const c_char,
+            oldp: *mut c_void,
+            oldlenp: *mut usize,
+            newp: *const c_void,
+            newlen: usize,
+        ) -> c_int;
+        fn gethostname(name: *mut c_char, len: usize) -> c_int;
+    }
+
+    #[repr(C)]
+    #[derive(Copy, Clone)]
+    pub struct FsId {
+        pub val: [i32; 2],
+    }
+
+    #[repr(C)]
+    pub struct Statfs {
+        pub f_bsize: u32,
+        pub f_iosize: i32,
+        pub f_blocks: u64,
+        pub f_bfree: u64,
+        pub f_bavail: u64,
+        pub f_files: u64,
+        pub f_ffree: u64,
+        pub f_fsid: FsId,
+        pub f_owner: u32,
+        pub f_type: u32,
+        pub f_flags: u32,
+        pub f_fssubtype: u32,
+        pub f_fstypename: [c_char; 16],
+        pub f_mntonname: [c_char; 1024],
+        pub f_mntfromname: [c_char; 1024],
+        pub f_flags_ext: u32,
+        pub f_reserved: [u32; 7],
+    }
+
+    extern "C" {
+        fn statfs(path: *const c_char, buf: *mut Statfs) -> c_int;
+    }
+
+    pub fn get_sysctl_string(name: &str) -> Option<String> {
+        let c_name = CString::new(name).ok()?;
+        let mut len: usize = 0;
+        unsafe {
+            if sysctlbyname(
+                c_name.as_ptr(),
+                std::ptr::null_mut(),
+                &mut len,
+                std::ptr::null(),
+                0,
+            ) != 0
+                || len == 0
+            {
+                return None;
+            }
+            let mut buf = vec![0u8; len];
+            if sysctlbyname(
+                c_name.as_ptr(),
+                buf.as_mut_ptr() as *mut c_void,
+                &mut len,
+                std::ptr::null(),
+                0,
+            ) != 0
+            {
+                return None;
+            }
+            if let Some(pos) = buf.iter().position(|&b| b == 0) {
+                buf.truncate(pos);
+            }
+            String::from_utf8(buf).ok()
+        }
+    }
+
+    pub fn get_sysctl_u32(name: &str) -> Option<u32> {
+        let c_name = CString::new(name).ok()?;
+        let mut val: u32 = 0;
+        let mut len = std::mem::size_of::<u32>();
+        unsafe {
+            if sysctlbyname(
+                c_name.as_ptr(),
+                &mut val as *mut u32 as *mut c_void,
+                &mut len,
+                std::ptr::null(),
+                0,
+            ) == 0
+            {
+                Some(val)
+            } else {
+                None
+            }
+        }
+    }
+
+    pub fn get_sysctl_u64(name: &str) -> Option<u64> {
+        let c_name = CString::new(name).ok()?;
+        let mut val: u64 = 0;
+        let mut len = std::mem::size_of::<u64>();
+        unsafe {
+            if sysctlbyname(
+                c_name.as_ptr(),
+                &mut val as *mut u64 as *mut c_void,
+                &mut len,
+                std::ptr::null(),
+                0,
+            ) == 0
+            {
+                Some(val)
+            } else {
+                None
+            }
+        }
+    }
+
+    pub fn get_native_hostname() -> Option<String> {
+        let mut buf = [0u8; 256];
+        unsafe {
+            if gethostname(buf.as_mut_ptr() as *mut c_char, buf.len()) == 0 {
+                CStr::from_ptr(buf.as_ptr() as *const c_char)
+                    .to_str()
+                    .ok()
+                    .map(|s| s.to_string())
+            } else {
+                None
+            }
+        }
+    }
+
+    pub fn get_root_storage() -> Option<(u64, u64)> {
+        let c_path = CString::new("/").ok()?;
+        let mut buf: Statfs = unsafe { std::mem::zeroed() };
+        unsafe {
+            if statfs(c_path.as_ptr(), &mut buf) == 0 {
+                let bsize = buf.f_bsize as u64;
+                let total = buf.f_blocks.saturating_mul(bsize);
+                let free = buf.f_bavail.saturating_mul(bsize);
+                Some((total, free))
+            } else {
+                None
+            }
+        }
+    }
+}
+
 /// Live Darwin inventory service.
 pub struct MacOsInventoryService;
 
@@ -124,22 +274,67 @@ impl Default for MacOsInventoryService {
 
 impl MacOsInventoryProvider for MacOsInventoryService {
     fn get_summary(&self) -> MacOsInventorySummarySnapshot {
-        MacOsInventorySummarySnapshot {
-            os_version: "14.4.1".to_string(),
-            os_build: "23E224".to_string(),
-            host_name: "MacBook-Air.local".to_string(),
-            architecture: "arm64".to_string(),
-            cpu_model: "Apple M1".to_string(),
-            physical_cores: 8,
-            logical_cores: 8,
-            total_memory_bytes: 8589934592,
-            memory_pressure_pct: 18.5,
-            total_storage_bytes: 245107195904,
-            free_storage_bytes: 142358902784,
-            running_process_count: 245,
-            installed_app_count: 82,
-            mean_confidence: 0.945,
-            overall_health: "HEALTHY".to_string(),
+        #[cfg(target_os = "macos")]
+        {
+            let os_version = darwin_native::get_sysctl_string("kern.osproductversion")
+                .unwrap_or_else(|| "UNAVAILABLE".to_string());
+            let os_build = darwin_native::get_sysctl_string("kern.osversion")
+                .unwrap_or_else(|| "UNAVAILABLE".to_string());
+            let host_name =
+                darwin_native::get_native_hostname().unwrap_or_else(|| "localhost".to_string());
+            let architecture = std::env::consts::ARCH.to_string();
+            let cpu_model = darwin_native::get_sysctl_string("machdep.cpu.brand_string")
+                .or_else(|| darwin_native::get_sysctl_string("hw.model"))
+                .unwrap_or_else(|| "UNAVAILABLE".to_string());
+            let physical_cores = darwin_native::get_sysctl_u32("hw.physicalcpu").unwrap_or(0);
+            let logical_cores = darwin_native::get_sysctl_u32("hw.logicalcpu").unwrap_or(0);
+            let total_memory_bytes = darwin_native::get_sysctl_u64("hw.memsize").unwrap_or(0);
+            let (total_storage_bytes, free_storage_bytes) =
+                darwin_native::get_root_storage().unwrap_or((0, 0));
+
+            let is_available = physical_cores > 0 && total_memory_bytes > 0;
+
+            MacOsInventorySummarySnapshot {
+                os_version,
+                os_build,
+                host_name,
+                architecture,
+                cpu_model,
+                physical_cores,
+                logical_cores,
+                total_memory_bytes,
+                memory_pressure_pct: 0.0,
+                total_storage_bytes,
+                free_storage_bytes,
+                running_process_count: 0,
+                installed_app_count: 0,
+                mean_confidence: if is_available { 0.950 } else { 0.200 },
+                overall_health: if is_available {
+                    "HEALTHY".to_string()
+                } else {
+                    "DEGRADED".to_string()
+                },
+            }
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            MacOsInventorySummarySnapshot {
+                os_version: "UNSUPPORTED".to_string(),
+                os_build: "UNSUPPORTED".to_string(),
+                host_name: "unsupported-host".to_string(),
+                architecture: std::env::consts::ARCH.to_string(),
+                cpu_model: "UNSUPPORTED".to_string(),
+                physical_cores: 0,
+                logical_cores: 0,
+                total_memory_bytes: 0,
+                memory_pressure_pct: 0.0,
+                total_storage_bytes: 0,
+                free_storage_bytes: 0,
+                running_process_count: 0,
+                installed_app_count: 0,
+                mean_confidence: 0.050,
+                overall_health: "UNSUPPORTED".to_string(),
+            }
         }
     }
 
@@ -148,6 +343,8 @@ impl MacOsInventoryProvider for MacOsInventoryService {
         sections: &[InventorySectionSnapshot],
     ) -> MacOsInventoryResponseSnapshot {
         let summary = self.get_summary();
+        let is_unsupported = summary.overall_health == "UNSUPPORTED";
+        let is_mock = is_unsupported || summary.physical_cores == 0;
         let section_names: Vec<String> = if sections.contains(&InventorySectionSnapshot::All) {
             vec![
                 "IDENTITY".to_string(),
@@ -168,14 +365,21 @@ impl MacOsInventoryProvider for MacOsInventoryService {
             timestamp_utc: "2026-11-17T13:00:00Z".to_string(),
             summary,
             sections: section_names,
-            partial_data: false,
+            partial_data: is_unsupported,
             scan_proves_safe: false, // Mandatory non-negotiable charter invariant
-            is_mock: false,
+            is_mock,
         }
     }
 
     fn is_mock(&self) -> bool {
-        false
+        #[cfg(target_os = "macos")]
+        {
+            darwin_native::get_sysctl_u32("hw.physicalcpu").unwrap_or(0) == 0
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            true
+        }
     }
 }
 
@@ -334,5 +538,32 @@ mod tests {
         assert!(inv.partial_data);
         assert_eq!(inv.summary.overall_health, "DEGRADED");
         assert!(!inv.scan_proves_safe);
+    }
+
+    #[test]
+    fn test_live_macos_inventory_service() {
+        let service = MacOsInventoryService::new();
+        let summary = service.get_summary();
+        let inv = service.get_inventory(&[InventorySectionSnapshot::All]);
+
+        assert!(!inv.scan_proves_safe); // Enforce charter invariant
+        assert_eq!(inv.sections.len(), 8);
+
+        #[cfg(target_os = "macos")]
+        {
+            // On Darwin, verify real system values are populated from kernel/sysctl
+            assert!(!summary.architecture.is_empty());
+            assert!(!summary.host_name.is_empty());
+            assert_ne!(summary.os_version, "UNSUPPORTED");
+            assert!(summary.physical_cores > 0);
+            assert!(summary.logical_cores >= summary.physical_cores);
+            assert!(summary.total_memory_bytes > 0);
+            assert_eq!(inv.is_mock, service.is_mock());
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            assert!(service.is_mock());
+            assert_eq!(summary.overall_health, "UNSUPPORTED");
+        }
     }
 }

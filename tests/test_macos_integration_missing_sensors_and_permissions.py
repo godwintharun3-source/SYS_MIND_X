@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import ast
 from pathlib import Path
+import time
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -241,6 +242,76 @@ class TestMacOsIntegrationMissingSensorsAndPermissions(unittest.TestCase):
         self.assertFalse(wire_resp.data["scan_proves_safe"])
 
     # -------------------------------------------------------------------------
+    # Scenario 9: Injected Collector Timeout Fault
+    # -------------------------------------------------------------------------
+    def test_integration_collector_timeout_fault(self) -> None:
+        """Verify observation engine and health manager contain slow/hung collectors within deadline."""
+        mgr = CollectorHealthManager(default_timeout_seconds=0.05)
+        res = mgr.execute_collector(
+            "synthetic_slow_sensor",
+            lambda: [time.sleep(0.3), "delayed_data"][1],
+            timeout_seconds=0.05,
+            fallback_fn=lambda: None,
+        )
+        self.assertEqual(res.health.status, CollectorStatus.TIMED_OUT)
+        self.assertTrue(res.health.partial_data)
+        self.assertIn(PartialDataReason.TIMEOUT, res.health.partial_reasons)
+        self.assertIn("timeout budget", res.health.last_error or "")
+
+        # Verify observation engine scores timed-out collector with degraded confidence
+        engine = MacOsObservationEngine()
+        env = engine.enrich_observation("synthetic_slow_sensor", {"unavailable_telemetry": ["timeout"]}, is_mock=True)
+        self.assertTrue(env.is_mock)
+        self.assertEqual(env.confidence.tier, ConfidenceTier.ESTIMATED_MOCK)
+        self.assertFalse(env.scan_proves_safe)
+
+    # -------------------------------------------------------------------------
+    # Scenario 10: Injected Collector Crash Fault
+    # -------------------------------------------------------------------------
+    def test_integration_collector_crash_fault(self) -> None:
+        """Verify unhandled exceptions in collectors are safely caught and tracked in health records."""
+        mgr = CollectorHealthManager()
+        def faulty_collector() -> None:
+            raise RuntimeError("Kernel IOKit bus communication fault")
+
+        res = mgr.execute_collector("crashing_sensor", faulty_collector, fallback_fn=lambda: "safe_fallback")
+        self.assertEqual(res.health.status, CollectorStatus.FAILED)
+        self.assertEqual(res.data, "safe_fallback")
+        self.assertTrue(res.health.partial_data)
+        self.assertIn(PartialDataReason.COMMAND_ERROR, res.health.partial_reasons)
+        self.assertIn("Kernel IOKit bus communication fault", res.health.last_error or "")
+
+    # -------------------------------------------------------------------------
+    # Scenario 11: Injected Unsupported Sensor Fault
+    # -------------------------------------------------------------------------
+    def test_integration_unsupported_sensor_fault(self) -> None:
+        """Verify unsupported sensors strictly yield ESTIMATED_MOCK tier and is_mock=True."""
+        engine = MacOsObservationEngine()
+        payload = {"status": "UNSUPPORTED", "unavailable_telemetry": ["platform_unsupported"]}
+        env = engine.enrich_observation("linux_only_feature", payload, is_mock=True)
+
+        self.assertTrue(env.is_mock)
+        self.assertEqual(env.observation_status, "UNSUPPORTED")
+        self.assertEqual(env.confidence.tier, ConfidenceTier.ESTIMATED_MOCK)
+        self.assertLessEqual(env.confidence.score, 0.40)
+        self.assertFalse(env.scan_proves_safe)
+
+    # -------------------------------------------------------------------------
+    # Scenario 12: Simultaneous Multi-Fault Never Produces Safe-State
+    # -------------------------------------------------------------------------
+    def test_integration_simultaneous_multi_fault_safe_state(self) -> None:
+        """Verify that simultaneous timeouts, crashes, missing hardware, and permission denials never yield safe-state."""
+        engine = MacOsObservationEngine()
+        batch = engine.collect_batch(use_mock=True, profile="degraded")
+
+        self.assertTrue(batch.is_mock)
+        self.assertFalse(batch.scan_proves_safe)
+        for cid, env in batch.observations.items():
+            self.assertTrue(env.is_mock)
+            self.assertFalse(env.scan_proves_safe)
+            self.assertNotEqual(env.confidence.tier, ConfidenceTier.KERNEL_AUTHORITATIVE)
+
+    # -------------------------------------------------------------------------
     # AST Safety and Packaging Validator
     # -------------------------------------------------------------------------
     def test_integration_ast_safety_sc01(self) -> None:
@@ -264,7 +335,7 @@ class TestMacOsIntegrationMissingSensorsAndPermissions(unittest.TestCase):
         validator = MacOsIntegrationFaultsValidator(root_dir=ROOT_DIR)
         result = validator.audit()
         self.assertTrue(result.valid, f"Integration faults validator failed: {result.issues}")
-        self.assertEqual(result.scenario_count, 8)
+        self.assertEqual(result.scenario_count, 12)
         self.assertTrue(result.integration_test_valid)
         self.assertTrue(result.ast_safety_valid)
         self.assertTrue(result.scenarios_valid)

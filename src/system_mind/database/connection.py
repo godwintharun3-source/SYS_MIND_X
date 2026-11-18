@@ -17,6 +17,7 @@ class DatabaseConfig:
     foreign_keys: bool = True
     wal_mode: bool = True
     busy_timeout_ms: int = 5000
+    check_same_thread: bool = False
 
     @property
     def is_memory(self) -> bool:
@@ -44,6 +45,7 @@ class DatabaseConnectionManager:
             target,
             timeout=cfg.busy_timeout_ms / 1000.0,
             isolation_level=None,
+            check_same_thread=cfg.check_same_thread,
         )
         conn.row_factory = sqlite3.Row
 

@@ -152,5 +152,5 @@ def test_clean_clone_isolated_database_lifecycle():
         assert code == 0, f"Migration verify failed: {err}"
         verify_data = json.loads(out)
         assert verify_data["valid"] is True
-        assert verify_data["applied_count"] == 2
-        assert verify_data["latest_version"] == 2
+        assert verify_data["applied_count"] >= 2
+        assert verify_data["latest_version"] >= 2

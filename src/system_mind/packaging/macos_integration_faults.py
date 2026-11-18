@@ -39,6 +39,10 @@ class MacOsIntegrationFaultsValidator:
         "storage_volume_unmounted",
         "usb_empty_peripherals",
         "multifault_inventory_aggregation",
+        "collector_timeout_fault",
+        "collector_crash_fault",
+        "unsupported_sensor_fault",
+        "simultaneous_multi_fault_safe_state",
     ]
 
     RUST_SENSOR_FILES = [

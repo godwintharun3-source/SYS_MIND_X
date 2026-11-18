@@ -53,6 +53,12 @@ The `tools/` workspace contains developer-facing automation, gate verification s
 | `tools/detect_integration_faults.py` | macOS integration fault tests & permission denials auditor | `python3 tools/detect_integration_faults.py` |
 | `tools/detect_collector_stability.py` | macOS collector stability, bounded queue & sustained volume auditor | `python3 tools/detect_collector_stability.py` |
 | `tools/detect_permissions.py` | macOS permission prompts, documentation & required entitlements auditor | `python3 tools/detect_permissions.py` |
+| `tools/run_macos_companion.py` | Released read-only macOS companion agent runner, snapshot & milestone auditor | `python3 tools/run_macos_companion.py --snapshot` |
+| `tools/detect_stable_identity.py` | Stable device identifier resolution, digital twin entity URN derivation & packaging auditor | `python3 tools/detect_stable_identity.py --audit` |
+| `tools/detect_database_entities.py` | Digital twin database entity models, schema migration & packaging auditor | `python3 tools/detect_database_entities.py --audit` |
+| `tools/detect_graph_persistence.py` | Digital twin graph-node & graph-edge persistence models, roundtrip & packaging auditor | `python3 tools/detect_graph_persistence.py --audit` |
+| `tools/detect_system_observations.py` | Timestamped system observation records, temporal querying, state reconstruction & packaging auditor | `python3 tools/detect_system_observations.py --audit` |
+| `tools/detect_system_events.py` | Append-only system event storage, cryptographic hash chaining, trigger immutability & packaging auditor | `python3 tools/detect_system_events.py --audit` |
 | `tools/migrate.py` | SQLite database migration & integrity auditor | `python3 tools/migrate.py status` |
 | `tools/test_runner.py` | Unified polyglot test orchestrator (Pytest, Cargo, Vitest) | `python3 tools/test_runner.py --all` |
 | `tools/lint.py` | AST zero-ambient-shell checker & multi-tier static linter | `python3 tools/lint.py` |

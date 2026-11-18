@@ -55,10 +55,14 @@ def split_sql_statements(script: str) -> list[str]:
                     continue
                 in_string = False
         if char == ";" and not in_string:
-            stmt = "".join(current).strip()
-            if stmt:
-                statements.append(stmt)
-            current = []
+            candidate = "".join(current).strip() + ";"
+            if sqlite3.complete_statement(candidate):
+                stmt = "".join(current).strip()
+                if stmt:
+                    statements.append(stmt)
+                current = []
+            else:
+                current.append(char)
         else:
             current.append(char)
         i += 1

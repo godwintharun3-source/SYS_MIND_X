@@ -173,8 +173,14 @@ class MacOsObservationsValidator:
 
         # Test degraded profile
         degraded = engine.collect_batch(use_mock=True, profile="degraded")
-        if degraded.observations["battery"].confidence.tier != ConfidenceTier.HEURISTIC_PARSED:
-            issues.append("Degraded battery did not reflect hardware absence penalty")
+        if not degraded.is_mock:
+            issues.append("Degraded mock batch must flag is_mock=True")
+            valid = False
+        if degraded.observations["battery"].confidence.tier == ConfidenceTier.KERNEL_AUTHORITATIVE:
+            issues.append("Degraded mock battery must never be KERNEL_AUTHORITATIVE")
+            valid = False
+        if degraded.observations["battery"].confidence.score > 0.40:
+            issues.append("Degraded mock battery did not reflect hardware absence penalty")
             valid = False
 
         # Test mock_simulation profile

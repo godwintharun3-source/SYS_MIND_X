@@ -100,11 +100,12 @@ class CollectorHealthManager:
             fallback_data = fallback_fn() if fallback_fn else None
             return CollectorResult(data=fallback_data, health=health)
 
-        # Execute with timeout via ThreadPoolExecutor
+        # Execute with timeout via ThreadPoolExecutor with non-blocking shutdown
+        executor = ThreadPoolExecutor(max_workers=1)
         try:
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(collector_fn)
-                data = future.result(timeout=effective_timeout)
+            future = executor.submit(collector_fn)
+            data = future.result(timeout=effective_timeout)
+            executor.shutdown(wait=False)
 
             elapsed_ms = (time.perf_counter() - start_time) * 1000.0
             now_iso = datetime.now(timezone.utc).isoformat()
@@ -158,6 +159,7 @@ class CollectorHealthManager:
             return CollectorResult(data=data, health=health)
 
         except FuturesTimeoutError:
+            executor.shutdown(wait=False, cancel_futures=True)
             elapsed_ms = (time.perf_counter() - start_time) * 1000.0
             self._consecutive_failures[collector_id] = self._consecutive_failures.get(collector_id, 0) + 1
             health = CollectorHealthRecord(
@@ -176,6 +178,7 @@ class CollectorHealthManager:
             return CollectorResult(data=fallback_data, health=health)
 
         except Exception as e:
+            executor.shutdown(wait=False, cancel_futures=True)
             elapsed_ms = (time.perf_counter() - start_time) * 1000.0
             self._consecutive_failures[collector_id] = self._consecutive_failures.get(collector_id, 0) + 1
             health = CollectorHealthRecord(
@@ -197,8 +200,9 @@ class CollectorHealthManager:
         self,
         use_mock: bool = False,
         profile: str = "healthy",
+        total_aggregation_deadline_seconds: Optional[float] = 10.0,
     ) -> CompanionHealthReport:
-        """Run or aggregate telemetry collection across all 16 core macOS collectors."""
+        """Run or aggregate telemetry collection across all 16 core macOS collectors with total deadline."""
         now_iso = datetime.now(timezone.utc).isoformat()
 
         if use_mock:
@@ -208,46 +212,68 @@ class CollectorHealthManager:
             return self._generate_mock_report(profile="unsupported", timestamp=now_iso)
 
         # Lazy imports of underlying detectors
-        from system_mind.macos.app_detector import MacOsAppDetector
-        from system_mind.macos.battery_detector import MacOsBatteryDetector
-        from system_mind.macos.cpu_detector import MacOsCpuDetector
-        from system_mind.macos.detector import MacOsIdentityDetector
-        from system_mind.macos.endpoint_security_detector import MacOsEndpointSecurityDetector
-        from system_mind.macos.fsevents_detector import MacOsFsEventsDetector
-        from system_mind.macos.gpu_detector import MacOsGpuDetector
-        from system_mind.macos.memory_detector import MacOsMemoryDetector
-        from system_mind.macos.network_detector import MacOsNetworkDetector
-        from system_mind.macos.process_detector import MacOsProcessDetector
-        from system_mind.macos.services_detector import MacOsServicesDetector
-        from system_mind.macos.signature_detector import MacOsSignatureDetector
-        from system_mind.macos.storage_detector import MacOsStorageDetector
+        from system_mind.macos.app_detector import MacAppDetector
+        from system_mind.macos.battery_detector import MacBatteryDetector
+        from system_mind.macos.cpu_detector import MacCpuHardwareDetector
+        from system_mind.macos.detector import MacOSIdentityDetector
+        from system_mind.macos.endpoint_security_detector import MacEndpointSecurityDetector
+        from system_mind.macos.fsevents_detector import MacFsEventsDetector
+        from system_mind.macos.gpu_detector import MacGpuDetector
+        from system_mind.macos.memory_detector import MacMemoryDetector
+        from system_mind.macos.network_detector import MacNetworkDetector
+        from system_mind.macos.process_detector import MacProcessDetector
+        from system_mind.macos.services_detector import MacServicesDetector
+        from system_mind.macos.signature_detector import MacAppSignatureDetector
+        from system_mind.macos.storage_detector import MacStorageDetector
         from system_mind.macos.swift_bridge import MacSwiftBridge
         from system_mind.macos.agent_service_detector import MacUserAgentServiceManager
-        from system_mind.macos.usb_detector import MacOsUsbDetector
+        from system_mind.macos.usb_detector import MacUsbDetector
 
         collectors_map: Dict[str, Callable[[], Any]] = {
-            "identity": lambda: MacOsIdentityDetector().detect(),
-            "cpu": lambda: MacOsCpuDetector().detect(),
-            "memory": lambda: MacOsMemoryDetector().detect(),
-            "storage": lambda: MacOsStorageDetector().detect(),
-            "battery": lambda: MacOsBatteryDetector().detect(),
-            "network": lambda: MacOsNetworkDetector().detect(),
-            "gpu": lambda: MacOsGpuDetector().detect(),
-            "usb": lambda: MacOsUsbDetector().detect(),
-            "processes": lambda: MacOsProcessDetector().detect(),
-            "services": lambda: MacOsServicesDetector().detect(),
-            "apps": lambda: MacOsAppDetector().detect(),
-            "signatures": lambda: MacOsSignatureDetector().detect(),
-            "fsevents": lambda: MacOsFsEventsDetector().detect(),
-            "endpoint_security": lambda: MacOsEndpointSecurityDetector().detect(),
+            "identity": lambda: MacOSIdentityDetector.detect(),
+            "cpu": lambda: MacCpuHardwareDetector.detect(),
+            "memory": lambda: MacMemoryDetector.detect(),
+            "storage": lambda: MacStorageDetector.detect(),
+            "battery": lambda: MacBatteryDetector().detect(),
+            "network": lambda: MacNetworkDetector().detect(),
+            "gpu": lambda: MacGpuDetector().detect(),
+            "usb": lambda: MacUsbDetector().detect(),
+            "processes": lambda: MacProcessDetector().detect(),
+            "services": lambda: MacServicesDetector().detect(),
+            "apps": lambda: MacAppDetector().detect(),
+            "signatures": lambda: MacAppSignatureDetector().detect(),
+            "fsevents": lambda: MacFsEventsDetector().detect(),
+            "endpoint_security": lambda: MacEndpointSecurityDetector().detect(),
             "swift_bridge": lambda: MacSwiftBridge().collect(),
-            "user_agent": lambda: MacUserAgentServiceManager().get_status(),
+            "user_agent": lambda: MacUserAgentServiceManager().inspect_service(),
         }
 
         records: Dict[str, CollectorHealthRecord] = {}
+        total_start = time.perf_counter()
 
         for c_id, c_fn in collectors_map.items():
-            result = self.execute_collector(c_id, c_fn)
+            if total_aggregation_deadline_seconds is not None:
+                elapsed_total = time.perf_counter() - total_start
+                remaining = total_aggregation_deadline_seconds - elapsed_total
+                if remaining <= 0.0:
+                    records[c_id] = CollectorHealthRecord(
+                        collector_id=c_id,
+                        status=CollectorStatus.TIMED_OUT,
+                        latency_ms=0.0,
+                        timeout_seconds=self.default_timeout_seconds,
+                        consecutive_failures=self._consecutive_failures.get(c_id, 0) + 1,
+                        last_success_timestamp=self._last_success.get(c_id),
+                        last_error=f"Total aggregation deadline of {total_aggregation_deadline_seconds:.2f}s exceeded",
+                        partial_data=True,
+                        partial_reasons=[PartialDataReason.TIMEOUT],
+                        unavailable_fields=[f"{c_id}_aggregation_timeout"],
+                    )
+                    continue
+                collector_timeout = min(self.default_timeout_seconds, remaining)
+            else:
+                collector_timeout = self.default_timeout_seconds
+
+            result = self.execute_collector(c_id, c_fn, timeout_seconds=collector_timeout)
             records[c_id] = result.health
 
         healthy_cnt = sum(1 for r in records.values() if r.status == CollectorStatus.HEALTHY)
