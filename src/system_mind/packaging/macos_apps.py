@@ -222,7 +222,7 @@ class MacOsAppValidator:
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=5,
+                timeout=15.0,
                 check=False,
             )
             if res.returncode != 0:

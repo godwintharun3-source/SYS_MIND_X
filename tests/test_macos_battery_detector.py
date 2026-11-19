@@ -144,7 +144,7 @@ def test_detect_battery_cli_execution():
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15,
     )
     assert proc.returncode == 0, f"CLI mock failed: {proc.stderr}"
     data = json.loads(proc.stdout)
@@ -162,7 +162,7 @@ def test_detect_battery_cli_execution():
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15,
     )
     assert proc_human.returncode == 0
     assert "SYSTEM MIND X — macOS Battery State & Health Telemetry" in proc_human.stdout

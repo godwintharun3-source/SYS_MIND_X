@@ -164,7 +164,7 @@ class MacOsBatteryValidator:
 
         try:
             cmd = [sys.executable, str(self.cli_path), "--mock", "--json"]
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=5.0, check=False)
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=15.0, check=False)
             if proc.returncode != 0:
                 issues.append(f"Battery CLI returned non-zero exit code {proc.returncode}: {proc.stderr}")
                 return False

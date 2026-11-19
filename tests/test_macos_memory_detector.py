@@ -189,7 +189,7 @@ def test_detect_memory_cli_execution():
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15.0,
     )
     assert proc.returncode == 0, f"CLI mock failed: {proc.stderr}"
     data = json.loads(proc.stdout)
@@ -204,7 +204,7 @@ def test_detect_memory_cli_execution():
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15.0,
     )
     assert proc_pressure.returncode == 0
 

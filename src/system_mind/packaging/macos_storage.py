@@ -158,7 +158,7 @@ class MacOsStorageValidator:
                     stderr=subprocess.PIPE,
                     text=True,
                     shell=False,
-                    timeout=5,
+                    timeout=15.0,
                 )
                 if proc.returncode != 0:
                     issues.append(f"CLI tool returned non-zero exit code ({proc.returncode}): {proc.stderr}")

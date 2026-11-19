@@ -197,6 +197,8 @@ def _process_results(pipeline_name: str, results: list[dict[str, Any]], json_mod
     for r in results:
         if r["exit_code"] != 0:
             print(f"\n[!] Failure in stage '{r['stage']}':")
+            if "stdout" in r and r["stdout"]:
+                print(r["stdout"])
             if "stderr" in r and r["stderr"]:
                 print(r["stderr"])
             elif "issues" in r and r["issues"]:

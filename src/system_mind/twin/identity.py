@@ -262,3 +262,10 @@ def validate_entity_urn(urn_string: str) -> bool:
         return True
     except Exception:
         return False
+
+
+def create_entity_urn(domain: EntityDomain | str, qualifier: str) -> str:
+    """Creates a canonical System Mind entity URN from a domain and qualifier."""
+    dom = domain.value if isinstance(domain, EntityDomain) else str(domain).lower().strip()
+    clean_qual = qualifier.strip()
+    return f"urn:systemmind:{dom}:{clean_qual}"

@@ -293,7 +293,7 @@ def test_detect_network_cli_execution() -> None:
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15.0,
     )
     assert proc.returncode == 0, f"CLI mock failed: {proc.stderr}"
     data = json.loads(proc.stdout)
@@ -309,7 +309,7 @@ def test_detect_network_cli_execution() -> None:
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15.0,
     )
     assert proc_human.returncode == 0
     assert "SYSTEM MIND X — macOS Network Interfaces & Connectivity Telemetry" in proc_human.stdout
@@ -321,7 +321,7 @@ def test_detect_network_cli_execution() -> None:
         capture_output=True,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15.0,
     )
     assert proc_assert_online.returncode == 0
 
@@ -330,7 +330,7 @@ def test_detect_network_cli_execution() -> None:
         capture_output=True,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15.0,
     )
     assert proc_assert_iface.returncode == 0
 

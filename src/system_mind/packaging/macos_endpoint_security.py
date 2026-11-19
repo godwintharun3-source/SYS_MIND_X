@@ -191,7 +191,7 @@ class MacOsEndpointSecurityValidator:
         # Verify CLI execution with --mock and --json
         cmd = [sys.executable, str(self.cli_path), "--mock", "--json"]
         try:
-            res = subprocess.run(cmd, capture_output=True, text=True, timeout=5.0, check=False)
+            res = subprocess.run(cmd, capture_output=True, text=True, timeout=15.0, check=False)
             if res.returncode != 0:
                 issues.append(f"CLI invocation exited with non-zero code {res.returncode}: {res.stderr}")
             else:

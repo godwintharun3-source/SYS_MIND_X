@@ -1,6 +1,6 @@
 # Active Blockers
 
-No immediate blocking technical failures for Milestone 5: Temporal digital twin and event history (Days 066-090). Day 070 (Implement append-only system event storage) is fully implemented and tested with 766 passed tests, awaiting human review.
+No immediate blocking technical failures for Milestone 5: Temporal digital twin and event history (Days 066-090). Day 078 (Track file creation and modification events from monitored roots) is fully implemented and tested with 842 passed tests, awaiting human review.
 
 ## Environment Prerequisites Log (Upcoming Phases)
 - **Item:** Nix (`nix`) and QEMU (`qemu-system-aarch64`, `qemu-system-x86_64`) are not currently installed on the host.

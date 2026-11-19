@@ -35,6 +35,16 @@ class DigitalTwinGraph:
         """Return the number of relationships in the graph."""
         return len(self._relationships)
 
+    @property
+    def entities(self) -> Dict[str, TwinEntity]:
+        """Return all entities in the graph indexed by ID."""
+        return self._entities
+
+    @property
+    def relationships(self) -> Dict[str, TwinRelationship]:
+        """Return all relationships in the graph indexed by ID."""
+        return self._relationships
+
     def add_entity(self, entity: TwinEntity) -> None:
         """Add an entity to the digital twin graph after validating invariants."""
         violations = TwinEntityValidator.validate_entity(entity)

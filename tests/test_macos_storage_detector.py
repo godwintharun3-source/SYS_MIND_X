@@ -159,7 +159,7 @@ def test_detect_storage_cli_execution():
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15,
     )
     assert proc.returncode == 0, f"CLI mock failed: {proc.stderr}"
     data = json.loads(proc.stdout)
@@ -175,7 +175,7 @@ def test_detect_storage_cli_execution():
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15,
     )
     assert proc_space_pass.returncode == 0
 
@@ -186,7 +186,7 @@ def test_detect_storage_cli_execution():
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15,
     )
     assert proc_space_fail.returncode == 1
     assert "Precondition Failed" in proc_space_fail.stderr

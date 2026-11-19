@@ -134,6 +134,7 @@ def test_detect_macos_cli_execution():
         capture_output=True,
         text=True,
         check=True,
+        timeout=20,
     )
     data = json.loads(proc.stdout)
     assert data["collection_method"] == "MOCK_PLATFORM_ADAPTER"
@@ -146,6 +147,7 @@ def test_detect_macos_cli_execution():
         capture_output=True,
         text=True,
         check=True,
+        timeout=20,
     )
     assert "macOS Companion Agent" in proc_strict.stdout
 

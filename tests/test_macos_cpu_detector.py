@@ -163,7 +163,7 @@ def test_detect_cpu_cli_execution():
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15.0,
     )
     assert proc.returncode == 0, f"CLI mock failed: {proc.stderr}"
     data = json.loads(proc.stdout)
@@ -180,7 +180,7 @@ def test_detect_cpu_cli_execution():
         stderr=subprocess.PIPE,
         text=True,
         shell=False,
-        timeout=5,
+        timeout=15.0,
     )
     assert proc_strict.returncode == 0
 

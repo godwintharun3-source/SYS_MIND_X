@@ -257,7 +257,7 @@ def test_cli_execution_modes() -> None:
         [sys.executable, str(CLI_PATH), "--mock", "--summary"],
         capture_output=True,
         text=True,
-        timeout=5,
+        timeout=15.0,
         check=False,
     )
     assert res1.returncode == 0
@@ -269,7 +269,7 @@ def test_cli_execution_modes() -> None:
         [sys.executable, str(CLI_PATH), "--mock", "--summary", "--json"],
         capture_output=True,
         text=True,
-        timeout=5,
+        timeout=15.0,
         check=False,
     )
     assert res2.returncode == 0
@@ -282,7 +282,7 @@ def test_cli_execution_modes() -> None:
         [sys.executable, str(CLI_PATH), "--mock", "--section", "hardware"],
         capture_output=True,
         text=True,
-        timeout=5,
+        timeout=15.0,
         check=False,
     )
     assert res3.returncode == 0
@@ -293,7 +293,7 @@ def test_cli_execution_modes() -> None:
         [sys.executable, str(CLI_PATH), "--mock", "--json"],
         capture_output=True,
         text=True,
-        timeout=5,
+        timeout=15.0,
         check=False,
     )
     assert res4.returncode == 0

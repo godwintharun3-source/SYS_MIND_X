@@ -207,7 +207,7 @@ def test_endpoint_security_cli_mock_and_json() -> None:
         [sys.executable, str(CLI_PATH), "--mock", "--json"],
         capture_output=True,
         text=True,
-        timeout=5.0,
+        timeout=15.0,
         check=False,
     )
     assert res.returncode == 0
@@ -222,7 +222,7 @@ def test_endpoint_security_cli_mock_and_json() -> None:
         [sys.executable, str(CLI_PATH), "--mock", "--profile", "entitled_daemon", "--json"],
         capture_output=True,
         text=True,
-        timeout=5.0,
+        timeout=15.0,
         check=False,
     )
     assert res_daemon.returncode == 0
@@ -237,7 +237,7 @@ def test_endpoint_security_cli_mock_and_json() -> None:
         [sys.executable, str(CLI_PATH), "--mock", "--audit-entitlements"],
         capture_output=True,
         text=True,
-        timeout=5.0,
+        timeout=15.0,
         check=False,
     )
     assert res_audit.returncode == 0
@@ -251,7 +251,7 @@ def test_endpoint_security_cli_live_execution() -> None:
         [sys.executable, str(CLI_PATH)],
         capture_output=True,
         text=True,
-        timeout=5.0,
+        timeout=15.0,
         check=False,
     )
     assert res.returncode == 0

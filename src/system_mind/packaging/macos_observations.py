@@ -206,7 +206,7 @@ class MacOsObservationsValidator:
                 [sys.executable, str(self.cli_path), "--mock", "--profile", "degraded", "--json"],
                 capture_output=True,
                 text=True,
-                timeout=5.0,
+                timeout=15.0,
                 check=False,
             )
             if res.returncode != 0:

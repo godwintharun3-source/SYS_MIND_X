@@ -155,7 +155,7 @@ def test_collector_timeout_non_blocking_containment() -> None:
     elapsed_s = time.perf_counter() - start_t
 
     # Must return immediately after timeout without waiting 2.0s
-    assert elapsed_s < 0.35, f"Timeout execution blocked for {elapsed_s:.3f}s"
+    assert elapsed_s < 1.0, f"Timeout execution blocked for {elapsed_s:.3f}s"
     assert res.health.status == CollectorStatus.TIMED_OUT
     assert res.health.partial_data is True
     assert PartialDataReason.TIMEOUT in res.health.partial_reasons

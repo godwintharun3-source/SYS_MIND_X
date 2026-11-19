@@ -59,6 +59,14 @@ The `tools/` workspace contains developer-facing automation, gate verification s
 | `tools/detect_graph_persistence.py` | Digital twin graph-node & graph-edge persistence models, roundtrip & packaging auditor | `python3 tools/detect_graph_persistence.py --audit` |
 | `tools/detect_system_observations.py` | Timestamped system observation records, temporal querying, state reconstruction & packaging auditor | `python3 tools/detect_system_observations.py --audit` |
 | `tools/detect_system_events.py` | Append-only system event storage, cryptographic hash chaining, trigger immutability & packaging auditor | `python3 tools/detect_system_events.py --audit` |
+| `tools/detect_entity_ingestion.py` | Digital twin entity relationship ingestion from collectors, process lineage, app ownership & packaging auditor | `python3 tools/detect_entity_ingestion.py --audit` |
+| `tools/detect_temporal_validity.py` | Digital twin temporal validity intervals, domain TTLs, freshness scoring, stale markers & packaging auditor | `python3 tools/detect_temporal_validity.py --audit` |
+| `tools/detect_state_snapshots.py` | Digital twin point-in-time state snapshots, deterministic digests, topology comparison & packaging auditor | `python3 tools/detect_state_snapshots.py --audit` |
+| `tools/detect_observation_deltas.py` | Consecutive system observation change detection, attribute deltas, semantic classification & packaging auditor | `python3 tools/detect_observation_deltas.py --audit` |
+| `tools/detect_state_reconciliation.py` | System-state reconciliation after collector gaps, temporal healing, confidence discounting & packaging auditor | `python3 tools/detect_state_reconciliation.py --audit` |
+| `tools/detect_application_lifecycle.py` | Application installation, removal & lifecycle tracking, FSEvents mapping, historical reconstruction & packaging auditor | `python3 tools/detect_application_lifecycle.py --audit` |
+| `tools/detect_process_lifecycle.py` | Process start and exit tracking, PID reuse handling, Endpoint Security event mapping & packaging auditor | `python3 tools/detect_process_lifecycle.py --audit` |
+| `tools/detect_file_lifecycle.py` | File creation, modification & deletion tracking from monitored roots, privacy exclusion enforcement & packaging auditor | `python3 tools/detect_file_lifecycle.py --audit` |
 | `tools/migrate.py` | SQLite database migration & integrity auditor | `python3 tools/migrate.py status` |
 | `tools/test_runner.py` | Unified polyglot test orchestrator (Pytest, Cargo, Vitest) | `python3 tools/test_runner.py --all` |
 | `tools/lint.py` | AST zero-ambient-shell checker & multi-tier static linter | `python3 tools/lint.py` |

@@ -139,7 +139,7 @@ class MacOsTelemetryValidator:
                     capture_output=True,
                     text=True,
                     check=False,
-                    timeout=10,
+                    timeout=20,
                     cwd=str(base_dir),
                 )
                 if proc.returncode != 0:

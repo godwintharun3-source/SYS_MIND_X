@@ -1,5 +1,13 @@
 """Packaging, code quality, and dependency configuration models and validation engine."""
 
+from system_mind.packaging.app_lifecycle import (
+    ApplicationLifecycleAuditResult,
+    ApplicationLifecycleValidator,
+)
+from system_mind.packaging.process_lifecycle import (
+    ProcessLifecycleAuditResult,
+    ProcessLifecycleValidator,
+)
 from system_mind.packaging.ci_checks import (
     CiChecksAuditResult,
     CiChecksValidator,
@@ -27,6 +35,14 @@ from system_mind.packaging.dependency_review import (
 from system_mind.packaging.dev_setup import (
     DevSetupAuditResult,
     DevSetupValidator,
+)
+from system_mind.packaging.digital_twin_snapshots import (
+    DigitalTwinSnapshotsAuditResult,
+    DigitalTwinSnapshotsValidator,
+)
+from system_mind.packaging.entity_ingestion import (
+    EntityIngestionAuditResult,
+    EntityIngestionValidator,
 )
 from system_mind.packaging.env_config import (
     EnvironmentConfigAuditResult,
@@ -152,6 +168,14 @@ from system_mind.packaging.models import (
     PackageMetadata,
     PackageVerificationResult,
 )
+from system_mind.packaging.observation_deltas import (
+    ObservationDeltasAuditResult,
+    ObservationDeltasValidator,
+)
+from system_mind.packaging.reconciliation import (
+    StateReconciliationAuditResult,
+    StateReconciliationValidator,
+)
 from system_mind.packaging.rust_workspace import (
     CrateBoundarySpec,
     RustWorkspaceAuditResult,
@@ -169,6 +193,10 @@ from system_mind.packaging.tauri_shell import (
     TauriShellAuditResult,
     TauriShellValidator,
 )
+from system_mind.packaging.temporal_validity import (
+    TemporalValidityAuditResult,
+    TemporalValidityValidator,
+)
 from system_mind.packaging.test_framework import (
     TestFrameworkAuditResult,
     TestFrameworkValidator,
@@ -180,6 +208,8 @@ from system_mind.packaging.twin_identity import (
 from system_mind.packaging.validator import PackageConfigValidator
 
 __all__ = [
+    "ApplicationLifecycleAuditResult",
+    "ApplicationLifecycleValidator",
     "CiChecksAuditResult",
     "CiChecksValidator",
     "CleanBootstrapAuditResult",
@@ -195,6 +225,10 @@ __all__ = [
     "DependencyReviewer",
     "DevSetupAuditResult",
     "DevSetupValidator",
+    "DigitalTwinSnapshotsAuditResult",
+    "DigitalTwinSnapshotsValidator",
+    "EntityIngestionAuditResult",
+    "EntityIngestionValidator",
     "EnvironmentConfigAuditResult",
     "EnvironmentConfigValidator",
     "FrontendScaffoldAuditResult",
@@ -255,17 +289,25 @@ __all__ = [
     "MacOsUserAgentValidator",
     "MockPlatformAuditResult",
     "MockPlatformValidator",
+    "ObservationDeltasAuditResult",
+    "ObservationDeltasValidator",
     "PackageMetadata",
     "PackageVerificationResult",
     "PackageConfigValidator",
+    "ProcessLifecycleAuditResult",
+    "ProcessLifecycleValidator",
     "RustWorkspaceAuditResult",
     "RustWorkspaceValidator",
+    "StateReconciliationAuditResult",
+    "StateReconciliationValidator",
     "SystemEventsAuditResult",
     "SystemEventsValidator",
     "SystemObservationsAuditResult",
     "SystemObservationsValidator",
     "TauriShellAuditResult",
     "TauriShellValidator",
+    "TemporalValidityAuditResult",
+    "TemporalValidityValidator",
     "TestFrameworkAuditResult",
     "TestFrameworkValidator",
     "TwinIdentityAuditResult",
